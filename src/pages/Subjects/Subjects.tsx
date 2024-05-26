@@ -1,3 +1,9 @@
+import { SubjectTable } from "./SubjectTable";
+
 export const Subjects = () => {
-  return <div>Subjects</div>;
+  return (
+    <section>
+      <SubjectTable />
+    </section>
+  );
 };
