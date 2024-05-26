@@ -21,7 +21,7 @@ export const Layout = () => {
         <Header />
 
         <main
-          className="w-full p-2 overflow-auto"
+          className="w-full p-4 overflow-auto"
           style={{ height: "calc(100svh - 80px)" }}
         >
           <Outlet />

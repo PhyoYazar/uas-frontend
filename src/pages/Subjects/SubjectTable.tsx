@@ -151,7 +151,7 @@ export function SubjectTable() {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full">
+    <div className="w-full border border-gray-200 rounded-sm">
       <CustomTable
         data={data}
         columns={columns}
