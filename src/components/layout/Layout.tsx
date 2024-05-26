@@ -1,5 +1,4 @@
 import { Outlet } from "react-router-dom";
-import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 
 export const sidebarWidth = 280;
@@ -18,11 +17,11 @@ export const Layout = () => {
         className="flex-1"
         style={{ width: `calc(100svw - ${sidebarWidth}px)` }}
       >
-        <Header />
+        {/* <Header /> */}
 
         <main
-          className="w-full p-4 overflow-auto"
-          style={{ height: "calc(100svh - 80px)" }}
+          className="w-full h-svh p-8 overflow-auto"
+          // style={{ height: "calc(100svh - 80px)" }}
         >
           <Outlet />
         </main>

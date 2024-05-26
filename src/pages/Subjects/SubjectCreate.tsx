@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -34,6 +35,8 @@ const formSchema = z.object({
 });
 
 export const SubjectCreate = () => {
+  const navigate = useNavigate();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -60,18 +63,23 @@ export const SubjectCreate = () => {
         onClick: () => console.log("Undo"),
       },
     });
+
+    navigate("123");
   }
 
   return (
-    <section className="space-y-8">
-      <Text className="text-xl font-semibold text-center">
-        Creating Subject
-      </Text>
-
-      <FlexBox className="justify-center">
+    <section className="space-y-4">
+      <FlexBox className="">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <div className="w-[800px] rounded-md border border-gray-200 shadow-sm px-4 py-8 max-w-[900px] grid grid-cols-2 gap-x-12 gap-y-8">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-8 w-[800px] rounded-md border border-gray-200 shadow-sm p-4 max-w-[900px]"
+          >
+            <Text className="text-xl font-semibold text-start">
+              Creating Subject
+            </Text>
+
+            <div className="items-start  grid grid-cols-2 gap-x-12 gap-y-8">
               <FormField
                 control={form.control}
                 name="name"

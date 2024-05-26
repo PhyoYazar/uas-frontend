@@ -11,7 +11,7 @@ export const Subjects = () => {
         <Text></Text>
 
         <Link to={"/subject/create"}>
-          <Button>Create</Button>
+          <Button className="w-40">Create</Button>
         </Link>
       </FlexBox>
 

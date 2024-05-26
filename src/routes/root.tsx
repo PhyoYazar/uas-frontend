@@ -3,6 +3,7 @@ import { Dashboard } from "@/pages/Dashboard/Dashboard";
 import { Settings } from "@/pages/Settings/Settings";
 import { Student } from "@/pages/Students/Student";
 import { SubjectDetail } from "@/pages/SubjectDetail/SubjectDetail";
+import { CoGaCreate } from "@/pages/Subjects/CoGaCreate";
 import { SubjectCreate } from "@/pages/Subjects/SubjectCreate";
 import { Subjects } from "@/pages/Subjects/Subjects";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
@@ -20,12 +21,16 @@ const router = createBrowserRouter([
         element: <Subjects />,
       },
       {
+        path: "subject/:subjectId",
+        element: <SubjectDetail />,
+      },
+      {
         path: "subject/create",
         element: <SubjectCreate />,
       },
       {
-        path: "subject/:subjectId",
-        element: <SubjectDetail />,
+        path: "subject/create/:subjectId",
+        element: <CoGaCreate />,
       },
       { path: "student", element: <Student /> },
       { path: "settings", element: <Settings /> },
