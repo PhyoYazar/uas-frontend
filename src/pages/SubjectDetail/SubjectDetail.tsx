@@ -19,15 +19,18 @@ export const SubjectDetail = () => {
 
   return (
     <section className="w-full p-4 space-y-4">
-      <div className="p-4 grid grid-cols-2 gap-6 bg-gray-100 rounded-md border border-gray-200 shadow-sm">
-        <ListItem label="Academic Year" value={"2020-2021"} />
-        <ListItem label="Semester" value={"1"} />
+      <div className="p-4 grid grid-cols-2 gap-x-6 gap-y-4 bg-gray-100 rounded-md border border-gray-200 shadow-sm">
         <ListItem
           label="Course Name"
           value={"Data Communication and Networking"}
         />
         <ListItem label="Course Code" value={"IT-20123"} />
-        <ListItem label="Lecturer/Coordinator Name " value={"Teacher Name"} />
+        <ListItem label="Semester" value={"1"} />
+        <ListItem label="Academic Year" value={"2020-2021"} />
+        <ListItem label="Lecturer/Coordinator Name" value={"Teacher Name"} />
+        <ListItem label="Year" value={"Fourth Year"} />
+        <ListItem label="% of Final Exam" value={"80%"} />
+        <ListItem label="% of Course Work" value={"40%"} />
       </div>
 
       <Tabs defaultValue="co_ga_mapping">
@@ -59,7 +62,7 @@ const ListItem = (props: { label: string; value: string }) => {
   return (
     <FlexBox className="w-full items-start">
       <Text className="w-56 text-md font-medium  text-gray-500">{label}</Text>
-      <Text className="w-10 text-md font-medium text-gray-500">{`:`}</Text>
+      <Text className="w-8 text-md font-medium text-gray-500">{`:`}</Text>
       <Text className="flex-1 text-md font-medium text-gray-700">{value}</Text>
     </FlexBox>
   );
