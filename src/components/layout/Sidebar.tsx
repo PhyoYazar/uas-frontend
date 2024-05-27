@@ -28,7 +28,7 @@ export const Sidebar = () => {
 };
 
 const layouts: { label: string; url: string; icon: IconName }[] = [
-  // { label: "Dashboard", icon: "book-user", url: "/dashboard" },
+  { label: "Dashboard", icon: "book-user", url: "/dashboard" },
   { label: "Subjects", icon: "school", url: "/subject" },
   { label: "Students", icon: "user", url: "/student" },
   // { label: "Settings", icon: "settings", url: "/settings" },
