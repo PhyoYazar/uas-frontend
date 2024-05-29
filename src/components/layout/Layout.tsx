@@ -14,14 +14,14 @@ export const Layout = () => {
       </section>
 
       <section
-        className="flex-1"
+        className="flex-1 w-full h-svh p-8 overflow-auto"
         style={{ width: `calc(100svw - ${sidebarWidth}px)` }}
       >
         {/* <Header /> */}
 
         <main
-          className="w-full h-svh p-8 overflow-auto"
-          // style={{ height: "calc(100svh - 80px)" }}
+        // className=""
+        // style={{ height: "calc(100svh - 80px)" }}
         >
           <Outlet />
         </main>

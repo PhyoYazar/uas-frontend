@@ -28,7 +28,7 @@ import { z } from "zod";
 
 export const CoGaCreate = () => {
   return (
-    <section className="space-y-12">
+    <section className="space-y-12 h-full">
       <div className="space-y-4">
         {/* {true ? ( */}
         <Text>There is no course outlines. Please create course outlines.</Text>
@@ -83,14 +83,12 @@ const ConnectExam = () => {
   const [tempF, setTempF] = useState<{ key: string; value: string }[]>([]);
   const [chan, setChan] = useState(false);
 
-  console.log("hello -> ", chan);
-
   useEffect(() => {
     if (chan && connectedGas.length > 0) {
       connectedGas.forEach((ga) => {
         setTempF((prev) => {
           if (prev.find((field) => field.key === ga.key) === undefined) {
-            return [...prev, { key: ga.key, value: ga.value }];
+            return [...prev, { key: ga.id, value: ga.key }];
           }
           return prev;
         });
@@ -100,10 +98,14 @@ const ConnectExam = () => {
 
   useEffect(() => {
     if (tempF.length > 0) {
-      tempF.forEach((f) => append({ key: f.key, value: f.value }));
-      setChan(false);
+      tempF.forEach((f) => {
+        if (!fields.map((t) => t.key).includes(f.key)) {
+          append({ key: f.key, value: f.value });
+          setChan(false);
+        }
+      });
     }
-  }, [append, tempF]);
+  }, [append, fields, tempF]);
 
   function onSubmit(values: z.infer<typeof examQformSchema>) {
     console.log(values);
@@ -119,6 +121,15 @@ const ConnectExam = () => {
 
           <Button type="button" onClick={() => setChan(true)}>
             Chg
+          </Button>
+
+          <Button
+            type="button"
+            onClick={() =>
+              setTempF((prev) => [...prev, { key: "6", value: "GA6" }])
+            }
+          >
+            UPd
           </Button>
 
           {/* <FormField
@@ -140,6 +151,7 @@ const ConnectExam = () => {
             name="question"
             render={({ field }) => (
               <FormItem>
+                <FormLabel className="text-base">Questions</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
@@ -178,42 +190,43 @@ const ConnectExam = () => {
                         with selected question.
                       </FormDescription>
                     </div>
-                    {coItems.map((item) => (
-                      <FormField
-                        key={item.id + "co-key"}
-                        control={form.control}
-                        name="cos"
-                        render={({ field }) => {
-                          return (
-                            <FormItem
-                              key={item.id}
-                              className="flex flex-row items-start space-x-3 space-y-0"
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(item.id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([
-                                          ...field.value,
-                                          item.id,
-                                        ])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== item.id
-                                          )
-                                        );
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                {item.label}
-                              </FormLabel>
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    ))}
+
+                    <div className="grid grid-cols-2 gap-4">
+                      {coItems.map((item) => (
+                        <FormField
+                          key={item.id + "co-key"}
+                          control={form.control}
+                          name="cos"
+                          render={({ field }) => {
+                            return (
+                              <FormItem
+                                key={item.id}
+                                className="flex flex-row items-start space-x-3 space-y-0"
+                              >
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value?.includes(item.id)}
+                                    onCheckedChange={(checked) => {
+                                      return checked
+                                        ? field.onChange([
+                                            ...field.value,
+                                            item.id,
+                                          ])
+                                        : field.onChange(
+                                            field.value?.filter(
+                                              (value) => value !== item.id
+                                            )
+                                          );
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormLabel>{item.label}</FormLabel>
+                              </FormItem>
+                            );
+                          }}
+                        />
+                      ))}
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -222,15 +235,16 @@ const ConnectExam = () => {
           ) : null}
 
           {cosSelected.length > 0 ? (
-            <Card>
+            <Card className="grid grid-cols-2 gap-x-8 gap-y-4">
               {fields.map((field, index) => (
                 <FormField
                   key={field.id}
                   control={form.control}
-                  name={`fields.${index}.key`}
+                  name={`fields.${index}.value`}
+                  defaultValue=""
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{fields[index].value}</FormLabel>
+                      <FormLabel>{fields[index].value} marks</FormLabel>
                       <FormControl>
                         <Input placeholder="Type " {...field} />
                       </FormControl>
@@ -255,7 +269,7 @@ const ConnectExam = () => {
 
 const connectedGas = gaLists
   .filter(({ id }) => ["1", "3", "4"].includes(id))
-  .map((ga) => ({ key: ga.id, value: ga.name }));
+  .map((ga) => ({ key: ga.name, label: ga.label, id: ga.id }));
 
 const coItems = [
   {

@@ -1,8 +1,5 @@
 ("use client");
 
-import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
-
 import { CustomTable } from "@/components/common/custom-table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -14,6 +11,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useQuery } from "@tanstack/react-query";
+import { ColumnDef } from "@tanstack/react-table";
+import axios from "axios";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const data: Payment[] = [
@@ -149,6 +150,14 @@ const columns: ColumnDef<Payment>[] = [
 
 export function SubjectTable() {
   const navigate = useNavigate();
+
+  const { data: subjects } = useQuery({
+    queryKey: ["all-subjects"],
+    queryFn: ({ signal }) => axios.get("subjects", { signal }),
+    staleTime: 5000,
+  });
+
+  console.log("hello", subjects);
 
   return (
     <div className="w-full border border-gray-200 rounded-sm">
