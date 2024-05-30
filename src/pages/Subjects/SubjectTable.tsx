@@ -1,171 +1,209 @@
 ("use client");
 
 import { CustomTable } from "@/components/common/custom-table";
+import { FlexBox } from "@/components/common/flex-box";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
+import { useDebounce } from "@uidotdev/usehooks";
 import axios from "axios";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-const data: Payment[] = [
-  {
-    id: "m5gr84i9",
-    amount: 316,
-    status: "success",
-    email: "ken99@yahoo.com",
-  },
-  {
-    id: "3u1reuv4",
-    amount: 242,
-    status: "success",
-    email: "Abe45@gmail.com",
-  },
-  {
-    id: "derv1ws0",
-    amount: 837,
-    status: "processing",
-    email: "Monserrat44@gmail.com",
-  },
-  {
-    id: "5kma53ae",
-    amount: 874,
-    status: "success",
-    email: "Silas22@gmail.com",
-  },
-  {
-    id: "bhqecj4p",
-    amount: 721,
-    status: "failed",
-    email: "carmella@hotmail.com",
-  },
-];
-
-export type Payment = {
+export type Subject = {
   id: string;
-  amount: number;
-  status: "pending" | "processing" | "success" | "failed";
-  email: string;
+  name: string;
+  code: string;
+  year: string;
+  academicYear: string;
+  dateCreated: string;
+  dateUpdated: string;
+  instructor: string;
+  exam: number;
+  practical: number;
+  semester: string;
 };
 
-const columns: ColumnDef<Payment>[] = [
+export type APIResponse = {
+  page: number;
+  rowsPerPage: number;
+  total: number;
+  items: Subject[];
+};
+
+const columns: ColumnDef<Subject>[] = [
+  // {
+  //   id: "select",
+  //   header: ({ table }) => (
+  //     <Checkbox
+  //       checked={
+  //         table.getIsAllPageRowsSelected() ||
+  //         (table.getIsSomePageRowsSelected() && "indeterminate")
+  //       }
+  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+  //       aria-label="Select all"
+  //     />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <Checkbox
+  //       checked={row.getIsSelected()}
+  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+  //       aria-label="Select row"
+  //     />
+  //   ),
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
+  // {
+  //   accessorKey: "email",
+  //   header: ({ column }) => {
+  //     return (
+  //       <Button
+  //         variant="ghost"
+  //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+  //       >
+  //         Email
+  //         <ArrowUpDown className="ml-2 h-4 w-4" />
+  //       </Button>
+  //     );
+  //   },
+  //   cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+  // },
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
+    accessorKey: "name",
+    header: "Name",
+    cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
+  },
+  {
+    accessorKey: "code",
+    header: "Code",
+    cell: ({ row }) => <div className="capitalize">{row.getValue("code")}</div>,
+  },
+  {
+    accessorKey: "instructor",
+    header: "Instructor",
     cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
+      <div className="capitalize">{row.getValue("instructor")}</div>
     ),
-    enableSorting: false,
-    enableHiding: false,
   },
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "year",
+    header: "Year",
+    cell: ({ row }) => <div className="capitalize">{row.getValue("year")}</div>,
+  },
+  {
+    accessorKey: "academicYear",
+    header: "Academic Year",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("status")}</div>
+      <div className="capitalize">{row.getValue("academicYear")}</div>
     ),
   },
-  {
-    accessorKey: "email",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Email
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
-  },
-  {
-    accessorKey: "amount",
-    header: () => <div className="text-right">Amount</div>,
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"));
 
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
+  // {
+  //   id: "actions",
+  //   enableHiding: false,
+  //   cell: ({ row }) => {
+  //     const payment = row.original;
 
-      return <div className="text-right font-medium">{formatted}</div>;
-    },
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const payment = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
-            >
-              Copy payment ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
+  //     return (
+  //       <DropdownMenu>
+  //         <DropdownMenuTrigger asChild>
+  //           <Button variant="ghost" className="h-8 w-8 p-0">
+  //             <span className="sr-only">Open menu</span>
+  //             <MoreHorizontal className="h-4 w-4" />
+  //           </Button>
+  //         </DropdownMenuTrigger>
+  //         <DropdownMenuContent align="end">
+  //           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+  //           <DropdownMenuItem
+  //             onClick={() => navigator.clipboard.writeText(payment.id)}
+  //           >
+  //             Copy payment ID
+  //           </DropdownMenuItem>
+  //           <DropdownMenuSeparator />
+  //           <DropdownMenuItem>View customer</DropdownMenuItem>
+  //           <DropdownMenuItem>View payment details</DropdownMenuItem>
+  //         </DropdownMenuContent>
+  //       </DropdownMenu>
+  //     );
+  //   },
+  // },
 ];
 
 export function SubjectTable() {
+  const [search, setSearch] = useState("");
+  const [year, setYear] = useState("");
+
   const navigate = useNavigate();
+
+  const debounceSearch = useDebounce(search, 200);
 
   const { data: subjects } = useQuery({
     queryKey: ["all-subjects"],
-    queryFn: ({ signal }) => axios.get("subjects", { signal }),
+    queryFn: ({ signal }) => axios.get<APIResponse>("subjects", { signal }),
     staleTime: 5000,
   });
 
-  console.log("hello", subjects);
+  console.log("hello", subjects?.data.items);
 
   return (
-    <div className="w-full border border-gray-200 rounded-sm">
-      <CustomTable
-        data={data}
-        columns={columns}
-        onRowClick={({ id }) => navigate(`${id}`)}
-      />
-    </div>
+    <>
+      <FlexBox className="justify-between">
+        <FlexBox className="gap-4">
+          <Input
+            placeholder="search by name"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-80"
+          />
+
+          <Select onValueChange={(val) => setYear(val === "None" ? "" : val)}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Year" />
+            </SelectTrigger>
+            <SelectContent>
+              {[
+                "None",
+                "First Year",
+                "Second Year",
+                "Third Year",
+                "Fourth Year",
+                "Fifth Year",
+              ].map((y) => (
+                <SelectItem value={y}>{y}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FlexBox>
+
+        <Link to={"/subject/create"}>
+          <Button className="w-40">Create</Button>
+        </Link>
+      </FlexBox>
+
+      <div className="w-full border border-gray-200 rounded-sm">
+        <CustomTable
+          data={
+            subjects?.data?.items
+              ?.filter((sub) => sub.name.includes(debounceSearch))
+              ?.filter((sub) => {
+                if (year !== "") return sub.year === year;
+
+                return true;
+              }) ?? []
+          }
+          columns={columns}
+          onRowClick={({ id }) => navigate(`${id}`)}
+        />
+      </div>
+    </>
   );
 }
