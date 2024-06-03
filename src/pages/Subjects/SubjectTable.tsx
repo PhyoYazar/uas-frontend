@@ -152,7 +152,13 @@ export function SubjectTable() {
     staleTime: 5000,
   });
 
-  console.log("hello", subjects?.data.items);
+  const { data: cos } = useQuery({
+    queryKey: ["all-cos"],
+    queryFn: ({ signal }) => axios.get("cos", { signal }),
+    staleTime: 5000,
+  });
+
+  console.log("hello co", cos);
 
   return (
     <>
@@ -178,7 +184,9 @@ export function SubjectTable() {
                 "Fourth Year",
                 "Fifth Year",
               ].map((y) => (
-                <SelectItem value={y}>{y}</SelectItem>
+                <SelectItem key={y} value={y}>
+                  {y}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -189,21 +197,19 @@ export function SubjectTable() {
         </Link>
       </FlexBox>
 
-      <div className="w-full border border-gray-200 rounded-sm">
-        <CustomTable
-          data={
-            subjects?.data?.items
-              ?.filter((sub) => sub.name.includes(debounceSearch))
-              ?.filter((sub) => {
-                if (year !== "") return sub.year === year;
+      <CustomTable
+        data={
+          subjects?.data?.items
+            ?.filter((sub) => sub.name.includes(debounceSearch))
+            ?.filter((sub) => {
+              if (year !== "") return sub.year === year;
 
-                return true;
-              }) ?? []
-          }
-          columns={columns}
-          onRowClick={({ id }) => navigate(`${id}`)}
-        />
-      </div>
+              return true;
+            }) ?? []
+        }
+        columns={columns}
+        onRowClick={({ id }) => navigate(`${id}`)}
+      />
     </>
   );
 }

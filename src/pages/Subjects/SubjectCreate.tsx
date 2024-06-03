@@ -18,21 +18,53 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+
+// Extend dayjs with the plugins
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(customParseFormat);
+
+const formatDateString = (dateString: string): string => {
+  // Parse the date string and convert it to the desired format
+  const date = dayjs(dateString);
+  return date.tz("UTC").format("dddd, MMMM DD, YYYY [at] h:mm A");
+};
+
 const formSchema = z.object({
-  name: z.string().min(1),
-  code: z.string(),
-  instructor: z.string(),
-  year: z.string(),
-  semester: z.string(),
-  academicStartYear: z.string(),
-  academicEndYear: z.string(),
-  examPercentage: z.string(),
+  name: z.string().min(1, { message: "Subject name is required" }),
+  code: z.string().min(1, { message: "Code is required" }),
+  instructor: z.string().min(1, { message: "Instructor name is required" }),
+  year: z.string().min(1, { message: "Year is empty" }),
+  semester: z.string().min(1, { message: "Semester is required" }),
+  academicStartYear: z
+    .string()
+    .min(1, { message: "Academic Year is required" }),
+  academicEndYear: z.string().min(1, { message: "Academic Year is required" }),
+  examPercentage: z
+    .string()
+    .min(1, { message: "Exam mark percentage is required" }),
 });
+
+type CreateSubject = {
+  name: string;
+  code: string;
+  year: string;
+  academicYear: string;
+  semester: string;
+  instructor: string;
+  exam: number;
+};
 
 export const SubjectCreate = () => {
   const navigate = useNavigate();
@@ -51,20 +83,87 @@ export const SubjectCreate = () => {
     },
   });
 
+  const createSubjectMutation = useMutation({
+    mutationFn: (newSub: CreateSubject) =>
+      axios.post("subject", newSub, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }),
+    onSuccess(data, variables, context) {
+      console.log("hello success", data, variables, context);
+
+      toast("Subject has been created", {
+        description: formatDateString(data.data.dateUpdated),
+        action: {
+          label: "Undo",
+          onClick: () => console.log("Undo"),
+        },
+      });
+
+      navigate("123");
+    },
+    onError(error) {
+      console.log("hello error", error);
+
+      toast("Fail to create the subject.");
+    },
+  });
+
+  // const cCoMu = useMutation({
+  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //   mutationFn: (newCo: any) =>
+  //     axios.post<Subject>(
+  //       "co",
+  //       { ...newCo },
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           // Include other headers if necessary
+  //         },
+  //       }
+  //     ),
+  // });
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     console.log(values);
 
-    toast("Subject has been created", {
-      description: "Sunday, December 03, 2023 at 9:00 AM",
-      action: {
-        label: "Undo",
-        onClick: () => console.log("Undo"),
-      },
-    });
+    // cCoMu.mutate({
+    //   name: "Text",
+    //   instance: 2,
+    //   subjectID: "5c4a2fb6-e8f4-45ae-baa0-caea7b7269ab",
+    // });
 
-    navigate("123");
+    // createSubjectMutation.mutate({
+    //   name: values.name,
+    //   code: values.code,
+    //   year: values.year,
+    //   academicYear: values.academicStartYear + "-" + values.academicEndYear,
+    //   semester: values.semester,
+    //   instructor: values.instructor,
+    //   exam: +values.examPercentage,
+    // });
+
+    axios.post(
+      "subject",
+      {
+        name: values.name,
+        code: values.code,
+        year: values.year,
+        academicYear: values.academicStartYear + "-" + values.academicEndYear,
+        semester: values.semester,
+        instructor: values.instructor,
+        exam: +values.examPercentage,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
 
   return (
@@ -177,12 +276,12 @@ export const SubjectCreate = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="firstYear">First Year</SelectItem>
-                        <SelectItem value="secondYear">Second Year</SelectItem>
-                        <SelectItem value="thirdYear">Third Year</SelectItem>
-                        <SelectItem value="fourthYear">Fourth Year</SelectItem>
-                        <SelectItem value="fifthYear">Fifth Year</SelectItem>
-                        <SelectItem value="sixthYear">Sixth Year</SelectItem>
+                        <SelectItem value="First Year">First Year</SelectItem>
+                        <SelectItem value="Second Year">Second Year</SelectItem>
+                        <SelectItem value="Third Year">Third Year</SelectItem>
+                        <SelectItem value="Fourth Year">Fourth Year</SelectItem>
+                        <SelectItem value="Fifth Year">Fifth Year</SelectItem>
+                        <SelectItem value="Sixth Year">Sixth Year</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -220,8 +319,8 @@ export const SubjectCreate = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
+                        <SelectItem value="first">1</SelectItem>
+                        <SelectItem value="second">2</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -245,7 +344,11 @@ export const SubjectCreate = () => {
             </div>
 
             <FlexBox className="justify-end">
-              <Button className="w-40" type="submit">
+              <Button
+                className="w-40"
+                type="submit"
+                disabled={createSubjectMutation.isPending}
+              >
                 Submit
               </Button>
             </FlexBox>

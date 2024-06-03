@@ -1,21 +1,35 @@
 import { FlexBox } from "@/components/common/flex-box";
 import { Text } from "@/components/common/text";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { useParams } from "react-router-dom";
+import { Subject } from "../Subjects/SubjectTable";
 import { CoGaMapping } from "./CoGaMapping";
+import { CourseWorkPlanning } from "./CourseWorkPlanning";
+import { ExamPlanning } from "./ExamPlanning";
 
 // const fetchBySubjectId = () => {
 //   return axios.get("https://jsonplaceholder.typicode.com/posts");
 // };
 
 export const SubjectDetail = () => {
-  //   const { subjectId } = useParams();
+  const { subjectId } = useParams();
 
   // const { data } = useQuery({
   //   queryKey: ["subject-detail"],
   //   queryFn: () => fetchBySubjectId(),
   // });
 
-  // console.log("hello", data);
+  const { data } = useQuery({
+    queryKey: ["subject-by-id", subjectId],
+    queryFn: ({ signal }) =>
+      axios.get<Subject>(`subject-detail/${subjectId}`, { signal }),
+    staleTime: 5000,
+    enabled: subjectId !== undefined,
+  });
+
+  console.log("hello", data);
 
   return (
     <section className="w-full p-4">
@@ -47,19 +61,27 @@ export const SubjectDetail = () => {
             <Tabs defaultValue="co_ga_mapping">
               <TabsList>
                 <TabsTrigger value="co_ga_mapping">CO-GA Mapping</TabsTrigger>
-                <TabsTrigger value="assessment_planning">
+                <TabsTrigger value="assessment_exam_planning">
                   Assessment (Planning)-Exam
                 </TabsTrigger>
-                <TabsTrigger value="assessment_course_work">
+                <TabsTrigger value="assessment_course_work_planning">
                   Assessment (Planning) Course Work
                 </TabsTrigger>
-                <TabsTrigger value="assessment_contribution">
+                {/* <TabsTrigger value="assessment_contribution">
                   Assessment Contribution
-                </TabsTrigger>
+                </TabsTrigger> */}
               </TabsList>
 
               <TabsContent value="co_ga_mapping">
                 <CoGaMapping />
+              </TabsContent>
+
+              <TabsContent value="assessment_exam_planning">
+                <ExamPlanning />
+              </TabsContent>
+
+              <TabsContent value="assessment_course_work_planning">
+                <CourseWorkPlanning />
               </TabsContent>
 
               {/* <TabsContent value="password">Change your password here.</TabsContent> */}

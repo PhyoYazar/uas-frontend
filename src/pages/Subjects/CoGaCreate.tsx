@@ -293,7 +293,7 @@ const coItems = [
 // =================================================================================================
 
 const coCreateformSchema = z.object({
-  name: z.string().min(1),
+  name: z.string().min(1, { message: "Course outline name is required" }),
   gas: z.array(z.string()).refine((value) => value.some((item) => item), {
     message: "You have to select at least one graduate attribute.",
   }),
