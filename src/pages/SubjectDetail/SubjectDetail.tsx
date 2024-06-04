@@ -1,6 +1,7 @@
 import { FlexBox } from "@/components/common/flex-box";
 import { Text } from "@/components/common/text";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useParams } from "react-router-dom";
@@ -16,20 +17,14 @@ import { ExamPlanning } from "./ExamPlanning";
 export const SubjectDetail = () => {
   const { subjectId } = useParams();
 
-  // const { data } = useQuery({
-  //   queryKey: ["subject-detail"],
-  //   queryFn: () => fetchBySubjectId(),
-  // });
-
-  const { data } = useQuery({
+  const { data: subject } = useQuery({
     queryKey: ["subject-by-id", subjectId],
     queryFn: ({ signal }) =>
-      axios.get<Subject>(`subject-detail/${subjectId}`, { signal }),
+      axios.get<Subject>(`subjects/${subjectId}`, { signal }),
     staleTime: 5000,
     enabled: subjectId !== undefined,
+    select: (data) => data?.data,
   });
-
-  console.log("hello", data);
 
   return (
     <section className="w-full p-4">
@@ -42,20 +37,30 @@ export const SubjectDetail = () => {
         <TabsContent value="subject">
           <div className="space-y-6">
             <div className="p-4 grid grid-cols-2 gap-x-6 gap-y-4 bg-gray-100 rounded-md border border-gray-200 shadow-sm">
+              <ListItem label="Course Name" value={subject?.name ?? ""} />
+              <ListItem label="Course Code" value={subject?.code ?? ""} />
               <ListItem
-                label="Course Name"
-                value={"Data Communication and Networking"}
+                label="Semester"
+                valClassName="capitalize"
+                value={subject?.semester ?? ""}
               />
-              <ListItem label="Course Code" value={"IT-20123"} />
-              <ListItem label="Semester" value={"1"} />
-              <ListItem label="Academic Year" value={"2020-2021"} />
+              <ListItem
+                label="Academic Year"
+                value={subject?.academicYear ?? ""}
+              />
               <ListItem
                 label="Lecturer/Coordinator Name"
-                value={"Teacher Name"}
+                value={subject?.instructor ?? ""}
               />
-              <ListItem label="Year" value={"Fourth Year"} />
-              <ListItem label="% of Final Exam" value={"80%"} />
-              <ListItem label="% of Course Work" value={"40%"} />
+              <ListItem label="Year" value={subject?.year ?? ""} />
+              <ListItem
+                label="% of Final Exam"
+                value={`${subject?.exam ?? ""}%`}
+              />
+              <ListItem
+                label="% of Course Work"
+                value={`${100 - (subject?.exam ?? 100) ?? ""}%`}
+              />
             </div>
 
             <Tabs defaultValue="co_ga_mapping">
@@ -95,14 +100,22 @@ export const SubjectDetail = () => {
   );
 };
 
-const ListItem = (props: { label: string; value: string }) => {
-  const { label, value } = props;
+const ListItem = (props: {
+  label: string;
+  value: string;
+  valClassName?: string;
+}) => {
+  const { label, value, valClassName } = props;
 
   return (
     <FlexBox className="w-full items-start">
       <Text className="w-56 text-md font-medium  text-gray-500">{label}</Text>
       <Text className="w-8 text-md font-medium text-gray-500">{`:`}</Text>
-      <Text className="flex-1 text-md font-medium text-gray-700">{value}</Text>
+      <Text
+        className={cn("flex-1 text-md font-medium text-gray-700", valClassName)}
+      >
+        {value}
+      </Text>
     </FlexBox>
   );
 };
