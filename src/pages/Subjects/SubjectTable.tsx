@@ -1,5 +1,6 @@
 ("use client");
 
+import { APIResponse } from "@/common/type/type";
 import { CustomTable } from "@/components/common/custom-table";
 import { FlexBox } from "@/components/common/flex-box";
 import { Button } from "@/components/ui/button";
@@ -32,12 +33,78 @@ export type Subject = {
   semester: string;
 };
 
-export type APIResponse = {
-  page: number;
-  rowsPerPage: number;
-  total: number;
+type SubjectsResponse = APIResponse & {
   items: Subject[];
 };
+
+export function SubjectTable() {
+  const [search, setSearch] = useState("");
+  const [year, setYear] = useState("");
+
+  const navigate = useNavigate();
+
+  const debounceSearch = useDebounce(search, 200);
+
+  const { data: subjects } = useQuery({
+    queryKey: ["all-subjects"],
+    queryFn: ({ signal }) =>
+      axios.get<SubjectsResponse>("subjects", { signal }),
+    staleTime: 5000,
+  });
+
+  return (
+    <>
+      <FlexBox className="justify-between">
+        <FlexBox className="gap-4">
+          <Input
+            placeholder="search by name"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-80"
+          />
+
+          <Select onValueChange={(val) => setYear(val === "None" ? "" : val)}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Year" />
+            </SelectTrigger>
+            <SelectContent>
+              {[
+                "None",
+                "First Year",
+                "Second Year",
+                "Third Year",
+                "Fourth Year",
+                "Fifth Year",
+              ].map((y) => (
+                <SelectItem key={y} value={y}>
+                  {y}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FlexBox>
+
+        <Link to={"/subject/create"}>
+          <Button className="w-40">Create</Button>
+        </Link>
+      </FlexBox>
+
+      <CustomTable
+        data={
+          subjects?.data?.items
+            ?.filter((sub) => sub.name.includes(debounceSearch))
+            ?.filter((sub) => {
+              if (year !== "") return sub.year === year;
+
+              return true;
+            }) ?? []
+        }
+        columns={columns}
+        onRowClick={({ id }) => navigate(`${id}`)}
+      />
+    </>
+  );
+}
 
 const columns: ColumnDef<Subject>[] = [
   // {
@@ -137,79 +204,3 @@ const columns: ColumnDef<Subject>[] = [
   //   },
   // },
 ];
-
-export function SubjectTable() {
-  const [search, setSearch] = useState("");
-  const [year, setYear] = useState("");
-
-  const navigate = useNavigate();
-
-  const debounceSearch = useDebounce(search, 200);
-
-  const { data: subjects } = useQuery({
-    queryKey: ["all-subjects"],
-    queryFn: ({ signal }) => axios.get<APIResponse>("subjects", { signal }),
-    staleTime: 5000,
-  });
-
-  const { data: cos } = useQuery({
-    queryKey: ["all-cos"],
-    queryFn: ({ signal }) => axios.get("cos", { signal }),
-    staleTime: 5000,
-  });
-
-  console.log("hello co", cos);
-
-  return (
-    <>
-      <FlexBox className="justify-between">
-        <FlexBox className="gap-4">
-          <Input
-            placeholder="search by name"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-80"
-          />
-
-          <Select onValueChange={(val) => setYear(val === "None" ? "" : val)}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Year" />
-            </SelectTrigger>
-            <SelectContent>
-              {[
-                "None",
-                "First Year",
-                "Second Year",
-                "Third Year",
-                "Fourth Year",
-                "Fifth Year",
-              ].map((y) => (
-                <SelectItem key={y} value={y}>
-                  {y}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </FlexBox>
-
-        <Link to={"/subject/create"}>
-          <Button className="w-40">Create</Button>
-        </Link>
-      </FlexBox>
-
-      <CustomTable
-        data={
-          subjects?.data?.items
-            ?.filter((sub) => sub.name.includes(debounceSearch))
-            ?.filter((sub) => {
-              if (year !== "") return sub.year === year;
-
-              return true;
-            }) ?? []
-        }
-        columns={columns}
-        onRowClick={({ id }) => navigate(`${id}`)}
-      />
-    </>
-  );
-}

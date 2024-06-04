@@ -84,25 +84,19 @@ export const SubjectCreate = () => {
   });
 
   const createSubjectMutation = useMutation({
-    mutationFn: (newSub: CreateSubject) =>
-      axios.post("subject", newSub, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      }),
-    onSuccess(data, variables, context) {
-      console.log("hello success", data, variables, context);
+    mutationFn: (newSub: CreateSubject) => axios.post("subject", newSub),
+    onSuccess(data) {
+      const subjectId = data?.data?.id;
 
       toast("Subject has been created", {
         description: formatDateString(data.data.dateUpdated),
-        action: {
-          label: "Undo",
-          onClick: () => console.log("Undo"),
-        },
+        // action: {
+        //   label: "Undo",
+        //   onClick: () => console.log("Undo"),
+        // },
       });
 
-      navigate("123");
+      if (subjectId) navigate(subjectId);
     },
     onError(error) {
       console.log("hello error", error);
@@ -111,59 +105,21 @@ export const SubjectCreate = () => {
     },
   });
 
-  // const cCoMu = useMutation({
-  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //   mutationFn: (newCo: any) =>
-  //     axios.post<Subject>(
-  //       "co",
-  //       { ...newCo },
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           // Include other headers if necessary
-  //         },
-  //       }
-  //     ),
-  // });
-
   function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values);
 
-    // cCoMu.mutate({
-    //   name: "Text",
-    //   instance: 2,
-    //   subjectID: "5c4a2fb6-e8f4-45ae-baa0-caea7b7269ab",
-    // });
+    // console.log(values);
 
-    // createSubjectMutation.mutate({
-    //   name: values.name,
-    //   code: values.code,
-    //   year: values.year,
-    //   academicYear: values.academicStartYear + "-" + values.academicEndYear,
-    //   semester: values.semester,
-    //   instructor: values.instructor,
-    //   exam: +values.examPercentage,
-    // });
-
-    axios.post(
-      "subject",
-      {
-        name: values.name,
-        code: values.code,
-        year: values.year,
-        academicYear: values.academicStartYear + "-" + values.academicEndYear,
-        semester: values.semester,
-        instructor: values.instructor,
-        exam: +values.examPercentage,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    createSubjectMutation.mutate({
+      name: values.name,
+      code: values.code,
+      year: values.year,
+      academicYear: values.academicStartYear + "-" + values.academicEndYear,
+      semester: values.semester,
+      instructor: values.instructor,
+      exam: +values.examPercentage,
+    });
   }
 
   return (

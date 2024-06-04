@@ -17,6 +17,8 @@ export const setupRequestInterceptor = () => {
       const request = { ...config };
       if (!request.url.startsWith("http")) {
         request.url = `${API_URL}${request.url}`;
+        request.headers.set("Content-Type", "application/json");
+        request.headers.set("Accept", "application/json");
       }
 
       return request;

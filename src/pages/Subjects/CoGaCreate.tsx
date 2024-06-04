@@ -22,22 +22,39 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { useParams } from "react-router-dom";
 import { z } from "zod";
+import { CoGaMapping } from "../SubjectDetail/CoGaMapping";
 
 export const CoGaCreate = () => {
+  const { subjectId } = useParams();
+
+  const { data: totalCos } = useQuery({
+    queryKey: ["co-by-subject-id", subjectId],
+    queryFn: ({ signal }) =>
+      axios.get(`cos?subjectId=${subjectId}`, { signal }),
+    staleTime: 5000,
+    enabled: subjectId !== undefined,
+    select: (data) => data?.data?.total ?? 0,
+  });
+
   return (
     <section className="space-y-12 h-full">
       <div className="space-y-4">
-        {/* {true ? ( */}
-        <Text>There is no course outlines. Please create course outlines.</Text>
-        {/* ) : (
+        {totalCos === 0 ? (
+          <Text>
+            There is no course outlines. Please create course outlines.
+          </Text>
+        ) : (
           <>
             <Text className="text-xl font-semibold">Course outlines</Text>
             <CoGaMapping />
           </>
-        )} */}
+        )}
       </div>
 
       <CoCreate />
@@ -300,6 +317,8 @@ const coCreateformSchema = z.object({
 });
 
 const CoCreate = () => {
+  // const { subjectId } = useParams();
+
   const form = useForm<z.infer<typeof coCreateformSchema>>({
     resolver: zodResolver(coCreateformSchema),
     defaultValues: {
@@ -308,10 +327,21 @@ const CoCreate = () => {
     },
   });
 
+  // const cCoMu = useMutation({
+  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //   mutationFn: (newCo: any) => axios.post("co", newCo),
+  // });
+
   function onSubmit(values: z.infer<typeof coCreateformSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     console.log(values);
+
+    // cCoMu.mutate({
+    //   name: "Text",
+    //   instance: 2,
+    //   subjectID: subjectId,
+    // });
   }
 
   return (
