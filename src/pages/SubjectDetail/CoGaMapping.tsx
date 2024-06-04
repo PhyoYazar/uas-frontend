@@ -5,7 +5,23 @@ import { Text } from "@/components/common/text";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { CheckIcon } from "lucide-react";
+import { ReactNode } from "react";
 import { useParams } from "react-router-dom";
+import { Subject } from "../Subjects/SubjectTable";
+
+type SubjectDetail = Subject & {
+  co: {
+    instance: string;
+    name: string;
+    id: string;
+    ga: {
+      id: string;
+      name: string;
+      slug: string;
+    }[];
+  }[];
+};
 
 export const CoGaMapping = () => {
   const { subjectId } = useParams();
@@ -13,7 +29,7 @@ export const CoGaMapping = () => {
   const { data: subjectWithCoGa } = useQuery({
     queryKey: ["subject-detail-by-id", subjectId],
     queryFn: ({ signal }) =>
-      axios.get(`subject-detail/${subjectId}`, { signal }),
+      axios.get<SubjectDetail>(`subject-detail/${subjectId}`, { signal }),
     staleTime: 5000,
     enabled: subjectId !== undefined,
     select: (data) => data?.data,
@@ -22,8 +38,8 @@ export const CoGaMapping = () => {
   console.log("hello subjectDetail", subjectWithCoGa);
 
   return (
-    <>
-      <section
+    <section>
+      <div
         className="grid w-full overflow-auto"
         style={{ gridTemplateColumns: "repeat(22, 1fr)" }}
       >
@@ -32,8 +48,28 @@ export const CoGaMapping = () => {
         {gaLists.map(({ name, label }) => (
           <HeadItem name={name} tooltipLabel={label} />
         ))}
-      </section>
-    </>
+      </div>
+
+      {subjectWithCoGa?.co?.map((co) => (
+        <div
+          className="grid w-full overflow-auto"
+          style={{ gridTemplateColumns: "repeat(22, 1fr)" }}
+        >
+          <HeadItem name={co?.instance} />
+          <HeadItem name={co?.name} className="col-span-9 justify-start" />
+
+          {gaLists.map(({ name }) => (
+            <ElItem>
+              {co?.ga?.map((ga) => ga?.slug).includes(name) ? (
+                <CheckIcon />
+              ) : (
+                "-"
+              )}
+            </ElItem>
+          ))}
+        </div>
+      ))}
+    </section>
   );
 };
 
@@ -49,7 +85,7 @@ const HeadItem = (props: {
   return (
     <FlexBox
       className={cn(
-        "border justify-center min-w-16 col-span-1 py-2 border-gray-400",
+        "border justify-center min-w-16 col-span-1 p-2 border-gray-400",
         className
       )}
     >
@@ -58,6 +94,21 @@ const HeadItem = (props: {
       ) : (
         text
       )}
+    </FlexBox>
+  );
+};
+
+const ElItem = (props: { children: ReactNode; className?: string }) => {
+  const { children, className } = props;
+
+  return (
+    <FlexBox
+      className={cn(
+        "border justify-center min-w-16 col-span-1 p-2 text-gray-500 border-gray-400",
+        className
+      )}
+    >
+      {children}
     </FlexBox>
   );
 };
