@@ -3,38 +3,15 @@ import { CustomTooltip } from "@/components/common/custom-tooltip";
 import { FlexBox } from "@/components/common/flex-box";
 import { Text } from "@/components/common/text";
 import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { CheckIcon } from "lucide-react";
 import { ReactNode } from "react";
 import { useParams } from "react-router-dom";
-import { Subject } from "../Subjects/SubjectTable";
-
-type SubjectDetail = Subject & {
-  co: {
-    instance: string;
-    name: string;
-    id: string;
-    ga: {
-      id: string;
-      name: string;
-      slug: string;
-    }[];
-  }[];
-};
+import { useGetSubjectDetail } from "./hooks/useFetches";
 
 export const CoGaMapping = () => {
   const { subjectId } = useParams();
 
-  const { data: subjectWithCoGa } = useQuery({
-    queryKey: ["subject-detail-by-id", subjectId],
-    queryFn: ({ signal }) =>
-      axios.get<SubjectDetail>(`subject-detail/${subjectId}`, { signal }),
-    staleTime: 5000,
-    enabled: subjectId !== undefined,
-    select: (data) => data?.data,
-  });
-
+  const { subject } = useGetSubjectDetail(subjectId);
   const { allGAs } = useGetAllGAs();
 
   return (
@@ -46,12 +23,13 @@ export const CoGaMapping = () => {
         <HeadItem name="No" />
         <HeadItem name="Co Description" className="col-span-9" />
         {allGAs?.map(({ name, slug }) => (
-          <HeadItem name={slug} tooltipLabel={name} />
+          <HeadItem key={slug + "helsa"} name={slug} tooltipLabel={name} />
         ))}
       </div>
 
-      {subjectWithCoGa?.co?.map((co) => (
+      {subject?.co?.map((co) => (
         <div
+          key={co?.id + "what ev"}
           className="grid w-full overflow-auto"
           style={{ gridTemplateColumns: "repeat(22, 1fr)" }}
         >
@@ -59,7 +37,7 @@ export const CoGaMapping = () => {
           <HeadItem name={co?.name} className="col-span-9 justify-start" />
 
           {allGAs?.map(({ slug }) => (
-            <ElItem>
+            <ElItem key={slug + "wwdfaf osp"}>
               {co?.ga?.map((ga) => ga?.slug).includes(slug) ? (
                 <CheckIcon />
               ) : (

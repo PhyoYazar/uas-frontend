@@ -1,4 +1,3 @@
-import { gaLists } from "@/common/constants/helpers";
 import { useGetAllGAs } from "@/common/hooks/useFetches";
 import { Card } from "@/components/common/card";
 import { FlexBox } from "@/components/common/flex-box";
@@ -8,13 +7,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -25,12 +24,13 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 import { CoGaMapping } from "../SubjectDetail/CoGaMapping";
+import { useGetSubjectDetail } from "../SubjectDetail/hooks/useFetches";
 
 export const CoGaCreate = () => {
   const { subjectId } = useParams();
@@ -70,61 +70,35 @@ export const CoGaCreate = () => {
 
 const fieldSchema = z.object({
   key: z.string().min(1, "Key is required"),
+  slug: z.string().min(1, "Slug is required"),
   value: z.string().min(1, "Value is required"),
 });
 
 const examQformSchema = z.object({
   question: z.string().min(1),
-  cos: z.array(z.string()).refine((value) => value.some((item) => item), {
-    message: "You have to select at least one course outlines.",
-  }),
   fields: z.array(fieldSchema),
 });
 
 const ConnectExam = () => {
+  const [coLists, setCoLists] = useState<string[]>([]);
+
+  const { subjectId } = useParams();
+  const { subject } = useGetSubjectDetail(subjectId);
+
   const form = useForm<z.infer<typeof examQformSchema>>({
     resolver: zodResolver(examQformSchema),
     defaultValues: {
       question: "",
-      cos: [],
       fields: [],
     },
   });
 
-  const { fields, append } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "fields",
   });
 
   const questionSelected = form.watch("question");
-  const cosSelected = form.watch("cos");
-
-  const [tempF, setTempF] = useState<{ key: string; value: string }[]>([]);
-  const [chan, setChan] = useState(false);
-
-  useEffect(() => {
-    if (chan && connectedGas.length > 0) {
-      connectedGas.forEach((ga) => {
-        setTempF((prev) => {
-          if (prev.find((field) => field.key === ga.key) === undefined) {
-            return [...prev, { key: ga.id, value: ga.key }];
-          }
-          return prev;
-        });
-      });
-    }
-  }, [chan]);
-
-  useEffect(() => {
-    if (tempF.length > 0) {
-      tempF.forEach((f) => {
-        if (!fields.map((t) => t.key).includes(f.key)) {
-          append({ key: f.key, value: f.value });
-          setChan(false);
-        }
-      });
-    }
-  }, [append, fields, tempF]);
 
   function onSubmit(values: z.infer<typeof examQformSchema>) {
     console.log(values);
@@ -137,33 +111,6 @@ const ConnectExam = () => {
           <Text className="text-xl font-semibold">
             Connect Co, Ga with exam and course work
           </Text>
-
-          <Button type="button" onClick={() => setChan(true)}>
-            Chg
-          </Button>
-
-          <Button
-            type="button"
-            onClick={() =>
-              setTempF((prev) => [...prev, { key: "6", value: "GA6" }])
-            }
-          >
-            UPd
-          </Button>
-
-          {/* <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Select Question</FormLabel>
-                <FormControl>
-                  <Input placeholder="Type " {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          /> */}
 
           <FormField
             control={form.control}
@@ -182,7 +129,10 @@ const ConnectExam = () => {
                   </FormControl>
                   <SelectContent>
                     {[1, 2, 3, 4, 5, 6].map((q) => (
-                      <SelectItem value={`question` + q}>
+                      <SelectItem
+                        key={q + "selcect what erve"}
+                        value={`question` + q}
+                      >
                         Question {q}
                       </SelectItem>
                     ))}
@@ -195,65 +145,54 @@ const ConnectExam = () => {
 
           {questionSelected ? (
             <Card>
-              <FormField
-                control={form.control}
-                name="cos"
-                render={() => (
-                  <FormItem>
-                    <div className="mb-4">
-                      <FormLabel className="text-base">
-                        Connect CO with question
-                      </FormLabel>
-                      <FormDescription>
-                        Select the items you want to connect the course outlines
-                        with selected question.
-                      </FormDescription>
-                    </div>
+              <div className="mb-4">
+                <Text className="text-base">Connect CO with question</Text>
+                <Text>
+                  Select the items you want to connect the course outlines with
+                  selected question.
+                </Text>
+              </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      {coItems.map((item) => (
-                        <FormField
-                          key={item.id + "co-key"}
-                          control={form.control}
-                          name="cos"
-                          render={({ field }) => {
-                            return (
-                              <FormItem
-                                key={item.id}
-                                className="flex flex-row items-start space-x-3 space-y-0"
-                              >
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value?.includes(item.id)}
-                                    onCheckedChange={(checked) => {
-                                      return checked
-                                        ? field.onChange([
-                                            ...field.value,
-                                            item.id,
-                                          ])
-                                        : field.onChange(
-                                            field.value?.filter(
-                                              (value) => value !== item.id
-                                            )
-                                          );
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormLabel>{item.label}</FormLabel>
-                              </FormItem>
-                            );
-                          }}
-                        />
-                      ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-3 gap-4">
+                {subject?.co?.map((item) => (
+                  <FlexBox key={item?.id} className="gap-2">
+                    <Checkbox
+                      id={item?.id}
+                      onCheckedChange={(check) => {
+                        if (check) {
+                          setCoLists((perv) => [...perv, item?.id]);
+
+                          const gaArray = item?.ga?.map((g) => ({
+                            key: g.id,
+                            slug: g.slug,
+                            value: "",
+                          }));
+
+                          // add to the fields
+                          append(gaArray);
+
+                          return;
+                        }
+                        setCoLists((perv) =>
+                          perv.filter((id) => id !== item?.id)
+                        );
+
+                        const indexes = item?.ga
+                          ?.map((g) => fields.findIndex((f) => f.key === g.id))
+                          .filter((num) => num !== -1);
+
+                        // remove from fields
+                        remove(indexes);
+                      }}
+                    />
+                    <Label htmlFor={item?.id}>{"CO" + item?.instance}</Label>
+                  </FlexBox>
+                ))}
+              </div>
             </Card>
           ) : null}
 
-          {cosSelected.length > 0 ? (
+          {coLists.length > 0 ? (
             <Card className="grid grid-cols-2 gap-x-8 gap-y-4">
               {fields.map((field, index) => (
                 <FormField
@@ -263,9 +202,9 @@ const ConnectExam = () => {
                   defaultValue=""
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{fields[index].value} marks</FormLabel>
+                      <FormLabel>{fields[index].slug}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Type " {...field} />
+                        <Input placeholder="Marks " {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -285,29 +224,6 @@ const ConnectExam = () => {
     </Form>
   );
 };
-
-const connectedGas = gaLists
-  .filter(({ id }) => ["1", "3", "4"].includes(id))
-  .map((ga) => ({ key: ga.name, label: ga.label, id: ga.id }));
-
-const coItems = [
-  {
-    id: "1",
-    label: "CO1",
-  },
-  {
-    id: "2",
-    label: "CO2",
-  },
-  {
-    id: "3",
-    label: "CO3",
-  },
-  {
-    id: "4",
-    label: "CO4",
-  },
-] as const;
 
 // =================================================================================================
 
@@ -376,7 +292,7 @@ const CoCreate = () => {
             name="instance"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Course Outline No</FormLabel>
+                <FormLabel>No</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="Type CO number"
@@ -395,7 +311,7 @@ const CoCreate = () => {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Course Outline Description</FormLabel>
+                <FormLabel>Description</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="Type course outline description"
