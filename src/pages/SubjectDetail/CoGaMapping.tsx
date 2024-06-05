@@ -1,4 +1,4 @@
-import { gaLists } from "@/common/constants/helpers";
+import { useGetAllGAs } from "@/common/hooks/useFetches";
 import { CustomTooltip } from "@/components/common/custom-tooltip";
 import { FlexBox } from "@/components/common/flex-box";
 import { Text } from "@/components/common/text";
@@ -35,7 +35,7 @@ export const CoGaMapping = () => {
     select: (data) => data?.data,
   });
 
-  console.log("hello subjectDetail", subjectWithCoGa);
+  const { allGAs } = useGetAllGAs();
 
   return (
     <section>
@@ -45,8 +45,8 @@ export const CoGaMapping = () => {
       >
         <HeadItem name="No" />
         <HeadItem name="Co Description" className="col-span-9" />
-        {gaLists.map(({ name, label }) => (
-          <HeadItem name={name} tooltipLabel={label} />
+        {allGAs?.map(({ name, slug }) => (
+          <HeadItem name={slug} tooltipLabel={name} />
         ))}
       </div>
 
@@ -58,9 +58,9 @@ export const CoGaMapping = () => {
           <HeadItem name={co?.instance} />
           <HeadItem name={co?.name} className="col-span-9 justify-start" />
 
-          {gaLists.map(({ name }) => (
+          {allGAs?.map(({ slug }) => (
             <ElItem>
-              {co?.ga?.map((ga) => ga?.slug).includes(name) ? (
+              {co?.ga?.map((ga) => ga?.slug).includes(slug) ? (
                 <CheckIcon />
               ) : (
                 "-"

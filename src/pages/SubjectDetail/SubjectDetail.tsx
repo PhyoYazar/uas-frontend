@@ -1,10 +1,11 @@
 import { FlexBox } from "@/components/common/flex-box";
 import { Text } from "@/components/common/text";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Subject } from "../Subjects/SubjectTable";
 import { CoGaMapping } from "./CoGaMapping";
 import { CourseWorkPlanning } from "./CourseWorkPlanning";
@@ -64,18 +65,24 @@ export const SubjectDetail = () => {
             </div>
 
             <Tabs defaultValue="co_ga_mapping">
-              <TabsList>
-                <TabsTrigger value="co_ga_mapping">CO-GA Mapping</TabsTrigger>
-                <TabsTrigger value="assessment_exam_planning">
-                  Assessment (Planning)-Exam
-                </TabsTrigger>
-                <TabsTrigger value="assessment_course_work_planning">
-                  Assessment (Planning) Course Work
-                </TabsTrigger>
-                {/* <TabsTrigger value="assessment_contribution">
+              <FlexBox className="justify-between">
+                <TabsList>
+                  <TabsTrigger value="co_ga_mapping">CO-GA Mapping</TabsTrigger>
+                  <TabsTrigger value="assessment_exam_planning">
+                    Assessment (Planning)-Exam
+                  </TabsTrigger>
+                  <TabsTrigger value="assessment_course_work_planning">
+                    Assessment (Planning) Course Work
+                  </TabsTrigger>
+                  {/* <TabsTrigger value="assessment_contribution">
                   Assessment Contribution
                 </TabsTrigger> */}
-              </TabsList>
+                </TabsList>
+
+                <Link to={`/subject/create/${subjectId}`}>
+                  <Button>Create CO</Button>
+                </Link>
+              </FlexBox>
 
               <TabsContent value="co_ga_mapping">
                 <CoGaMapping />

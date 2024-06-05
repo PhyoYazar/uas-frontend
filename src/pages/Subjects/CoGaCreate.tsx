@@ -1,4 +1,5 @@
 import { gaLists } from "@/common/constants/helpers";
+import { useGetAllGAs } from "@/common/hooks/useFetches";
 import { Card } from "@/components/common/card";
 import { FlexBox } from "@/components/common/flex-box";
 import { Text } from "@/components/common/text";
@@ -22,11 +23,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
+import { toast } from "sonner";
 import { z } from "zod";
 import { CoGaMapping } from "../SubjectDetail/CoGaMapping";
 
@@ -310,38 +312,55 @@ const coItems = [
 // =================================================================================================
 
 const coCreateformSchema = z.object({
-  name: z.string().min(1, { message: "Course outline name is required" }),
+  name: z
+    .string()
+    .min(1, { message: "Course outline description is required" }),
+  instance: z.string().min(1, { message: "Course outline name is required" }),
   gas: z.array(z.string()).refine((value) => value.some((item) => item), {
     message: "You have to select at least one graduate attribute.",
   }),
 });
 
 const CoCreate = () => {
-  // const { subjectId } = useParams();
+  const { subjectId } = useParams();
+  const queryClient = useQueryClient();
+
+  const { allGAs } = useGetAllGAs();
 
   const form = useForm<z.infer<typeof coCreateformSchema>>({
     resolver: zodResolver(coCreateformSchema),
     defaultValues: {
       name: "",
+      instance: "",
       gas: [],
     },
   });
 
-  // const cCoMu = useMutation({
-  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //   mutationFn: (newCo: any) => axios.post("co", newCo),
-  // });
+  const connectCoGaMutation = useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutationFn: (newCo: any) => axios.post("connect_co_gas", newCo),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["subject-detail-by-id"] });
+
+      toast(
+        "Course Outlines has been successfully created and connected with GA."
+      );
+    },
+  });
 
   function onSubmit(values: z.infer<typeof coCreateformSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values);
+    console.log("hello", values);
 
-    // cCoMu.mutate({
-    //   name: "Text",
-    //   instance: 2,
-    //   subjectID: subjectId,
-    // });
+    if (typeof +values.instance === "number") {
+      connectCoGaMutation.mutate({
+        coName: values.name,
+        coInstance: +values.instance,
+        subjectID: subjectId,
+        gaIDs: values.gas,
+      });
+    }
   }
 
   return (
@@ -354,12 +373,34 @@ const CoCreate = () => {
 
           <FormField
             control={form.control}
+            name="instance"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Course Outline No</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Type CO number"
+                    type="number"
+                    min={1}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Course Outline</FormLabel>
+                <FormLabel>Course Outline Description</FormLabel>
                 <FormControl>
-                  <Input placeholder="Type course outline" {...field} />
+                  <Input
+                    placeholder="Type course outline description"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -381,7 +422,7 @@ const CoCreate = () => {
                  </FormDescription>*/}
 
                   <div className="grid grid-cols-6 gap-4">
-                    {gaLists.map((ga) => (
+                    {allGAs?.map((ga) => (
                       <FormField
                         key={ga.id}
                         control={form.control}
@@ -407,7 +448,7 @@ const CoCreate = () => {
                                 />
                               </FormControl>
                               <FormLabel className="font-normal text-sm text-gray-500">
-                                {ga.name}
+                                {ga?.slug ?? ""}
                               </FormLabel>
                             </FormItem>
                           );
@@ -422,7 +463,11 @@ const CoCreate = () => {
           />
 
           <FlexBox className="justify-end">
-            <Button className="w-40" type="submit">
+            <Button
+              className="w-40"
+              type="submit"
+              disabled={connectCoGaMutation.isPending}
+            >
               Create
             </Button>
           </FlexBox>
