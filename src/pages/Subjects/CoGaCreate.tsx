@@ -1,4 +1,4 @@
-import { useGetAllGAs } from "@/common/hooks/useFetches";
+import { useGetAllGAs, useGetAttributes } from "@/common/hooks/useFetches";
 import { Card } from "@/components/common/card";
 import { FlexBox } from "@/components/common/flex-box";
 import { Text } from "@/components/common/text";
@@ -75,7 +75,7 @@ const fieldSchema = z.object({
 });
 
 const examQformSchema = z.object({
-  question: z.string().min(1),
+  attributeId: z.string().min(1),
   fields: z.array(fieldSchema),
 });
 
@@ -83,12 +83,19 @@ const ConnectExam = () => {
   const [coLists, setCoLists] = useState<string[]>([]);
 
   const { subjectId } = useParams();
+
   const { subject } = useGetSubjectDetail(subjectId);
+  const { attributes } = useGetAttributes({
+    type: "EXAM",
+    select: (data) => data?.data?.items,
+  });
+
+  const allCOs = subject?.co;
 
   const form = useForm<z.infer<typeof examQformSchema>>({
     resolver: zodResolver(examQformSchema),
     defaultValues: {
-      question: "",
+      attributeId: "",
       fields: [],
     },
   });
@@ -98,10 +105,17 @@ const ConnectExam = () => {
     name: "fields",
   });
 
-  const questionSelected = form.watch("question");
+  const questionSelected = form.watch("attributeId");
 
   function onSubmit(values: z.infer<typeof examQformSchema>) {
-    console.log(values);
+    const result = {
+      subjectId,
+      attributeId: values.attributeId,
+      coIds: allCOs?.map((c) => c.id),
+      gaIds: values.fields.map((f) => ({ gaId: f.key, mark: f.value })),
+    };
+
+    console.log(result);
   }
 
   return (
@@ -114,7 +128,7 @@ const ConnectExam = () => {
 
           <FormField
             control={form.control}
-            name="question"
+            name="attributeId"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-base">Questions</FormLabel>
@@ -128,12 +142,12 @@ const ConnectExam = () => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {[1, 2, 3, 4, 5, 6].map((q) => (
+                    {attributes?.map((att) => (
                       <SelectItem
-                        key={q + "selcect what erve"}
-                        value={`question` + q}
+                        key={att?.id + "select what erve"}
+                        value={att?.id}
                       >
-                        Question {q}
+                        {att?.name + " " + att?.instance}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -154,7 +168,7 @@ const ConnectExam = () => {
               </div>
 
               <div className="grid grid-cols-3 gap-4">
-                {subject?.co?.map((item) => (
+                {allCOs?.map((item) => (
                   <FlexBox key={item?.id} className="gap-2">
                     <Checkbox
                       id={item?.id}
@@ -267,7 +281,7 @@ const CoCreate = () => {
   function onSubmit(values: z.infer<typeof coCreateformSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log("hello", values);
+    // console.log("hello", values);
 
     if (typeof +values.instance === "number") {
       connectCoGaMutation.mutate({
