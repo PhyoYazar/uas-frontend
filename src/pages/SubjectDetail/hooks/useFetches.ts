@@ -41,7 +41,7 @@ type Attribute = {
 };
 
 type AttributeResponse = APIResponse & {
-  items: Attribute[];
+  items: Attribute[] | null;
 };
 
 type AttributeWithCoGaMarksProps = {
@@ -57,18 +57,15 @@ export const useGetAttributeWithCoGaMarks = (
 ) => {
   const { subjectId, type, select = (data) => data?.data } = props;
 
-  let queryStr = "page=1";
+  let queryStr = `page=1&subject_id=${subjectId}`;
   if (type) queryStr += `&type=${type}`;
 
   const { data, isPending, isError } = useQuery({
     queryKey: ["attributes-co-ga-marks"],
     queryFn: ({ signal }) =>
-      axios.get<AttributeResponse>(
-        `attributes_ga_mark/${subjectId}?${queryStr}`,
-        {
-          signal,
-        }
-      ),
+      axios.get<AttributeResponse>(`attributes_ga_mark?${queryStr}`, {
+        signal,
+      }),
     enabled: subjectId !== undefined,
     staleTime: 5000,
     select,

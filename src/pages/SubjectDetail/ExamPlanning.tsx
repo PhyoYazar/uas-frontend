@@ -13,8 +13,6 @@ export const ExamPlanning = () => {
     // select: (data) => data?.data,
   });
 
-  console.log("hello attributes => ", attributes);
-
   return (
     <div className="w-full overflow-auto border border-gray-300 rounded-md">
       {/* ------------------ header ---------------- */}
@@ -107,7 +105,7 @@ const CustomRow = (props: CustomRowType) => {
                 )}
               >
                 <Text
-                  className={cn(markIsExist ? "text-medium" : "text-gray-300")}
+                  className={cn(markIsExist ? "text-medium" : "text-gray-200")}
                 >
                   {markIsExist ? mark?.mark : "-"}
                 </Text>
