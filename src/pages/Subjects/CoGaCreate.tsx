@@ -1,4 +1,8 @@
-import { useGetAllGAs, useGetAttributes } from "@/common/hooks/useFetches";
+import {
+  Attribute,
+  useGetAllGAs,
+  useGetAttributes,
+} from "@/common/hooks/useFetches";
 import { Card } from "@/components/common/card";
 import { FlexBox } from "@/components/common/flex-box";
 import { Text } from "@/components/common/text";
@@ -21,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -30,10 +35,22 @@ import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 import { CoGaMapping } from "../SubjectDetail/CoGaMapping";
+import { CourseWorkPlanning } from "../SubjectDetail/CourseWorkPlanning";
+import { ExamPlanning } from "../SubjectDetail/ExamPlanning";
 import { useGetSubjectDetail } from "../SubjectDetail/hooks/useFetches";
 
 export const CoGaCreate = () => {
   const { subjectId } = useParams();
+
+  const { attributes: examQuestions } = useGetAttributes({
+    type: "EXAM",
+    select: (data) => data?.data?.items,
+  });
+
+  const { attributes: tutorialsCW } = useGetAttributes({
+    type: "COURSEWORK",
+    select: (data) => data?.data?.items,
+  });
 
   const { data: totalCos } = useQuery({
     queryKey: ["co-by-subject-id", subjectId],
@@ -45,23 +62,70 @@ export const CoGaCreate = () => {
   });
 
   return (
-    <section className="space-y-12 h-full">
-      <div className="space-y-4">
-        {totalCos === 0 ? (
-          <Text>
-            There is no course outlines. Please create course outlines.
-          </Text>
-        ) : (
-          <>
-            <Text className="text-xl font-semibold">Course outlines</Text>
-            <CoGaMapping />
-          </>
-        )}
-      </div>
+    <section className="space-y-16 h-full">
+      <Tabs defaultValue="co">
+        <TabsList className="mb-4">
+          <TabsTrigger value="co">Course Outlines</TabsTrigger>
+          <TabsTrigger value="exam_marks">Exam</TabsTrigger>
+          <TabsTrigger value="cw_marks">Course Work</TabsTrigger>
+        </TabsList>
 
-      <CoCreate />
+        <TabsContent value="co">
+          <Card className="space-y-4 bg-gray-50">
+            {totalCos === 0 ? (
+              <Text>
+                There is no course outlines. Please create course outlines.
+              </Text>
+            ) : (
+              <>
+                <Text className="text-xl font-semibold">Course outlines</Text>
+                <CoGaMapping />
+              </>
+            )}
 
-      <ConnectExam />
+            <CoCreate />
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="exam_marks">
+          <Card className="space-y-4 bg-gray-50">
+            {totalCos === 0 ? (
+              <Text>
+                There is no question created with marks. Please create question.
+              </Text>
+            ) : (
+              <>
+                <Text className="text-xl font-semibold">
+                  Exam Planning Assessment
+                </Text>
+                <ExamPlanning />
+              </>
+            )}
+
+            <CreateMark type="exam" attributes={examQuestions} />
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="cw_marks">
+          <Card className="space-y-4 bg-gray-50">
+            {totalCos === 0 ? (
+              <Text>
+                There is no course work created with marks. Please create course
+                work.
+              </Text>
+            ) : (
+              <>
+                <Text className="text-xl font-semibold">
+                  Course Work Planning Assessment
+                </Text>
+                <CourseWorkPlanning />
+              </>
+            )}
+
+            <CreateMark type="coursework" attributes={tutorialsCW} />
+          </Card>
+        </TabsContent>
+      </Tabs>
     </section>
   );
 };
@@ -79,16 +143,23 @@ const examQformSchema = z.object({
   fields: z.array(fieldSchema),
 });
 
-const ConnectExam = () => {
+type CreateMarkProps = {
+  type: "exam" | "coursework";
+  attributes: Attribute[] | undefined;
+};
+
+type CWType = "Tutorial" | "Lab" | "Assignment";
+
+const CreateMark = (props: CreateMarkProps) => {
+  const { type, attributes } = props;
+
+  const [cwType, setCwType] = useState<CWType>("Tutorial");
   const [coLists, setCoLists] = useState<string[]>([]);
 
   const { subjectId } = useParams();
+  const queryClient = useQueryClient();
 
   const { subject } = useGetSubjectDetail(subjectId);
-  const { attributes } = useGetAttributes({
-    type: "EXAM",
-    select: (data) => data?.data?.items,
-  });
 
   const allCOs = subject?.co;
 
@@ -107,49 +178,86 @@ const ConnectExam = () => {
 
   const questionSelected = form.watch("attributeId");
 
+  const createMarkMutation = useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutationFn: (newCo: any) => axios.post("create_mark_with_co_ga", newCo),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["attributes-co-ga-marks"] });
+
+      form.reset();
+      setCoLists([]);
+
+      toast("Exam Question has been successfully created with marks.");
+    },
+  });
+
   function onSubmit(values: z.infer<typeof examQformSchema>) {
     const result = {
-      subjectId,
-      attributeId: values.attributeId,
-      coIds: coLists,
-      gaIds: values.fields.map((f) => ({ gaId: f.key, mark: f.value })),
+      subjectID: subjectId,
+      attributeID: values.attributeId,
+      coIDs: coLists,
+      gas: values.fields.map((f) => ({ gaID: f.key, mark: +f.value })),
     };
 
-    console.log(result);
+    createMarkMutation.mutate(result);
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="w-[800px] space-y-4 rounded-md border border-gray-200 shadow-sm p-4 max-w-[900px] ">
-          <Text className="text-xl font-semibold">
-            Connect Co, Ga with exam and course work
-          </Text>
+          <Text className="text-xl font-semibold">Create {type} marks</Text>
+
+          {type === "coursework" ? (
+            <Select
+              defaultValue={cwType}
+              onValueChange={(val) => setCwType(val as CWType)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select Course Work Type" />
+              </SelectTrigger>
+              <SelectContent>
+                {["Tutorial", "Lab", "Assignment"].map((cw) => (
+                  <SelectItem key={cw + "whaadsf"} value={cw}>
+                    {cw}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : null}
 
           <FormField
             control={form.control}
             name="attributeId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-base">Questions</FormLabel>
+                <FormLabel className="text-base">
+                  {type === "exam" ? "Questions" : "Course Works"}
+                </FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select Question" />
+                      <SelectValue
+                        placeholder={`Select ${
+                          type === "exam" ? "Questions" : "Course Works"
+                        }`}
+                      />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {attributes?.map((att) => (
-                      <SelectItem
-                        key={att?.id + "select what erve"}
-                        value={att?.id}
-                      >
-                        {att?.name + " " + att?.instance}
-                      </SelectItem>
-                    ))}
+                    {attributes
+                      ?.filter((a) => a.name === cwType)
+                      ?.map((att) => (
+                        <SelectItem
+                          key={att?.id + "select what whd" + cwType}
+                          value={att?.id}
+                        >
+                          {att?.name + " " + att?.instance}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -229,7 +337,11 @@ const ConnectExam = () => {
           ) : null}
 
           <FlexBox className="justify-end">
-            <Button className="w-40" type="submit">
+            <Button
+              disabled={createMarkMutation.isPending}
+              className="w-40"
+              type="submit"
+            >
               Create
             </Button>
           </FlexBox>
@@ -271,6 +383,8 @@ const CoCreate = () => {
     mutationFn: (newCo: any) => axios.post("connect_co_gas", newCo),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["subject-detail-by-id"] });
+
+      form.reset();
 
       toast(
         "Course Outlines has been successfully created and connected with GA."

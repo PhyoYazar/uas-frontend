@@ -30,7 +30,7 @@ export const useGetAllGAs = () => {
 
 type AttributeType = "EXAM" | "COURSEWORK";
 
-type Attribute = {
+export type Attribute = {
   id: string;
   name: string;
   type: string;
@@ -51,7 +51,7 @@ type AttributeProps = {
 export const useGetAttributes = (props: AttributeProps) => {
   const { type, name, select } = props;
 
-  let queryStr = `page=1&rows=10&type=${type}`;
+  let queryStr = `page=1&rows=50&type=${type}`;
   if (name) queryStr += `&name=${name}`;
 
   const { data, isPending, isError } = useQuery({
