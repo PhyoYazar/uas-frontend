@@ -88,7 +88,7 @@ export const SubjectCreate = () => {
     onSuccess(data) {
       const subjectId = data?.data?.id;
 
-      toast("Subject has been created", {
+      toast.success("Subject has been created", {
         description: formatDateString(data.data.dateUpdated),
         // action: {
         //   label: "Undo",
@@ -101,7 +101,7 @@ export const SubjectCreate = () => {
     onError(error) {
       console.log("hello error", error);
 
-      toast("Fail to create the subject.");
+      toast.error("Fail to create the subject.");
     },
   });
 

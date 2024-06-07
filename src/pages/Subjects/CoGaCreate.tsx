@@ -37,10 +37,27 @@ import { z } from "zod";
 import { CoGaMapping } from "../SubjectDetail/CoGaMapping";
 import { CourseWorkPlanning } from "../SubjectDetail/CourseWorkPlanning";
 import { ExamPlanning } from "../SubjectDetail/ExamPlanning";
-import { useGetSubjectDetail } from "../SubjectDetail/hooks/useFetches";
+import {
+  useGetAttributeWithCoGaMarks,
+  useGetSubjectDetail,
+} from "../SubjectDetail/hooks/useFetches";
 
 export const CoGaCreate = () => {
   const { subjectId } = useParams();
+
+  const { attributes: isEmptyCW } = useGetAttributeWithCoGaMarks({
+    subjectId,
+    type: "COURSEWORK",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    select: (data) => (data?.data?.items === null) as any,
+  });
+
+  const { attributes: isEmptyExamQ } = useGetAttributeWithCoGaMarks({
+    subjectId,
+    type: "EXAM",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    select: (data) => (data?.data?.items === null) as any,
+  });
 
   const { attributes: examQuestions } = useGetAttributes({
     type: "EXAM",
@@ -79,6 +96,7 @@ export const CoGaCreate = () => {
             ) : (
               <>
                 <Text className="text-xl font-semibold">Course outlines</Text>
+
                 <CoGaMapping />
               </>
             )}
@@ -89,7 +107,7 @@ export const CoGaCreate = () => {
 
         <TabsContent value="exam_marks">
           <Card className="space-y-4 bg-gray-50">
-            {totalCos === 0 ? (
+            {isEmptyExamQ ? (
               <Text>
                 There is no question created with marks. Please create question.
               </Text>
@@ -98,6 +116,7 @@ export const CoGaCreate = () => {
                 <Text className="text-xl font-semibold">
                   Exam Planning Assessment
                 </Text>
+
                 <ExamPlanning />
               </>
             )}
@@ -108,7 +127,7 @@ export const CoGaCreate = () => {
 
         <TabsContent value="cw_marks">
           <Card className="space-y-4 bg-gray-50">
-            {totalCos === 0 ? (
+            {isEmptyCW ? (
               <Text>
                 There is no course work created with marks. Please create course
                 work.
@@ -118,6 +137,7 @@ export const CoGaCreate = () => {
                 <Text className="text-xl font-semibold">
                   Course Work Planning Assessment
                 </Text>
+
                 <CourseWorkPlanning />
               </>
             )}
@@ -182,12 +202,27 @@ const CreateMark = (props: CreateMarkProps) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: (newCo: any) => axios.post("create_mark_with_co_ga", newCo),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["attributes-co-ga-marks"] });
+      queryClient.invalidateQueries({
+        queryKey: ["attributes-co-ga-marks", type.toUpperCase(), subjectId],
+      });
 
       form.reset();
       setCoLists([]);
 
-      toast("Exam Question has been successfully created with marks.");
+      toast.success(
+        ` ${
+          type === "exam" ? "Exam Question" : "Course Work"
+        } has been successfully created with marks.`
+      );
+    },
+    onError: (err) => {
+      console.log("hello err", err);
+
+      toast.error(
+        `Creating ${
+          type === "exam" ? "Exam Question" : "Course Work"
+        } has been failed. Please try again!`
+      );
     },
   });
 
@@ -249,7 +284,9 @@ const CreateMark = (props: CreateMarkProps) => {
                   </FormControl>
                   <SelectContent>
                     {attributes
-                      ?.filter((a) => a.name === cwType)
+                      ?.filter((a) =>
+                        type === "exam" ? true : a.name === cwType
+                      )
                       ?.map((att) => (
                         <SelectItem
                           key={att?.id + "select what whd" + cwType}
@@ -386,8 +423,14 @@ const CoCreate = () => {
 
       form.reset();
 
-      toast(
+      toast.success(
         "Course Outlines has been successfully created and connected with GA."
+      );
+    },
+    onError: (err) => {
+      console.log("hello err", err);
+      toast.error(
+        "Creating Course Outlines has been failed. Please try again!"
       );
     },
   });

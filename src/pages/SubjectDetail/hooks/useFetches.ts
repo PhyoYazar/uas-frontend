@@ -48,20 +48,19 @@ type AttributeWithCoGaMarksProps = {
   subjectId: string | undefined;
   type?: "EXAM" | "COURSEWORK";
   select?: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  | ((data: AxiosResponse<AttributeResponse, any>) => AttributeResponse)
-    | undefined;
+  ((data: AxiosResponse<AttributeResponse, any>) => Attribute[]) | undefined;
 };
 
 export const useGetAttributeWithCoGaMarks = (
   props: AttributeWithCoGaMarksProps
 ) => {
-  const { subjectId, type, select = (data) => data?.data } = props;
+  const { subjectId, type, select = (data) => data?.data?.items } = props;
 
   let queryStr = `page=1&subject_id=${subjectId}`;
   if (type) queryStr += `&type=${type}`;
 
   const { data, isPending, isError } = useQuery({
-    queryKey: ["attributes-co-ga-marks"],
+    queryKey: ["attributes-co-ga-marks", type, subjectId],
     queryFn: ({ signal }) =>
       axios.get<AttributeResponse>(`attributes_ga_mark?${queryStr}`, {
         signal,

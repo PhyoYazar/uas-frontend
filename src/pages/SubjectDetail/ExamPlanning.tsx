@@ -51,7 +51,7 @@ export const ExamPlanning = () => {
         </FlexBox>
       </div>
 
-      {attributes?.items?.map((attribute) => (
+      {attributes?.map((attribute) => (
         <CustomRow
           key={attribute?.id}
           name={attribute?.name + " " + attribute?.instance}

@@ -55,7 +55,7 @@ export const useGetAttributes = (props: AttributeProps) => {
   if (name) queryStr += `&name=${name}`;
 
   const { data, isPending, isError } = useQuery({
-    queryKey: ["get-all-attributes", type],
+    queryKey: ["get-all-attributes", type, name],
     queryFn: ({ signal }) =>
       axios.get<AttributeResponse>(`attributes?${queryStr}&orderBy=instance`, {
         signal,

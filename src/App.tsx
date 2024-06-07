@@ -14,7 +14,14 @@ export const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <RootRoute />
-      <Toaster />
+      <Toaster
+        richColors
+        position="top-center"
+        duration={5000}
+        theme="light"
+        visibleToasts={3}
+        closeButton
+      />
     </QueryClientProvider>
   );
 };

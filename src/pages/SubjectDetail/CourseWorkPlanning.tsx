@@ -11,7 +11,6 @@ export const CourseWorkPlanning = () => {
   const { attributes } = useGetAttributeWithCoGaMarks({
     subjectId,
     type: "COURSEWORK",
-    // select: (data) => data?.data,
   });
 
   console.log("hello", attributes);
@@ -91,7 +90,7 @@ export const CourseWorkPlanning = () => {
         </FlexBox>
       </div>
 
-      {attributes?.items?.map((attribute) => (
+      {attributes?.map((attribute) => (
         <CustomRow
           key={attribute?.id}
           name={attribute?.name + " " + attribute?.instance}
