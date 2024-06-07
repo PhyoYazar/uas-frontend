@@ -111,7 +111,7 @@ const ConnectExam = () => {
     const result = {
       subjectId,
       attributeId: values.attributeId,
-      coIds: allCOs?.map((c) => c.id),
+      coIds: coLists,
       gaIds: values.fields.map((f) => ({ gaId: f.key, mark: f.value })),
     };
 

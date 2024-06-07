@@ -19,7 +19,7 @@ export const useGetSubjectDetail = (subjectId: string | undefined) => {
   const { data, isPending, isError } = useQuery({
     queryKey: ["subject-detail-by-id", subjectId],
     queryFn: ({ signal }) =>
-      axios.get<SubjectDetail>(`subject-detail/${subjectId}`, { signal }),
+      axios.get<SubjectDetail>(`subject_detail/${subjectId}`, { signal }),
     staleTime: 5000,
     enabled: subjectId !== undefined,
     select: (data) => data?.data,
