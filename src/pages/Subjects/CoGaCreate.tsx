@@ -38,23 +38,22 @@ import { CoGaMapping } from "../SubjectDetail/CoGaMapping";
 import { CourseWorkPlanning } from "../SubjectDetail/CourseWorkPlanning";
 import { ExamPlanning } from "../SubjectDetail/ExamPlanning";
 import {
-  useGetAttributeWithCoGaMarks,
+  useGetCWAttributeWithCoGaMarks,
+  useGetExamAttributeWithCoGaMarks,
   useGetSubjectDetail,
 } from "../SubjectDetail/hooks/useFetches";
 
 export const CoGaCreate = () => {
   const { subjectId } = useParams();
 
-  const { attributes: isEmptyCW } = useGetAttributeWithCoGaMarks({
+  const { attributes: isEmptyCW } = useGetCWAttributeWithCoGaMarks({
     subjectId,
-    type: "COURSEWORK",
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     select: (data) => (data?.data?.items === null) as any,
   });
 
-  const { attributes: isEmptyExamQ } = useGetAttributeWithCoGaMarks({
+  const { attributes: isEmptyExamQ } = useGetExamAttributeWithCoGaMarks({
     subjectId,
-    type: "EXAM",
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     select: (data) => (data?.data?.items === null) as any,
   });
@@ -203,7 +202,12 @@ const CreateMark = (props: CreateMarkProps) => {
     mutationFn: (newCo: any) => axios.post("create_mark_with_co_ga", newCo),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["attributes-co-ga-marks", type.toUpperCase(), subjectId],
+        queryKey: [
+          type === "exam"
+            ? "attributes-co-ga-exam-marks"
+            : "attributes-co-ga-cw-marks",
+          subjectId,
+        ],
       });
 
       form.reset();
@@ -240,25 +244,30 @@ const CreateMark = (props: CreateMarkProps) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="w-[800px] space-y-4 rounded-md border border-gray-200 shadow-sm p-4 max-w-[900px] ">
+        <div className="w-[800px] space-y-6 rounded-md border border-gray-200 shadow-sm p-4 max-w-[900px] ">
           <Text className="text-xl font-semibold">Create {type} marks</Text>
 
           {type === "coursework" ? (
-            <Select
-              defaultValue={cwType}
-              onValueChange={(val) => setCwType(val as CWType)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select Course Work Type" />
-              </SelectTrigger>
-              <SelectContent>
-                {["Tutorial", "Lab", "Assignment"].map((cw) => (
-                  <SelectItem key={cw + "whaadsf"} value={cw}>
-                    {cw}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="space-y-2">
+              <Label className="text-base" htmlFor="cw-type-111">
+                Select Course Work Type
+              </Label>
+              <Select
+                defaultValue={cwType}
+                onValueChange={(val) => setCwType(val as CWType)}
+              >
+                <SelectTrigger id="cw-type-111">
+                  <SelectValue placeholder="Select Course Work Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {["Tutorial", "Lab", "Assignment"].map((cw) => (
+                    <SelectItem key={cw + "whaadsf"} value={cw}>
+                      {cw}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           ) : null}
 
           <FormField

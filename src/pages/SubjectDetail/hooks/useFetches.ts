@@ -46,27 +46,46 @@ type AttributeResponse = APIResponse & {
 
 type AttributeWithCoGaMarksProps = {
   subjectId: string | undefined;
-  type?: "EXAM" | "COURSEWORK";
   select?: // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ((data: AxiosResponse<AttributeResponse, any>) => Attribute[]) | undefined;
 };
 
-export const useGetAttributeWithCoGaMarks = (
+export const useGetExamAttributeWithCoGaMarks = (
   props: AttributeWithCoGaMarksProps
 ) => {
-  const { subjectId, type, select = (data) => data?.data?.items } = props;
-
-  let queryStr = `page=1&subject_id=${subjectId}`;
-  if (type) queryStr += `&type=${type}`;
+  const { subjectId, select = (data) => data?.data?.items } = props;
 
   const { data, isPending, isError } = useQuery({
-    queryKey: ["attributes-co-ga-marks", type, subjectId],
+    queryKey: ["attributes-co-ga-exam-marks", subjectId],
     queryFn: ({ signal }) =>
-      axios.get<AttributeResponse>(`attributes_ga_mark?${queryStr}`, {
-        signal,
-      }),
+      axios.get<AttributeResponse>(
+        `attributes_ga_mark?page=1&subject_id=${subjectId}&type=EXAM&orderBy=instance`,
+        {
+          signal,
+        }
+      ),
     enabled: subjectId !== undefined,
-    staleTime: 5000,
+    select,
+  });
+
+  return { attributes: data, isPending, isError };
+};
+
+export const useGetCWAttributeWithCoGaMarks = (
+  props: AttributeWithCoGaMarksProps
+) => {
+  const { subjectId, select = (data) => data?.data?.items } = props;
+
+  const { data, isPending, isError } = useQuery({
+    queryKey: ["attributes-co-ga-cw-marks", subjectId],
+    queryFn: ({ signal }) =>
+      axios.get<AttributeResponse>(
+        `attributes_ga_mark?page=1&subject_id=${subjectId}&type=COURSEWORK&orderBy=name,DESC`,
+        {
+          signal,
+        }
+      ),
+    enabled: subjectId !== undefined,
     select,
   });
 

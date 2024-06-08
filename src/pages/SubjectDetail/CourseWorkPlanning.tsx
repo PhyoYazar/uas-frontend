@@ -4,16 +4,13 @@ import { Text } from "@/components/common/text";
 import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
 import { useParams } from "react-router-dom";
-import { useGetAttributeWithCoGaMarks } from "./hooks/useFetches";
+import { useGetCWAttributeWithCoGaMarks } from "./hooks/useFetches";
 
 export const CourseWorkPlanning = () => {
   const { subjectId } = useParams();
-  const { attributes } = useGetAttributeWithCoGaMarks({
+  const { attributes } = useGetCWAttributeWithCoGaMarks({
     subjectId,
-    type: "COURSEWORK",
   });
-
-  console.log("hello", attributes);
 
   return (
     <div className="w-full overflow-auto border border-gray-300 rounded-md">

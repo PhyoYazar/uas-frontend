@@ -3,14 +3,12 @@ import { Text } from "@/components/common/text";
 import { cn } from "@/lib/utils";
 import { useParams } from "react-router-dom";
 import { HeadText } from "./CourseWorkPlanning";
-import { useGetAttributeWithCoGaMarks } from "./hooks/useFetches";
+import { useGetExamAttributeWithCoGaMarks } from "./hooks/useFetches";
 
 export const ExamPlanning = () => {
   const { subjectId } = useParams();
-  const { attributes } = useGetAttributeWithCoGaMarks({
+  const { attributes } = useGetExamAttributeWithCoGaMarks({
     subjectId,
-    type: "EXAM",
-    // select: (data) => data?.data,
   });
 
   return (

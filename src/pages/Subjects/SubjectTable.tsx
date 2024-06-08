@@ -85,7 +85,7 @@ export function SubjectTable() {
         </FlexBox>
 
         <Link to={"/subject/create"}>
-          <Button className="w-40">Create</Button>
+          <Button className="w-40">Create Subject</Button>
         </Link>
       </FlexBox>
 
