@@ -25,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { years } from "@/common/constants/helpers";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import timezone from "dayjs/plugin/timezone";
@@ -314,34 +315,3 @@ export const SubjectCreate = () => {
     </section>
   );
 };
-
-const years = [
-  "2010",
-  "2011",
-  "2012",
-  "2013",
-  "2014",
-  "2015",
-  "2016",
-  "2017",
-  "2018",
-  "2019",
-  "2020",
-  "2021",
-  "2022",
-  "2023",
-  "2024",
-  "2025",
-  "2026",
-  "2027",
-  "2028",
-  "2029",
-  "2030",
-  "2031",
-  "2032",
-  "2033",
-  "2034",
-  "2035",
-  "2036",
-  "2037",
-];

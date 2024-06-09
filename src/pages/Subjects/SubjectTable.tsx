@@ -1,5 +1,6 @@
 ("use client");
 
+import { years } from "@/common/constants/helpers";
 import { APIResponse } from "@/common/type/type";
 import { CustomTable } from "@/components/common/custom-table";
 import { FlexBox } from "@/components/common/flex-box";
@@ -40,16 +41,25 @@ type SubjectsResponse = APIResponse & {
 export function SubjectTable() {
   const [search, setSearch] = useState("");
   const [year, setYear] = useState("");
+  const [academicYear, setAcademicYear] = useState("");
 
   const navigate = useNavigate();
 
-  const debounceSearch = useDebounce(search, 200);
+  const debounceSearch = useDebounce(search, 400);
 
-  const { data: subjects } = useQuery({
-    queryKey: ["all-subjects"],
-    queryFn: ({ signal }) =>
-      axios.get<SubjectsResponse>("subjects", { signal }),
+  const { data: subjects, isFetching } = useQuery({
+    queryKey: ["all-subjects", year, debounceSearch, academicYear],
+    queryFn: ({ signal }) => {
+      let queryStr = "";
+
+      if (debounceSearch.length > 2) queryStr += `&name=${debounceSearch}`;
+      if (year !== "") queryStr += `&year=${year}`;
+      if (academicYear !== "") queryStr += `&academicYear=${academicYear}`;
+
+      return axios.get<SubjectsResponse>(`subjects?${queryStr}`, { signal });
+    },
     staleTime: 5000,
+    placeholderData: (data) => data,
   });
 
   return (
@@ -75,6 +85,29 @@ export function SubjectTable() {
                 "Third Year",
                 "Fourth Year",
                 "Fifth Year",
+                "Sixth Year",
+              ].map((y) => (
+                <SelectItem key={y} value={y}>
+                  {y}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            onValueChange={(val) => setAcademicYear(val === "None" ? "" : val)}
+          >
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Academic Year" />
+            </SelectTrigger>
+            <SelectContent>
+              {[
+                "None",
+                ...years.map((y, index) =>
+                  years.length - 1 === index
+                    ? y + "-" + (+y + 1)
+                    : y + "-" + years[index + 1]
+                ),
               ].map((y) => (
                 <SelectItem key={y} value={y}>
                   {y}
@@ -90,14 +123,13 @@ export function SubjectTable() {
       </FlexBox>
 
       <CustomTable
+        isLoading={isFetching}
         data={
-          subjects?.data?.items
-            ?.filter((sub) => sub.name.includes(debounceSearch))
-            ?.filter((sub) => {
-              if (year !== "") return sub.year === year;
+          subjects?.data?.items?.filter((sub) => {
+            if (year !== "") return sub.year === year;
 
-              return true;
-            }) ?? []
+            return true;
+          }) ?? []
         }
         columns={columns}
         onRowClick={({ id }) => navigate(`${id}`)}
