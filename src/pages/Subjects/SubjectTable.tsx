@@ -30,13 +30,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { useDebounce } from "@uidotdev/usehooks";
 import axios from "axios";
 import { MoreVertical } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { useGetSubjectById } from "../SubjectDetail/hooks/useFetches";
 import { EditSubject } from "./EditSubject";
 
@@ -69,6 +70,7 @@ export function SubjectTable() {
   const [subjectId, setSubjectId] = useState<string | undefined>(undefined);
 
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const debounceSearch = useDebounce(search, 400);
 
@@ -103,6 +105,23 @@ export function SubjectTable() {
     },
     [total]
   );
+
+  const deleteSubjectMutation = useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutationFn: ({ subID }: any) => axios.delete(`subjects/${subID}`),
+    onSuccess() {
+      toast.success("Subject has been deleted successfully.");
+
+      queryClient.invalidateQueries({
+        queryKey: ["all-subjects"],
+      });
+    },
+    onError(error) {
+      console.log("hello error", error);
+
+      toast.error("Fail to delete the subject.");
+    },
+  });
 
   const columns: ColumnDef<Subject>[] = useMemo(
     () => [
@@ -171,7 +190,12 @@ export function SubjectTable() {
                 >
                   Update
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteSubjectMutation.mutate({ subID: subject.id });
+                  }}
+                >
                   Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>

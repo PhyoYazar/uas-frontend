@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -57,6 +57,8 @@ type EditSubjectProps = {
 export const EditSubject = (props: EditSubjectProps) => {
   const { subject, open, setOpen } = props;
 
+  const queryClient = useQueryClient();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -76,6 +78,12 @@ export const EditSubject = (props: EditSubjectProps) => {
     mutationFn: (updSub: any) => axios.put(`subjects/${subject.id}`, updSub),
     onSuccess() {
       toast.success("Subject has been updated successfully.");
+
+      queryClient.invalidateQueries({
+        queryKey: ["all-subjects"],
+      });
+
+      setOpen(false);
     },
     onError(error) {
       console.log("hello error", error);
@@ -93,7 +101,7 @@ export const EditSubject = (props: EditSubjectProps) => {
       semester: values.semester,
       instructor: values.instructor,
       exam: +values.examPercentage,
-      practical: +values.courseWorkPercentage,
+      coursework: +values.courseWorkPercentage,
     });
   }
 
