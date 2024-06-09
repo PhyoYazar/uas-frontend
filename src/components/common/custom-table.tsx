@@ -70,15 +70,6 @@ export function CustomTable<T>(props: TableProps<T>) {
 
   return (
     <div className="w-full border border-gray-200 rounded-md">
-      {/* {isLoading ? (
-        <FlexBox className="w-full h-full absolute top-0 left-0 justify-center z-1 bg-gray-100 rounded-md opacity-90">
-          <Icon
-            name="loader-circle"
-            className="w-10 h-10 text-gray-500 animate-spin"
-          />
-        </FlexBox>
-      ) : null} */}
-
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (

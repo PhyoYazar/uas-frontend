@@ -7,6 +7,16 @@ import { FlexBox } from "@/components/common/flex-box";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -17,7 +27,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { useDebounce } from "@uidotdev/usehooks";
 import axios from "axios";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 export type Subject = {
@@ -42,15 +52,17 @@ export function SubjectTable() {
   const [search, setSearch] = useState("");
   const [year, setYear] = useState("");
   const [academicYear, setAcademicYear] = useState("");
+  const [page, setPage] = useState(1);
+  // const [pageSize, setPageSize] = useState(10);
 
   const navigate = useNavigate();
 
   const debounceSearch = useDebounce(search, 400);
 
   const { data: subjects, isFetching } = useQuery({
-    queryKey: ["all-subjects", year, debounceSearch, academicYear],
+    queryKey: ["all-subjects", year, debounceSearch, academicYear, page],
     queryFn: ({ signal }) => {
-      let queryStr = "";
+      let queryStr = `page=${page}`;
 
       if (debounceSearch.length > 2) queryStr += `&name=${debounceSearch}`;
       if (year !== "") queryStr += `&year=${year}`;
@@ -59,8 +71,19 @@ export function SubjectTable() {
       return axios.get<SubjectsResponse>(`subjects?${queryStr}`, { signal });
     },
     staleTime: 5000,
+    select: (data) => data?.data,
     placeholderData: (data) => data,
   });
+
+  const total = subjects?.total ?? 0;
+
+  const totalPage = useMemo(
+    function () {
+      const pageCount = Math.ceil(total / 10);
+      return pageCount > 0 ? pageCount : 1;
+    },
+    [total]
+  );
 
   return (
     <>
@@ -125,7 +148,7 @@ export function SubjectTable() {
       <CustomTable
         isLoading={isFetching}
         data={
-          subjects?.data?.items?.filter((sub) => {
+          subjects?.items?.filter((sub) => {
             if (year !== "") return sub.year === year;
 
             return true;
@@ -134,6 +157,63 @@ export function SubjectTable() {
         columns={columns}
         onRowClick={({ id }) => navigate(`${id}`)}
       />
+
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem
+            className="cursor-pointer"
+            onClick={() => setPage((prev) => (prev === 1 ? prev : prev - 1))}
+          >
+            <PaginationPrevious />
+          </PaginationItem>
+
+          {totalPage > 10 ? (
+            <>
+              {Array.from({ length: 5 }, (_, i) => i + 1).map((p) => (
+                <PaginationItem
+                  key={"adfpaginac sdf" + p}
+                  className="cursor-pointer"
+                >
+                  <PaginationLink isActive={p === page}>{p}</PaginationLink>
+                </PaginationItem>
+              ))}
+
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+
+              {Array.from({ length: 4 }, (_, i) => totalPage - i)
+                .reverse()
+                .map((p) => (
+                  <PaginationItem
+                    key={"adfpaginac sdf" + p}
+                    className="cursor-pointer"
+                  >
+                    <PaginationLink isActive={p === page}>{p}</PaginationLink>
+                  </PaginationItem>
+                ))}
+            </>
+          ) : (
+            Array.from({ length: totalPage }, (_, i) => i + 1).map((p) => (
+              <PaginationItem
+                key={"Pagination sd" + p}
+                className="cursor-pointer"
+              >
+                <PaginationLink isActive={p === page}>{p}</PaginationLink>
+              </PaginationItem>
+            ))
+          )}
+
+          <PaginationItem
+            className="cursor-pointer"
+            onClick={() =>
+              setPage((prev) => (totalPage === prev ? prev : prev + 1))
+            }
+          >
+            <PaginationNext />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </>
   );
 }
