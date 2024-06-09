@@ -43,3 +43,7 @@ export const years = [
   "2036",
   "2037",
 ];
+
+export const dualYears = years.map((y, index) =>
+  years.length - 1 === index ? y + "-" + (+y + 1) : y + "-" + years[index + 1]
+);

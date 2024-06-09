@@ -3,13 +3,11 @@ import { Text } from "@/components/common/text";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { Link, useParams } from "react-router-dom";
-import { Subject } from "../Subjects/SubjectTable";
 import { CoGaMapping } from "./CoGaMapping";
 import { CourseWorkPlanning } from "./CourseWorkPlanning";
 import { ExamPlanning } from "./ExamPlanning";
+import { useGetSubjectById } from "./hooks/useFetches";
 
 // const fetchBySubjectId = () => {
 //   return axios.get("https://jsonplaceholder.typicode.com/posts");
@@ -18,14 +16,7 @@ import { ExamPlanning } from "./ExamPlanning";
 export const SubjectDetail = () => {
   const { subjectId } = useParams();
 
-  const { data: subject } = useQuery({
-    queryKey: ["subject-by-id", subjectId],
-    queryFn: ({ signal }) =>
-      axios.get<Subject>(`subjects/${subjectId}`, { signal }),
-    staleTime: 5000,
-    enabled: subjectId !== undefined,
-    select: (data) => data?.data,
-  });
+  const { subject } = useGetSubjectById(subjectId);
 
   return (
     <section className="w-full p-4">

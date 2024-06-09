@@ -1,11 +1,17 @@
 ("use client");
 
-import { years } from "@/common/constants/helpers";
 import { APIResponse } from "@/common/type/type";
 import { CustomTable } from "@/components/common/custom-table";
 import { FlexBox } from "@/components/common/flex-box";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+
 import {
   Pagination,
   PaginationContent,
@@ -16,6 +22,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
+import { dualYears } from "@/common/constants/helpers";
 import {
   Select,
   SelectContent,
@@ -27,8 +34,11 @@ import { useQuery } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { useDebounce } from "@uidotdev/usehooks";
 import axios from "axios";
+import { MoreVertical } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useGetSubjectById } from "../SubjectDetail/hooks/useFetches";
+import { EditSubject } from "./EditSubject";
 
 export type Subject = {
   id: string;
@@ -55,9 +65,18 @@ export function SubjectTable() {
   const [page, setPage] = useState(1);
   // const [pageSize, setPageSize] = useState(10);
 
+  const [editOpen, setEditOpen] = useState(false);
+  const [subjectId, setSubjectId] = useState<string | undefined>(undefined);
+
   const navigate = useNavigate();
 
   const debounceSearch = useDebounce(search, 400);
+
+  const {
+    subject,
+    isPending: isPending,
+    isError,
+  } = useGetSubjectById(subjectId);
 
   const { data: subjects, isFetching } = useQuery({
     queryKey: ["all-subjects", year, debounceSearch, academicYear, page],
@@ -83,6 +102,85 @@ export function SubjectTable() {
       return pageCount > 0 ? pageCount : 1;
     },
     [total]
+  );
+
+  const columns: ColumnDef<Subject>[] = useMemo(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Name",
+        cell: ({ row }) => (
+          <div className="capitalize">{row.getValue("name")}</div>
+        ),
+      },
+      {
+        accessorKey: "code",
+        header: "Code",
+        cell: ({ row }) => (
+          <div className="capitalize">{row.getValue("code")}</div>
+        ),
+      },
+      {
+        accessorKey: "instructor",
+        header: "Instructor",
+        cell: ({ row }) => (
+          <div className="capitalize">{row.getValue("instructor")}</div>
+        ),
+      },
+      {
+        accessorKey: "year",
+        header: "Year",
+        cell: ({ row }) => (
+          <div className="capitalize">{row.getValue("year")}</div>
+        ),
+      },
+      {
+        accessorKey: "academicYear",
+        header: "Academic Year",
+        cell: ({ row }) => (
+          <div className="capitalize">{row.getValue("academicYear")}</div>
+        ),
+      },
+
+      {
+        id: "actions",
+        enableHiding: false,
+        cell: ({ row }) => {
+          const subject = row.original;
+
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {/* <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(payment.id)}
+            >
+              Copy Subject ID
+            </DropdownMenuItem> */}
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditOpen(true);
+                    setSubjectId(subject?.id);
+                  }}
+                >
+                  Update
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        },
+      },
+    ],
+    []
   );
 
   return (
@@ -124,14 +222,7 @@ export function SubjectTable() {
               <SelectValue placeholder="Academic Year" />
             </SelectTrigger>
             <SelectContent>
-              {[
-                "None",
-                ...years.map((y, index) =>
-                  years.length - 1 === index
-                    ? y + "-" + (+y + 1)
-                    : y + "-" + years[index + 1]
-                ),
-              ].map((y) => (
+              {["None", ...dualYears].map((y) => (
                 <SelectItem key={y} value={y}>
                   {y}
                 </SelectItem>
@@ -214,105 +305,14 @@ export function SubjectTable() {
           </PaginationItem>
         </PaginationContent>
       </Pagination>
+
+      {!isError && !isPending ? (
+        <EditSubject
+          open={editOpen}
+          setOpen={setEditOpen}
+          subject={subject as Subject}
+        />
+      ) : null}
     </>
   );
 }
-
-const columns: ColumnDef<Subject>[] = [
-  // {
-  //   id: "select",
-  //   header: ({ table }) => (
-  //     <Checkbox
-  //       checked={
-  //         table.getIsAllPageRowsSelected() ||
-  //         (table.getIsSomePageRowsSelected() && "indeterminate")
-  //       }
-  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-  //       aria-label="Select all"
-  //     />
-  //   ),
-  //   cell: ({ row }) => (
-  //     <Checkbox
-  //       checked={row.getIsSelected()}
-  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
-  //       aria-label="Select row"
-  //     />
-  //   ),
-  //   enableSorting: false,
-  //   enableHiding: false,
-  // },
-  // {
-  //   accessorKey: "email",
-  //   header: ({ column }) => {
-  //     return (
-  //       <Button
-  //         variant="ghost"
-  //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-  //       >
-  //         Email
-  //         <ArrowUpDown className="ml-2 h-4 w-4" />
-  //       </Button>
-  //     );
-  //   },
-  //   cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
-  // },
-  {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
-  },
-  {
-    accessorKey: "code",
-    header: "Code",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("code")}</div>,
-  },
-  {
-    accessorKey: "instructor",
-    header: "Instructor",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("instructor")}</div>
-    ),
-  },
-  {
-    accessorKey: "year",
-    header: "Year",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("year")}</div>,
-  },
-  {
-    accessorKey: "academicYear",
-    header: "Academic Year",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("academicYear")}</div>
-    ),
-  },
-
-  // {
-  //   id: "actions",
-  //   enableHiding: false,
-  //   cell: ({ row }) => {
-  //     const payment = row.original;
-
-  //     return (
-  //       <DropdownMenu>
-  //         <DropdownMenuTrigger asChild>
-  //           <Button variant="ghost" className="h-8 w-8 p-0">
-  //             <span className="sr-only">Open menu</span>
-  //             <MoreHorizontal className="h-4 w-4" />
-  //           </Button>
-  //         </DropdownMenuTrigger>
-  //         <DropdownMenuContent align="end">
-  //           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-  //           <DropdownMenuItem
-  //             onClick={() => navigator.clipboard.writeText(payment.id)}
-  //           >
-  //             Copy payment ID
-  //           </DropdownMenuItem>
-  //           <DropdownMenuSeparator />
-  //           <DropdownMenuItem>View customer</DropdownMenuItem>
-  //           <DropdownMenuItem>View payment details</DropdownMenuItem>
-  //         </DropdownMenuContent>
-  //       </DropdownMenu>
-  //     );
-  //   },
-  // },
-];

@@ -1,6 +1,12 @@
 import { FlexBox } from "@/components/common/flex-box";
-import { Text } from "@/components/common/text";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -21,26 +27,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { years } from "@/common/constants/helpers";
-import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
-
-// Extend dayjs with the plugins
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.extend(customParseFormat);
-
-const formatDateString = (dateString: string): string => {
-  // Parse the date string and convert it to the desired format
-  const date = dayjs(dateString);
-  return date.tz("UTC").format("dddd, MMMM DD, YYYY [at] h:mm A");
-};
+import { dualYears } from "@/common/constants/helpers";
+import { Subject } from "./SubjectTable";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Subject name is required" }),
@@ -48,93 +39,79 @@ const formSchema = z.object({
   instructor: z.string().min(1, { message: "Instructor name is required" }),
   year: z.string().min(1, { message: "Year is empty" }),
   semester: z.string().min(1, { message: "Semester is required" }),
-  academicStartYear: z
-    .string()
-    .min(1, { message: "Academic Year is required" }),
-  academicEndYear: z.string().min(1, { message: "Academic Year is required" }),
+  academicYear: z.string().min(1, { message: "Academic Year is required" }),
   examPercentage: z
     .string()
     .min(1, { message: "Exam mark percentage is required" }),
+  courseWorkPercentage: z
+    .string()
+    .min(1, { message: "Course Work mark percentage is required" }),
 });
 
-type CreateSubject = {
-  name: string;
-  code: string;
-  year: string;
-  academicYear: string;
-  semester: string;
-  instructor: string;
-  exam: number;
+type EditSubjectProps = {
+  subject: Subject;
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export const SubjectCreate = () => {
-  const navigate = useNavigate();
+export const EditSubject = (props: EditSubjectProps) => {
+  const { subject, open, setOpen } = props;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      code: "",
-      instructor: "",
-      year: "",
-      semester: "",
-      academicStartYear: "",
-      academicEndYear: "",
-      examPercentage: "",
+      name: subject.name,
+      code: subject.code,
+      instructor: subject.instructor,
+      year: subject.year,
+      semester: subject.semester,
+      academicYear: subject.academicYear,
+      examPercentage: subject.exam + "",
+      courseWorkPercentage: subject.practical + "",
     },
   });
 
-  const createSubjectMutation = useMutation({
-    mutationFn: (newSub: CreateSubject) => axios.post("subject", newSub),
-    onSuccess(data) {
-      const subjectId = data?.data?.id;
-
-      toast.success("Subject has been created", {
-        description: formatDateString(data.data.dateUpdated),
-        // action: {
-        //   label: "Undo",
-        //   onClick: () => console.log("Undo"),
-        // },
-      });
-
-      if (subjectId) navigate(subjectId);
+  const updateSubjectMutation = useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutationFn: (updSub: any) => axios.put(`subjects/${subject.id}`, updSub),
+    onSuccess() {
+      toast.success("Subject has been updated successfully.");
     },
     onError(error) {
       console.log("hello error", error);
 
-      toast.error("Fail to create the subject.");
+      toast.error("Fail to update the subject.");
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-
-    // console.log(values);
-
-    createSubjectMutation.mutate({
+    updateSubjectMutation.mutate({
       name: values.name,
       code: values.code,
       year: values.year,
-      academicYear: values.academicStartYear + "-" + values.academicEndYear,
+      academicYear: values.academicYear,
       semester: values.semester,
       instructor: values.instructor,
       exam: +values.examPercentage,
+      practical: +values.courseWorkPercentage,
     });
   }
 
   return (
-    <section className="space-y-4">
-      <FlexBox className="">
+    <Dialog onOpenChange={(open) => setOpen(open)} open={open}>
+      <DialogContent className="max-w-[800px]">
+        <DialogHeader>
+          <DialogTitle>Edit profile</DialogTitle>
+          <DialogDescription>
+            Make changes to your subject here. Click save when you're done.
+          </DialogDescription>
+        </DialogHeader>
+
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-8 w-[800px] rounded-md border border-gray-200 shadow-sm p-4 max-w-[900px]"
+            className="space-y-8 w-full p-4"
           >
-            <Text className="text-xl font-semibold text-start">
-              Creating Subject
-            </Text>
-
             <div className="items-start  grid grid-cols-2 gap-x-12 gap-y-8">
               <FormField
                 control={form.control}
@@ -150,58 +127,31 @@ export const SubjectCreate = () => {
                 )}
               />
 
-              <FlexBox className="items-end gap-4">
-                <FormField
-                  control={form.control}
-                  name="academicStartYear"
-                  render={({ field }) => (
-                    <FormItem className="w-1/2">
-                      <FormLabel>Academic Year</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Start Year" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {years.map((year) => (
-                            <SelectItem value={year}>{year}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="academicEndYear"
-                  render={({ field }) => (
-                    <FormItem className="w-1/2">
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="End Year" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {years.map((year) => (
-                            <SelectItem value={year}>{year}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </FlexBox>
+              <FormField
+                control={form.control}
+                name="academicYear"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Academic Year</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Academic Year" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {dualYears.map((year) => (
+                          <SelectItem value={year}>{year}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
@@ -262,6 +212,20 @@ export const SubjectCreate = () => {
 
               <FormField
                 control={form.control}
+                name="examPercentage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Exam Percentage</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Type exam percentage" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="semester"
                 render={({ field }) => (
                   <FormItem>
@@ -287,12 +251,15 @@ export const SubjectCreate = () => {
 
               <FormField
                 control={form.control}
-                name="examPercentage"
+                name="courseWorkPercentage"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Exam Percentage</FormLabel>
+                    <FormLabel>Course Work Percentage</FormLabel>
                     <FormControl>
-                      <Input placeholder="Type exam percentage" {...field} />
+                      <Input
+                        placeholder="Type course work percentage"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -304,14 +271,14 @@ export const SubjectCreate = () => {
               <Button
                 className="w-40"
                 type="submit"
-                disabled={createSubjectMutation.isPending}
+                disabled={updateSubjectMutation.isPending}
               >
-                Create
+                Save
               </Button>
             </FlexBox>
           </form>
         </Form>
-      </FlexBox>
-    </section>
+      </DialogContent>
+    </Dialog>
   );
 };
