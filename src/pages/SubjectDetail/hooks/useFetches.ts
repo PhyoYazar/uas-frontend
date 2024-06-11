@@ -94,14 +94,19 @@ export const useGetCWAttributeWithCoGaMarks = (
 
 //================================================================================================
 
-export const useGetSubjectById = (subjectId: string | undefined) => {
+export const useGetSubjectById = (
+  subjectId: string | undefined,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  select: ((data: AxiosResponse<Subject, any>) => any) | undefined = (data) =>
+    data?.data
+) => {
   const { data, isPending, isError } = useQuery({
     queryKey: ["subject-by-id", subjectId],
     queryFn: ({ signal }) =>
       axios.get<Subject>(`subjects/${subjectId}`, { signal }),
     staleTime: 5000,
     enabled: subjectId !== undefined,
-    select: (data) => data?.data,
+    select,
   });
 
   return { subject: data, isPending, isError };

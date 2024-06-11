@@ -1,3 +1,4 @@
+import { useGetAllGAs } from "@/common/hooks/useFetches";
 import { FlexBox } from "@/components/common/flex-box";
 import Icon from "@/components/common/icon";
 import { Text } from "@/components/common/text";
@@ -8,12 +9,33 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { HeadText } from "./CourseWorkPlanning";
-import { useGetExamAttributeWithCoGaMarks } from "./hooks/useFetches";
+import {
+  useGetExamAttributeWithCoGaMarks,
+  useGetSubjectById,
+} from "./hooks/useFetches";
 
 export const ExamPlanning = () => {
   const { subjectId } = useParams();
+
   const { attributes } = useGetExamAttributeWithCoGaMarks({
     subjectId,
+  });
+  const { subject: examPercent } = useGetSubjectById(
+    subjectId,
+    (data) => data?.data?.exam
+  );
+
+  const { allGAs } = useGetAllGAs();
+  const gaMarks: { id: string; mark: number; gaSlug: string; gaID: string }[] =
+    allGAs?.map((g) => ({ id: "null", mark: 0, gaID: g.id, gaSlug: g.slug })) ??
+    [];
+
+  attributes?.forEach((attribute) => {
+    attribute.marks.forEach((mark) => {
+      const index = gaMarks.findIndex((g) => mark.gaID === g.gaID);
+
+      if (index !== -1) gaMarks[index].mark = gaMarks[index].mark + mark.mark;
+    });
   });
 
   return (
@@ -56,18 +78,35 @@ export const ExamPlanning = () => {
 
       {attributes?.map((attribute) => (
         <CustomRow
+          allowDelete
           key={attribute?.id}
           attributeId={attribute?.id}
           name={attribute?.name + " " + attribute?.instance}
           cos={attribute?.co?.map((c) => c.instance).join(", ")}
           marks={attribute?.marks}
-          total={`100`}
+          total={`20`}
         />
       ))}
 
-      {/* <CustomRow name="Question 1" ga={dummyGa} total={`100`} />
-      <CustomRow name="Total Marks Upon 100%" ga={dummyGa} total={`100`} />
-      <CustomRow name={`Total Marks Upon ` + "80%"} ga={dummyGa} total={`80`} /> */}
+      {(attributes?.length ?? 0) > 0 ? (
+        <>
+          <div className="col-span-full h-6 border-t border-t-gray-300" />
+
+          <CustomRow
+            name="Total Marks Upon 100%"
+            marks={gaMarks}
+            total={`100`}
+          />
+          <CustomRow
+            name={`Total Marks Upon ` + examPercent + "%"}
+            marks={gaMarks?.map((m) => ({
+              ...m,
+              mark: Math.floor((m.mark / 100) * examPercent * 10) / 10,
+            }))}
+            total={examPercent}
+          />
+        </>
+      ) : null}
     </div>
   );
 };
@@ -75,6 +114,7 @@ export const ExamPlanning = () => {
 type CustomRowType = {
   name: string;
   cos?: string;
+  allowDelete?: boolean;
   marks: { gaID: string; gaSlug: string; id: string; mark: number }[];
   total?: string;
   time?: string;
@@ -82,7 +122,15 @@ type CustomRowType = {
 };
 
 const CustomRow = (props: CustomRowType) => {
-  const { name, cos = "", marks, attributeId, total = "", time = "" } = props;
+  const {
+    name,
+    cos = "",
+    allowDelete = false,
+    marks,
+    attributeId,
+    total = "",
+    time = "",
+  } = props;
 
   const { subjectId } = useParams();
   const queryClient = useQueryClient();
@@ -116,7 +164,7 @@ const CustomRow = (props: CustomRowType) => {
     <div ref={ref} className="grid grid-cols-12 border-t border-t-gray-300">
       <FlexBox className="col-span-2 border-r border-r-gray-300 justify-center relative">
         <Text className="">{name}</Text>
-        {hovering ? (
+        {allowDelete && hovering ? (
           <FlexBox
             className="justify-center w-full h-full cursor-pointer bg-gradient-to-r from-red-400 to-red-300 absolute top-0"
             onClick={() => onDeleteHandler()}
@@ -135,7 +183,8 @@ const CustomRow = (props: CustomRowType) => {
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((el) => {
             const mark = marks?.find((m) => +m?.gaSlug?.slice(-1) === el);
 
-            const markIsExist = +(mark?.gaSlug?.slice(-1) ?? 0) === el;
+            const markIsExist =
+              +(mark?.gaSlug?.slice(-1) ?? 0) === el && (mark?.mark ?? 0) > 0;
 
             return (
               <FlexBox
