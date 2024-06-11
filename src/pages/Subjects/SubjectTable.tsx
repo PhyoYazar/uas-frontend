@@ -284,35 +284,88 @@ export function SubjectTable() {
 
           {totalPage > 10 ? (
             <>
-              {Array.from({ length: 5 }, (_, i) => i + 1).map((p) => (
-                <PaginationItem
-                  key={"adfpaginac sdf" + p}
-                  className="cursor-pointer"
-                >
-                  <PaginationLink isActive={p === page}>{p}</PaginationLink>
-                </PaginationItem>
-              ))}
+              {page > 5 && page < totalPage - 4 ? (
+                <>
+                  {Array.from({ length: 2 }, (_, i) => i + 1).map((p) => (
+                    <PaginationItem
+                      key={"adfpaginac sdf" + p}
+                      className="cursor-pointer"
+                      onClick={() => setPage(p)}
+                    >
+                      <PaginationLink isActive={p === page}>{p}</PaginationLink>
+                    </PaginationItem>
+                  ))}
 
-              <PaginationItem>
-                <PaginationEllipsis />
-              </PaginationItem>
-
-              {Array.from({ length: 4 }, (_, i) => totalPage - i)
-                .reverse()
-                .map((p) => (
-                  <PaginationItem
-                    key={"adfpaginac sdf" + p}
-                    className="cursor-pointer"
-                  >
-                    <PaginationLink isActive={p === page}>{p}</PaginationLink>
+                  <PaginationItem>
+                    <PaginationEllipsis />
                   </PaginationItem>
-                ))}
+
+                  {Array.from({ length: 5 }, (_, i) => page + (i - 2)).map(
+                    (p) => (
+                      <PaginationItem
+                        key={"adfpaginac sdf" + p}
+                        className="cursor-pointer"
+                        onClick={() => setPage(p)}
+                      >
+                        <PaginationLink isActive={p === page}>
+                          {p}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )
+                  )}
+
+                  <PaginationItem>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+
+                  <PaginationItem
+                    key={"adfpaginac sdf" + totalPage}
+                    className="cursor-pointer"
+                    onClick={() => setPage(totalPage)}
+                  >
+                    <PaginationLink isActive={totalPage === page}>
+                      {totalPage}
+                    </PaginationLink>
+                  </PaginationItem>
+                </>
+              ) : (
+                <>
+                  {Array.from({ length: 5 }, (_, i) => i + 1).map((p) => (
+                    <PaginationItem
+                      key={"adfpaginac sdf" + p}
+                      className="cursor-pointer"
+                      onClick={() => setPage(p)}
+                    >
+                      <PaginationLink isActive={p === page}>{p}</PaginationLink>
+                    </PaginationItem>
+                  ))}
+
+                  <PaginationItem>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+
+                  {Array.from({ length: 5 }, (_, i) => totalPage - i)
+                    .reverse()
+                    .map((p) => (
+                      <PaginationItem
+                        key={"adfpaginac sdf" + p}
+                        className="cursor-pointer"
+                        onClick={() => setPage(p)}
+                      >
+                        <PaginationLink isActive={p === page}>
+                          {p}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                </>
+              )}
             </>
           ) : (
             Array.from({ length: totalPage }, (_, i) => i + 1).map((p) => (
               <PaginationItem
                 key={"Pagination sd" + p}
                 className="cursor-pointer"
+                onClick={() => setPage(p)}
               >
                 <PaginationLink isActive={p === page}>{p}</PaginationLink>
               </PaginationItem>

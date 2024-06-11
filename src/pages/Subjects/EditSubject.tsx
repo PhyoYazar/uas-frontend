@@ -114,7 +114,7 @@ export const EditSubject = (props: EditSubjectProps) => {
     <Dialog onOpenChange={(open) => setOpen(open)} open={open}>
       <DialogContent className="max-w-[800px]">
         <DialogHeader>
-          <DialogTitle>Edit profile</DialogTitle>
+          <DialogTitle>Edit subject</DialogTitle>
           <DialogDescription>
             Make changes to your subject here. Click save when you're done.
           </DialogDescription>
