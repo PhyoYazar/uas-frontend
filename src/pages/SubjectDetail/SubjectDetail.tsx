@@ -71,7 +71,7 @@ export const SubjectDetail = () => {
                 </TabsList>
 
                 <Link to={`/subject/create/${subjectId}`}>
-                  <Button>Create CO</Button>
+                  <Button>Create</Button>
                 </Link>
               </FlexBox>
 

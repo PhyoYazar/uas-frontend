@@ -1,11 +1,16 @@
 import { useGetAllGAs } from "@/common/hooks/useFetches";
 import { CustomTooltip } from "@/components/common/custom-tooltip";
 import { FlexBox } from "@/components/common/flex-box";
+import Icon from "@/components/common/icon";
 import { Text } from "@/components/common/text";
 import { cn } from "@/lib/utils";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useHover } from "@uidotdev/usehooks";
+import axios from "axios";
 import { CheckIcon } from "lucide-react";
 import { ReactNode } from "react";
 import { useParams } from "react-router-dom";
+import { toast } from "sonner";
 import { useGetSubjectDetail } from "./hooks/useFetches";
 
 export const CoGaMapping = () => {
@@ -28,35 +33,83 @@ export const CoGaMapping = () => {
       </div>
 
       {subject?.co?.map((co) => (
-        <div
-          key={co?.id + "what ev"}
-          className="grid w-full overflow-auto"
-          style={{ gridTemplateColumns: "repeat(22, 1fr)" }}
-        >
-          <HeadItem name={co?.instance} />
-          <HeadItem name={co?.name} className="col-span-9 justify-start" />
-
-          {allGAs?.map(({ slug }) => (
-            <ElItem key={slug + "wwdfaf osp"}>
-              {co?.ga?.map((ga) => ga?.slug).includes(slug) ? (
-                <CheckIcon />
-              ) : (
-                "-"
-              )}
-            </ElItem>
-          ))}
-        </div>
+        <CoRow
+          id={co?.id ?? ""}
+          name={co?.name ?? ""}
+          instance={co?.instance ?? ""}
+          ga={co?.ga ?? []}
+        />
       ))}
     </section>
   );
 };
 
+type CoRowProps = {
+  id: string;
+  instance: string;
+  name: string;
+  ga: { slug: string; id: string; name: string }[];
+};
+
+const CoRow = (props: CoRowProps) => {
+  const { id, instance, name, ga } = props;
+
+  const queryClient = useQueryClient();
+  const { subjectId } = useParams();
+  const [ref, hovering] = useHover();
+
+  const { allGAs } = useGetAllGAs();
+
+  const deleteMutation = useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutationFn: ({ coId }: any) => axios.delete(`co/${coId}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["subject-detail-by-id", subjectId],
+      });
+
+      toast.success(`Course outlines has been successfully deleted.`);
+    },
+    onError: (err) => {
+      console.log("hello err", err);
+
+      toast.error(
+        `Deleting course outlines has been failed. Please try again!`
+      );
+    },
+  });
+
+  return (
+    <div
+      ref={ref}
+      key={id + "what ev"}
+      className="grid w-full overflow-auto"
+      style={{ gridTemplateColumns: "repeat(22, 1fr)" }}
+    >
+      <HeadItem
+        name={instance}
+        hover={hovering}
+        onDelete={() => deleteMutation.mutate({ coId: id })}
+      />
+      <HeadItem name={name} className="col-span-9 justify-start" />
+
+      {allGAs?.map(({ slug }) => (
+        <ElItem key={slug + "wwdfaf osp"}>
+          {ga?.map((ga) => ga?.slug).includes(slug) ? <CheckIcon /> : "-"}
+        </ElItem>
+      ))}
+    </div>
+  );
+};
+
 const HeadItem = (props: {
   name: string;
+  hover?: boolean;
   className?: string;
   tooltipLabel?: string;
+  onDelete?: () => void;
 }) => {
-  const { name, className, tooltipLabel } = props;
+  const { name, className, onDelete, hover = false, tooltipLabel } = props;
 
   const text = <Text className="font-semibold text-gray-500">{name}</Text>;
 
@@ -64,9 +117,18 @@ const HeadItem = (props: {
     <FlexBox
       className={cn(
         "border justify-center min-w-16 col-span-1 p-2 border-gray-400",
+        hover ? "relative" : "",
         className
       )}
     >
+      {hover ? (
+        <FlexBox
+          className="justify-center w-full h-full cursor-pointer bg-gradient-to-r from-red-400 to-red-300 absolute top-0"
+          onClick={() => onDelete?.()}
+        >
+          <Icon name="trash-2" className="text-red-700" />
+        </FlexBox>
+      ) : null}
       {tooltipLabel ? (
         <CustomTooltip label={tooltipLabel}>{text}</CustomTooltip>
       ) : (
