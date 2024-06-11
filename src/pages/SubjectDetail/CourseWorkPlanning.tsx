@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import {
   useCalculateMarks,
   useGetCWAttributeWithCoGaMarks,
+  useGetExamAttributeWithCoGaMarks,
   useGetSubjectById,
 } from "./hooks/useFetches";
 
@@ -21,12 +22,21 @@ export const CourseWorkPlanning = () => {
     subjectId,
   });
 
+  const { attributes: examAttributes } = useGetExamAttributeWithCoGaMarks({
+    subjectId,
+  });
+
   const { subject: examPercent } = useGetSubjectById(
     subjectId,
     (data) => data?.data?.exam
   );
 
-  const { gaMarks } = useCalculateMarks(attributes ?? []);
+  const { gaMarks: cwGaMarks } = useCalculateMarks(attributes ?? []);
+  const { gaMarks: examGaMarks } = useCalculateMarks(examAttributes ?? []);
+  const totalGaMarks = cwGaMarks.map((cw) => ({
+    ...cw,
+    mark: cw.mark + (examGaMarks.find((e) => e.gaID === cw.gaID)?.mark ?? 0),
+  }));
 
   return (
     <div className="w-full overflow-auto border border-gray-300 rounded-md">
@@ -121,14 +131,28 @@ export const CourseWorkPlanning = () => {
 
           <CustomRow
             name="Total Course Works"
-            marks={gaMarks?.map((m) => ({
+            marks={cwGaMarks?.map((m) => ({
               ...m,
               mark: Math.floor((m.mark / 100) * examPercent * 10) / 10,
             }))}
             percentMark={100 - examPercent + ""}
           />
-          <CustomRow name="Final Exam" marks={[]} percentMark={examPercent} />
-          <CustomRow name="Total Marks" marks={[]} percentMark="100" />
+          <CustomRow
+            name="Final Exam"
+            marks={examGaMarks?.map((m) => ({
+              ...m,
+              mark: Math.floor((m.mark / 100) * examPercent * 10) / 10,
+            }))}
+            percentMark={examPercent}
+          />
+          <CustomRow
+            name="Total Marks"
+            marks={totalGaMarks?.map((m) => ({
+              ...m,
+              mark: Math.floor((m.mark / 100) * examPercent * 10) / 10,
+            }))}
+            percentMark="100"
+          />
         </>
       ) : null}
     </div>
