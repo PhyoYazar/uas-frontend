@@ -19,6 +19,11 @@ export const CoGaMapping = () => {
   const { subject } = useGetSubjectDetail(subjectId);
   const { allGAs } = useGetAllGAs();
 
+  const cos =
+    subject?.co?.filter(
+      (c) => c.id !== "00000000-0000-0000-0000-000000000000"
+    ) ?? [];
+
   return (
     <section>
       <div
@@ -32,7 +37,7 @@ export const CoGaMapping = () => {
         ))}
       </div>
 
-      {subject?.co?.map((co) => (
+      {cos.map((co) => (
         <CoRow
           id={co?.id ?? ""}
           name={co?.name ?? ""}
