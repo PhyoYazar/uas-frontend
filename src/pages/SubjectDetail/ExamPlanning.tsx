@@ -97,12 +97,12 @@ const CustomRow = (props: CustomRowType) => {
         queryKey: ["attributes-co-ga-exam-marks", subjectId],
       });
 
-      toast.success(`Question has been successfully deleted.`);
+      toast.success(`${name} has been successfully deleted.`);
     },
     onError: (err) => {
       console.log("hello err", err);
 
-      toast.error(`Deleting exam question has been failed. Please try again!`);
+      toast.error(`Deleting ${name} has been failed. Please try again!`);
     },
   });
 

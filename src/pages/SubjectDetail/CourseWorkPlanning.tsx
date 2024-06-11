@@ -1,9 +1,14 @@
 import { CustomTooltip } from "@/components/common/custom-tooltip";
 import { FlexBox } from "@/components/common/flex-box";
+import Icon from "@/components/common/icon";
 import { Text } from "@/components/common/text";
 import { cn } from "@/lib/utils";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useHover } from "@uidotdev/usehooks";
+import axios from "axios";
 import { ReactNode } from "react";
 import { useParams } from "react-router-dom";
+import { toast } from "sonner";
 import { useGetCWAttributeWithCoGaMarks } from "./hooks/useFetches";
 
 export const CourseWorkPlanning = () => {
@@ -90,6 +95,7 @@ export const CourseWorkPlanning = () => {
       {attributes?.map((attribute) => (
         <CustomRow
           key={attribute?.id}
+          attributeId={attribute?.id}
           name={attribute?.name + " " + attribute?.instance}
           cos={attribute?.co?.map((c) => c.instance).join(", ")}
           marks={attribute?.marks}
@@ -112,15 +118,60 @@ type CustomRowType = {
   marks: { gaID: string; gaSlug: string; id: string; mark: number }[];
   total?: string;
   percentMark?: string;
+  attributeId?: string;
 };
 
 const CustomRow = (props: CustomRowType) => {
-  const { name, cos = "", marks, total = "", percentMark = "" } = props;
+  const {
+    name,
+    marks,
+    attributeId,
+    cos = "",
+    total = "",
+    percentMark = "",
+  } = props;
+
+  const { subjectId } = useParams();
+  const queryClient = useQueryClient();
+  const [ref, hovering] = useHover();
+
+  const deleteMutation = useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutationFn: ({ attributeId, subjectId }: any) =>
+      axios.delete(`remove_attribute/${attributeId}?subject_id=${subjectId}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["attributes-co-ga-cw-marks", subjectId],
+      });
+
+      toast.success(`${name} has been successfully deleted.`);
+    },
+    onError: (err) => {
+      console.log("hello err", err);
+
+      toast.error(`Deleting ${name} has been failed. Please try again!`);
+    },
+  });
+
+  const onDeleteHandler = () => {
+    if (subjectId && attributeId) {
+      deleteMutation.mutate({ subjectId, attributeId });
+    }
+  };
 
   return (
-    <div className="grid grid-cols-12 border-t border-t-gray-300">
-      <FlexBox className="col-span-2 border-r border-r-gray-300 justify-center">
+    <div ref={ref} className="grid grid-cols-12 border-t border-t-gray-300">
+      <FlexBox className="col-span-2 border-r border-r-gray-300 justify-center relative">
         <Text className="text-gray-600">{name}</Text>
+
+        {hovering ? (
+          <FlexBox
+            className="justify-center w-full h-full cursor-pointer bg-gradient-to-r from-red-400 to-red-300 absolute top-0"
+            onClick={() => onDeleteHandler()}
+          >
+            <Icon name="trash-2" className="text-red-700" />
+          </FlexBox>
+        ) : null}
       </FlexBox>
 
       <FlexBox className="col-span-1 border-r border-r-gray-300 justify-center">
