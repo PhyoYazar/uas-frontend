@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { dualYears } from "@/common/constants/helpers";
+import { Label } from "@/components/ui/label";
 import { Subject } from "./SubjectTable";
 
 const formSchema = z.object({
@@ -43,9 +44,6 @@ const formSchema = z.object({
   examPercentage: z
     .string()
     .min(1, { message: "Exam mark percentage is required" }),
-  courseWorkPercentage: z
-    .string()
-    .min(1, { message: "Course Work mark percentage is required" }),
 });
 
 type EditSubjectProps = {
@@ -69,9 +67,11 @@ export const EditSubject = (props: EditSubjectProps) => {
       semester: subject.semester,
       academicYear: subject.academicYear,
       examPercentage: subject.exam + "",
-      courseWorkPercentage: subject.practical + "",
     },
   });
+
+  const examPercentValue = +form.watch("examPercentage");
+  const cwPercent = examPercentValue === 0 ? "" : 100 - examPercentValue + "";
 
   const updateSubjectMutation = useMutation({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -93,6 +93,11 @@ export const EditSubject = (props: EditSubjectProps) => {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    if (isNaN(+values.examPercentage)) {
+      toast.warning("Exam Percentage must be a number");
+      return;
+    }
+
     updateSubjectMutation.mutate({
       name: values.name,
       code: values.code,
@@ -101,7 +106,7 @@ export const EditSubject = (props: EditSubjectProps) => {
       semester: values.semester,
       instructor: values.instructor,
       exam: +values.examPercentage,
-      coursework: +values.courseWorkPercentage,
+      coursework: +cwPercent,
     });
   }
 
@@ -257,22 +262,14 @@ export const EditSubject = (props: EditSubjectProps) => {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="courseWorkPercentage"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Course Work Percentage</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Type course work percentage"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="space-y-2">
+                <Label>Course Work Percentage</Label>
+                <Input
+                  placeholder="Type exam percentage"
+                  value={cwPercent}
+                  disabled
+                />
+              </div>
             </div>
 
             <FlexBox className="justify-end">

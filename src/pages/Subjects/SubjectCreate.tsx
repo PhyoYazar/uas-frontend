@@ -107,6 +107,11 @@ export const SubjectCreate = () => {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    if (isNaN(+values.examPercentage)) {
+      toast.warning("Exam Percentage must be a number");
+      return;
+    }
+
     createSubjectMutation.mutate({
       name: values.name,
       code: values.code,
