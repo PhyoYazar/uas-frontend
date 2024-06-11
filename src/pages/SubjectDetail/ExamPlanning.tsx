@@ -1,4 +1,3 @@
-import { useGetAllGAs } from "@/common/hooks/useFetches";
 import { FlexBox } from "@/components/common/flex-box";
 import Icon from "@/components/common/icon";
 import { Text } from "@/components/common/text";
@@ -10,6 +9,7 @@ import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { HeadText } from "./CourseWorkPlanning";
 import {
+  useCalculateMarks,
   useGetExamAttributeWithCoGaMarks,
   useGetSubjectById,
 } from "./hooks/useFetches";
@@ -25,18 +25,7 @@ export const ExamPlanning = () => {
     (data) => data?.data?.exam
   );
 
-  const { allGAs } = useGetAllGAs();
-  const gaMarks: { id: string; mark: number; gaSlug: string; gaID: string }[] =
-    allGAs?.map((g) => ({ id: "null", mark: 0, gaID: g.id, gaSlug: g.slug })) ??
-    [];
-
-  attributes?.forEach((attribute) => {
-    attribute.marks.forEach((mark) => {
-      const index = gaMarks.findIndex((g) => mark.gaID === g.gaID);
-
-      if (index !== -1) gaMarks[index].mark = gaMarks[index].mark + mark.mark;
-    });
-  });
+  const { gaMarks } = useCalculateMarks(attributes ?? []);
 
   return (
     <div className="w-full overflow-auto border border-gray-300 rounded-md">
@@ -90,7 +79,7 @@ export const ExamPlanning = () => {
 
       {(attributes?.length ?? 0) > 0 ? (
         <>
-          <div className="col-span-full h-6 border-t border-t-gray-300" />
+          <div className="col-span-full bg-gray-50 h-6 border-t border-t-gray-300" />
 
           <CustomRow
             name="Total Marks Upon 100%"

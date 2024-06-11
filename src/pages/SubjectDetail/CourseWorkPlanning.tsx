@@ -9,13 +9,24 @@ import axios from "axios";
 import { ReactNode } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { useGetCWAttributeWithCoGaMarks } from "./hooks/useFetches";
+import {
+  useCalculateMarks,
+  useGetCWAttributeWithCoGaMarks,
+  useGetSubjectById,
+} from "./hooks/useFetches";
 
 export const CourseWorkPlanning = () => {
   const { subjectId } = useParams();
   const { attributes } = useGetCWAttributeWithCoGaMarks({
     subjectId,
   });
+
+  const { subject: examPercent } = useGetSubjectById(
+    subjectId,
+    (data) => data?.data?.exam
+  );
+
+  const { gaMarks } = useCalculateMarks(attributes ?? []);
 
   return (
     <div className="w-full overflow-auto border border-gray-300 rounded-md">
@@ -94,6 +105,7 @@ export const CourseWorkPlanning = () => {
 
       {attributes?.map((attribute) => (
         <CustomRow
+          allowDelete
           key={attribute?.id}
           attributeId={attribute?.id}
           name={attribute?.name + " " + attribute?.instance}
@@ -103,11 +115,22 @@ export const CourseWorkPlanning = () => {
         />
       ))}
 
-      {/*
-      <CustomRow name="Question 1" ga={dummyGa} total={`100`} />
-      <CustomRow name="Total Course Works" ga={dummyGa} total={`100`} />
-      <CustomRow name="Final Exam" ga={dummyGa} />
-      <CustomRow name="Total Marks" ga={dummyGa} /> */}
+      {(attributes?.length ?? 0) > 0 ? (
+        <>
+          <div className="col-span-full bg-gray-50 h-6 border-t border-t-gray-300" />
+
+          <CustomRow
+            name="Total Course Works"
+            marks={gaMarks?.map((m) => ({
+              ...m,
+              mark: Math.floor((m.mark / 100) * examPercent * 10) / 10,
+            }))}
+            percentMark={100 - examPercent + ""}
+          />
+          <CustomRow name="Final Exam" marks={[]} percentMark={examPercent} />
+          <CustomRow name="Total Marks" marks={[]} percentMark="100" />
+        </>
+      ) : null}
     </div>
   );
 };
@@ -115,6 +138,7 @@ export const CourseWorkPlanning = () => {
 type CustomRowType = {
   name: string;
   cos?: string;
+  allowDelete?: boolean;
   marks: { gaID: string; gaSlug: string; id: string; mark: number }[];
   total?: string;
   percentMark?: string;
@@ -126,6 +150,7 @@ const CustomRow = (props: CustomRowType) => {
     name,
     marks,
     attributeId,
+    allowDelete = false,
     cos = "",
     total = "",
     percentMark = "",
@@ -164,7 +189,7 @@ const CustomRow = (props: CustomRowType) => {
       <FlexBox className="col-span-2 border-r border-r-gray-300 justify-center relative">
         <Text className="text-gray-600">{name}</Text>
 
-        {hovering ? (
+        {allowDelete && hovering ? (
           <FlexBox
             className="justify-center w-full h-full cursor-pointer bg-gradient-to-r from-red-400 to-red-300 absolute top-0"
             onClick={() => onDeleteHandler()}
@@ -186,12 +211,13 @@ const CustomRow = (props: CustomRowType) => {
         <Text className="">{percentMark}</Text>
       </FlexBox>
 
-      <FlexBox className="col-span-7 flex-col border-r border-r-gray-300 justify-center">
+      <FlexBox className="col-span-7 flex-col  justify-center">
         <div className="w-full grid grid-cols-12">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((el) => {
             const mark = marks?.find((m) => +m?.gaSlug?.slice(-1) === el);
 
-            const markIsExist = +(mark?.gaSlug?.slice(-1) ?? 0) === el;
+            const markIsExist =
+              +(mark?.gaSlug?.slice(-1) ?? 0) === el && (mark?.mark ?? 0) > 0;
 
             return (
               <FlexBox

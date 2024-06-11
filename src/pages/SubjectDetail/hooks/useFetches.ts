@@ -1,3 +1,4 @@
+import { useGetAllGAs } from "@/common/hooks/useFetches";
 import { APIResponse } from "@/common/type/type";
 import { Subject } from "@/pages/Subjects/SubjectTable";
 import { useQuery } from "@tanstack/react-query";
@@ -110,4 +111,23 @@ export const useGetSubjectById = (
   });
 
   return { subject: data, isPending, isError };
+};
+
+// =================================================================================================
+
+export const useCalculateMarks = (attributes: Attribute[]) => {
+  const { allGAs } = useGetAllGAs();
+  const gaMarks: { id: string; mark: number; gaSlug: string; gaID: string }[] =
+    allGAs?.map((g) => ({ id: "null", mark: 0, gaID: g.id, gaSlug: g.slug })) ??
+    [];
+
+  attributes?.forEach((attribute) => {
+    attribute.marks.forEach((mark) => {
+      const index = gaMarks.findIndex((g) => mark.gaID === g.gaID);
+
+      if (index !== -1) gaMarks[index].mark = gaMarks[index].mark + mark.mark;
+    });
+  });
+
+  return { gaMarks };
 };
