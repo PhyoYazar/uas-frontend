@@ -204,7 +204,7 @@ export function SubjectTable() {
         },
       },
     ],
-    []
+    [deleteSubjectMutation]
   );
 
   return (

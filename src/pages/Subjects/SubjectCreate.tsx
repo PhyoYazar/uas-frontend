@@ -25,7 +25,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { years } from "@/common/constants/helpers";
+import { dualYears } from "@/common/constants/helpers";
+import { Label } from "@/components/ui/label";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import timezone from "dayjs/plugin/timezone";
@@ -48,10 +49,7 @@ const formSchema = z.object({
   instructor: z.string().min(1, { message: "Instructor name is required" }),
   year: z.string().min(1, { message: "Year is empty" }),
   semester: z.string().min(1, { message: "Semester is required" }),
-  academicStartYear: z
-    .string()
-    .min(1, { message: "Academic Year is required" }),
-  academicEndYear: z.string().min(1, { message: "Academic Year is required" }),
+  academicYear: z.string().min(1, { message: "Academic Year is required" }),
   examPercentage: z
     .string()
     .min(1, { message: "Exam mark percentage is required" }),
@@ -78,11 +76,13 @@ export const SubjectCreate = () => {
       instructor: "",
       year: "",
       semester: "",
-      academicStartYear: "",
-      academicEndYear: "",
+      academicYear: "",
       examPercentage: "",
     },
   });
+
+  const examPercentValue = +form.watch("examPercentage");
+  const cwPercent = examPercentValue === 0 ? "" : 100 - examPercentValue + "";
 
   const createSubjectMutation = useMutation({
     mutationFn: (newSub: CreateSubject) => axios.post("subject", newSub),
@@ -107,16 +107,11 @@ export const SubjectCreate = () => {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-
-    // console.log(values);
-
     createSubjectMutation.mutate({
       name: values.name,
       code: values.code,
       year: values.year,
-      academicYear: values.academicStartYear + "-" + values.academicEndYear,
+      academicYear: values.academicYear,
       semester: values.semester,
       instructor: values.instructor,
       exam: +values.examPercentage,
@@ -150,58 +145,31 @@ export const SubjectCreate = () => {
                 )}
               />
 
-              <FlexBox className="items-end gap-4">
-                <FormField
-                  control={form.control}
-                  name="academicStartYear"
-                  render={({ field }) => (
-                    <FormItem className="w-1/2">
-                      <FormLabel>Academic Year</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Start Year" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {years.map((year) => (
-                            <SelectItem value={year}>{year}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="academicEndYear"
-                  render={({ field }) => (
-                    <FormItem className="w-1/2">
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="End Year" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {years.map((year) => (
-                            <SelectItem value={year}>{year}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </FlexBox>
+              <FormField
+                control={form.control}
+                name="academicYear"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Academic Year</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Start Year" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {dualYears.map((year) => (
+                          <SelectItem value={year}>{year}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
@@ -262,6 +230,20 @@ export const SubjectCreate = () => {
 
               <FormField
                 control={form.control}
+                name="examPercentage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Exam Percentage</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Type exam percentage" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="semester"
                 render={({ field }) => (
                   <FormItem>
@@ -285,19 +267,14 @@ export const SubjectCreate = () => {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="examPercentage"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Exam Percentage</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Type exam percentage" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="space-y-2">
+                <Label>Course Work Percentage</Label>
+                <Input
+                  placeholder="Type exam percentage"
+                  value={cwPercent}
+                  disabled
+                />
+              </div>
             </div>
 
             <FlexBox className="justify-end">
