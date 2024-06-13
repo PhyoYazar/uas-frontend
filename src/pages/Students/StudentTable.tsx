@@ -236,12 +236,13 @@ export function StudentTable() {
           </Select>
         </FlexBox>
 
-        <Link to={"/subject/create"}>
-          <Button className="w-40">Create Subject</Button>
+        <Link to={"/student/create"}>
+          <Button className="w-40">Create Student</Button>
         </Link>
       </FlexBox>
 
       <CustomTable
+        disabledRowClickDetail
         isLoading={isFetching}
         data={
           students?.items?.filter((std) => {

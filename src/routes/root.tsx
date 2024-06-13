@@ -2,6 +2,7 @@ import { Layout } from "@/components/layout/Layout";
 import { Dashboard } from "@/pages/Dashboard/Dashboard";
 import { Settings } from "@/pages/Settings/Settings";
 import { Student } from "@/pages/Students/Student";
+import { StudentCreate } from "@/pages/Students/StudentCreate";
 import { SubjectDetail } from "@/pages/SubjectDetail/SubjectDetail";
 import { CoGaCreate } from "@/pages/Subjects/CoGaCreate";
 import { SubjectCreate } from "@/pages/Subjects/SubjectCreate";
@@ -33,6 +34,7 @@ const router = createBrowserRouter([
         element: <CoGaCreate />,
       },
       { path: "student", element: <Student /> },
+      { path: "student/create", element: <StudentCreate /> },
       { path: "settings", element: <Settings /> },
     ],
   },
