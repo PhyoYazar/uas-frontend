@@ -29,28 +29,24 @@ import { MoreVertical } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useGetSubjectById } from "../SubjectDetail/hooks/useFetches";
-import { EditSubject } from "./EditSubject";
+import { EditStudent } from "./EditStudent";
+import { useGetStudentById } from "./hooks/useFetches";
 
-export type Subject = {
+export type Student = {
   id: string;
   name: string;
-  code: string;
+  rollNumber: number;
   year: string;
   academicYear: string;
   dateCreated: string;
   dateUpdated: string;
-  instructor: string;
-  exam: number;
-  practical: number;
-  semester: string;
 };
 
-type SubjectsResponse = APIResponse & {
-  items: Subject[];
+type StudentsResponse = APIResponse & {
+  items: Student[];
 };
 
-export function SubjectTable() {
+export function StudentTable() {
   const [search, setSearch] = useState("");
   const [year, setYear] = useState("");
   const [academicYear, setAcademicYear] = useState("");
@@ -65,28 +61,29 @@ export function SubjectTable() {
   const debounceSearch = useDebounce(search, 400);
 
   const {
-    subject,
+    student,
     isPending: isPending,
     isError,
-  } = useGetSubjectById(subjectId);
+  } = useGetStudentById(subjectId);
 
-  const { data: subjects, isFetching } = useQuery({
-    queryKey: ["all-subjects", year, debounceSearch, academicYear, page],
+  const { data: students, isFetching } = useQuery({
+    queryKey: ["all-students", year, debounceSearch, academicYear, page],
     queryFn: ({ signal }) => {
       let queryStr = `page=${page}`;
 
-      if (debounceSearch.length > 2) queryStr += `&name=${debounceSearch}`;
+      if (debounceSearch.length > 0)
+        queryStr += `&roll_number=${debounceSearch}`;
       if (year !== "") queryStr += `&year=${year}`;
       if (academicYear !== "") queryStr += `&academicYear=${academicYear}`;
 
-      return axios.get<SubjectsResponse>(`subjects?${queryStr}`, { signal });
+      return axios.get<StudentsResponse>(`students?${queryStr}`, { signal });
     },
     staleTime: 5000,
     select: (data) => data?.data,
     placeholderData: (data) => data,
   });
 
-  const total = subjects?.total ?? 0;
+  const total = students?.total ?? 0;
 
   const totalPage = useMemo(
     function () {
@@ -96,24 +93,24 @@ export function SubjectTable() {
     [total]
   );
 
-  const deleteSubjectMutation = useMutation({
+  const deleteStudentMutation = useMutation({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mutationFn: ({ subID }: any) => axios.delete(`subjects/${subID}`),
+    mutationFn: ({ stdID }: any) => axios.delete(`student/${stdID}`),
     onSuccess() {
-      toast.success("Subject has been deleted successfully.");
+      toast.success("Student has been deleted successfully.");
 
       queryClient.invalidateQueries({
-        queryKey: ["all-subjects"],
+        queryKey: ["all-students"],
       });
     },
     onError(error) {
       console.log("hello error", error);
 
-      toast.error("Fail to delete the subject.");
+      toast.error("Fail to delete the student.");
     },
   });
 
-  const columns: ColumnDef<Subject>[] = useMemo(
+  const columns: ColumnDef<Student>[] = useMemo(
     () => [
       {
         accessorKey: "name",
@@ -123,17 +120,10 @@ export function SubjectTable() {
         ),
       },
       {
-        accessorKey: "code",
-        header: "Code",
+        accessorKey: "rollNumber",
+        header: "Roll Number",
         cell: ({ row }) => (
-          <div className="capitalize">{row.getValue("code")}</div>
-        ),
-      },
-      {
-        accessorKey: "instructor",
-        header: "Instructor",
-        cell: ({ row }) => (
-          <div className="capitalize">{row.getValue("instructor")}</div>
+          <div className="capitalize">{row.getValue("rollNumber")}</div>
         ),
       },
       {
@@ -155,7 +145,7 @@ export function SubjectTable() {
         id: "actions",
         enableHiding: false,
         cell: ({ row }) => {
-          const subject = row.original;
+          const std = row.original;
 
           return (
             <DropdownMenu>
@@ -175,7 +165,7 @@ export function SubjectTable() {
                   onClick={(e) => {
                     e.stopPropagation();
                     setEditOpen(true);
-                    setSubjectId(subject?.id);
+                    setSubjectId(std?.id);
                   }}
                 >
                   Update
@@ -183,7 +173,7 @@ export function SubjectTable() {
                 <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation();
-                    deleteSubjectMutation.mutate({ subID: subject.id });
+                    deleteStudentMutation.mutate({ stdID: std.id });
                   }}
                 >
                   Delete
@@ -194,7 +184,7 @@ export function SubjectTable() {
         },
       },
     ],
-    [deleteSubjectMutation]
+    [deleteStudentMutation]
   );
 
   return (
@@ -202,7 +192,8 @@ export function SubjectTable() {
       <FlexBox className="justify-between">
         <FlexBox className="gap-4">
           <Input
-            placeholder="search by name"
+            type="number"
+            placeholder="search by roll number"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-80"
@@ -253,8 +244,8 @@ export function SubjectTable() {
       <CustomTable
         isLoading={isFetching}
         data={
-          subjects?.items?.filter((sub) => {
-            if (year !== "") return sub.year === year;
+          students?.items?.filter((std) => {
+            if (year !== "") return std.year === year;
 
             return true;
           }) ?? []
@@ -270,10 +261,10 @@ export function SubjectTable() {
       />
 
       {!isError && !isPending ? (
-        <EditSubject
+        <EditStudent
           open={editOpen}
           setOpen={setEditOpen}
-          subject={subject as Subject}
+          student={student as Student}
         />
       ) : null}
     </>

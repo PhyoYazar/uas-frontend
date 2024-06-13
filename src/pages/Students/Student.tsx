@@ -1,3 +1,9 @@
+import { StudentTable } from "./StudentTable";
+
 export const Student = () => {
-  return <div>Student</div>;
+  return (
+    <section className="space-y-4">
+      <StudentTable />
+    </section>
+  );
 };

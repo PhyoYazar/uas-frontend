@@ -121,7 +121,7 @@ export const CourseWorkPlanning = () => {
           name={attribute?.name + " " + attribute?.instance}
           cos={attribute?.co?.map((c) => c.instance).join(", ")}
           marks={attribute?.marks}
-          total={`100`}
+          total={`20`}
         />
       ))}
 
