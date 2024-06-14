@@ -7,6 +7,7 @@ import { Link, useParams } from "react-router-dom";
 import { CoGaMapping } from "./CoGaMapping";
 import { CourseWorkPlanning } from "./CourseWorkPlanning";
 import { ExamPlanning } from "./ExamPlanning";
+import { StudentCollection } from "./StudentCollection";
 import { useGetSubjectById } from "./hooks/useFetches";
 
 // const fetchBySubjectId = () => {
@@ -86,13 +87,13 @@ export const SubjectDetail = () => {
               <TabsContent value="assessment_course_work_planning">
                 <CourseWorkPlanning />
               </TabsContent>
-
-              {/* <TabsContent value="password">Change your password here.</TabsContent> */}
             </Tabs>
           </div>
         </TabsContent>
 
-        {/* <TabsContent value="password">Change your password here.</TabsContent> */}
+        <TabsContent value="student">
+          <StudentCollection />
+        </TabsContent>
       </Tabs>
     </section>
   );
