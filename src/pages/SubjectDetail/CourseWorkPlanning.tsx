@@ -34,9 +34,23 @@ export const CourseWorkPlanning = () => {
 
   const { gaMarks: cwGaMarks } = useCalculateMarks(attributes ?? []);
   const { gaMarks: examGaMarks } = useCalculateMarks(examAttributes ?? []);
-  const totalGaMarks = cwGaMarks.map((cw) => ({
+
+  const calculatedCwGaMarks = cwGaMarks?.map((m) => ({
+    ...m,
+    mark: get2Decimal((m.mark / 100) * (100 - examPercent)),
+  }));
+
+  const calculatedExamGaMarks = examGaMarks?.map((m) => ({
+    ...m,
+    mark: get2Decimal((m.mark / 100) * examPercent),
+  }));
+
+  const totalGaMarks = calculatedCwGaMarks.map((cw) => ({
     ...cw,
-    mark: cw.mark + (examGaMarks.find((e) => e.gaID === cw.gaID)?.mark ?? 0),
+    mark: get2Decimal(
+      cw.mark +
+        (calculatedExamGaMarks.find((e) => e.gaID === cw.gaID)?.mark ?? 0)
+    ),
   }));
 
   return (
@@ -135,26 +149,17 @@ export const CourseWorkPlanning = () => {
 
           <CustomRow
             name="Total Course Works"
-            marks={cwGaMarks?.map((m) => ({
-              ...m,
-              mark: get2Decimal((m.mark / 100) * (100 - examPercent)),
-            }))}
+            marks={calculatedCwGaMarks}
             percentMark={100 - examPercent + ""}
           />
           <CustomRow
             name="Final Exam"
-            marks={examGaMarks?.map((m) => ({
-              ...m,
-              mark: get2Decimal((m.mark / 100) * examPercent),
-            }))}
+            marks={calculatedExamGaMarks}
             percentMark={examPercent}
           />
           <CustomRow
             name="Total Marks"
-            marks={totalGaMarks?.map((m) => ({
-              ...m,
-              mark: get2Decimal((m.mark / 100) * examPercent),
-            }))}
+            marks={totalGaMarks}
             percentMark="100"
           />
         </>

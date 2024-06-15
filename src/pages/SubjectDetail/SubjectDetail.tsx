@@ -23,7 +23,7 @@ export const SubjectDetail = () => {
   return (
     <section className="w-full p-4">
       <Tabs defaultValue="subject">
-        <FlexBox className="mb-4 gap-2">
+        <FlexBox className="mb-4 gap-4">
           <BackBtn />
 
           <TabsList>
