@@ -27,7 +27,7 @@ export const CoGaMapping = () => {
   return (
     <section>
       <div
-        className="grid w-full overflow-auto"
+        className="grid bg-yellow-400 w-full overflow-auto"
         style={{ gridTemplateColumns: "repeat(22, 1fr)" }}
       >
         <HeadItem name="No" />
@@ -116,7 +116,7 @@ const HeadItem = (props: {
 }) => {
   const { name, className, onDelete, hover = false, tooltipLabel } = props;
 
-  const text = <Text className="font-semibold text-gray-500">{name}</Text>;
+  const text = <Text className="font-semibold text-gray-700">{name}</Text>;
 
   return (
     <FlexBox

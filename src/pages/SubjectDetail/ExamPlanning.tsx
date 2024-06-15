@@ -29,26 +29,26 @@ export const ExamPlanning = () => {
   const { gaMarks } = useCalculateMarks(attributes ?? []);
 
   return (
-    <div className="w-full overflow-auto border border-gray-300 rounded-md">
+    <div className="w-full overflow-auto border border-gray-400 rounded-md">
       {/* ------------------ header ---------------- */}
-      <div className="grid grid-cols-12">
-        <FlexBox className="col-span-2 border-r border-r-gray-300 justify-center">
+      <div className="grid grid-cols-12 bg-yellow-400">
+        <FlexBox className="col-span-2 border-r border-r-gray-400 justify-center">
           <HeadText>Question No</HeadText>
         </FlexBox>
 
-        <FlexBox className="col-span-1 border-r border-r-gray-300 justify-center">
+        <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
           <HeadText>Co</HeadText>
         </FlexBox>
 
-        <FlexBox className="col-span-7 flex-col border-r border-r-gray-300 justify-center">
+        <FlexBox className="col-span-7 flex-col border-r border-r-gray-400 justify-center">
           <HeadText className="py-2">Graduate Attributes</HeadText>
-          <div className="w-full grid grid-cols-12 border-t border-gray-300">
+          <div className="w-full grid grid-cols-12 border-t border-gray-400">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((el) => (
               <FlexBox
                 key={el + "table-ma"}
                 className={cn(
                   "col-span-1 py-2 justify-center",
-                  el !== 12 ? "border-r border-r-gray-300 " : ""
+                  el !== 12 ? "border-r border-r-gray-400 " : ""
                 )}
               >
                 <HeadText>{"GA" + el}</HeadText>
@@ -57,7 +57,7 @@ export const ExamPlanning = () => {
           </div>
         </FlexBox>
 
-        <FlexBox className="col-span-1 border-r border-r-gray-300 justify-center">
+        <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
           <HeadText>% Total</HeadText>
         </FlexBox>
 
@@ -83,7 +83,7 @@ export const ExamPlanning = () => {
 
       {(attributes?.length ?? 0) > 0 ? (
         <>
-          <div className="col-span-full bg-gray-50 h-6 border-t border-t-gray-300" />
+          <div className="col-span-full bg-gray-50 h-6 border-t border-t-gray-400" />
 
           <CustomRow
             name="Total Marks Upon 100%"
@@ -155,8 +155,8 @@ const CustomRow = (props: CustomRowType) => {
   };
 
   return (
-    <div ref={ref} className="grid grid-cols-12 border-t border-t-gray-300">
-      <FlexBox className="col-span-2 border-r border-r-gray-300 justify-center relative">
+    <div ref={ref} className="grid grid-cols-12 border-t border-t-gray-400">
+      <FlexBox className="col-span-2 border-r border-r-gray-400 justify-center relative">
         <Text className="">{name}</Text>
         {allowDelete && hovering ? (
           <FlexBox
@@ -168,11 +168,11 @@ const CustomRow = (props: CustomRowType) => {
         ) : null}
       </FlexBox>
 
-      <FlexBox className="col-span-1 border-r border-r-gray-300 justify-center">
+      <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
         <Text className="">{cos}</Text>
       </FlexBox>
 
-      <FlexBox className="col-span-7 flex-col border-r border-r-gray-300 justify-center">
+      <FlexBox className="col-span-7 flex-col border-r border-r-gray-400 justify-center">
         <div className="w-full grid grid-cols-12">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((el) => {
             const mark = marks?.find((m) => +m?.gaSlug?.slice(-1) === el);
@@ -185,7 +185,7 @@ const CustomRow = (props: CustomRowType) => {
                 key={el + "table-body"}
                 className={cn(
                   "col-span-1 py-2 justify-center",
-                  el !== 12 ? "border-r border-r-gray-300 " : ""
+                  el !== 12 ? "border-r border-r-gray-400 " : ""
                 )}
               >
                 <Text
@@ -199,7 +199,7 @@ const CustomRow = (props: CustomRowType) => {
         </div>
       </FlexBox>
 
-      <FlexBox className="col-span-1 border-r border-r-gray-300 justify-center">
+      <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
         <Text className="">{fullMark}</Text>
       </FlexBox>
 

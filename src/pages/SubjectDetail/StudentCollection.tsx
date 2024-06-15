@@ -157,7 +157,7 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
 
       {/* ================================= Sub Headers ================================= */}
       <div
-        className={`grid grid-cols-12 border-t border-t-gray-300 bg-yellow-300`}
+        className={`grid grid-cols-12 border-t border-t-gray-300 bg-yellow-400`}
       >
         <FlexBox className="col-span-1 border-r border-r-gray-300 justify-center p-2">
           <HeadText>No</HeadText>

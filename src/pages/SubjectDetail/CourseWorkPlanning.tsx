@@ -54,39 +54,39 @@ export const CourseWorkPlanning = () => {
   }));
 
   return (
-    <div className="w-full overflow-auto border border-gray-300 rounded-md">
+    <div className="w-full overflow-auto border border-gray-400 rounded-md">
       {/* ------------------ header ---------------- */}
-      <div className="grid grid-cols-12">
-        <FlexBox className="col-span-2 border-r border-r-gray-300 justify-center">
+      <div className="grid grid-cols-12 bg-yellow-400">
+        <FlexBox className="col-span-2 border-r border-r-gray-400 justify-center">
           <HeadText>Course Works</HeadText>
         </FlexBox>
 
-        <FlexBox className="col-span-1 border-r border-r-gray-300 justify-center">
+        <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
           <HeadText>Co</HeadText>
         </FlexBox>
 
-        <FlexBox className="col-span-1 border-r border-r-gray-300 justify-center">
+        <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
           <HeadText>Full Marks</HeadText>
         </FlexBox>
 
-        <FlexBox className="col-span-1 border-r border-r-gray-300 justify-center">
+        <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
           <HeadText>% Marks</HeadText>
         </FlexBox>
 
         <FlexBox className="col-span-7 flex-col justify-center">
           <HeadText className="py-2">Mark Distribution for each GA</HeadText>
 
-          <div className="w-full grid grid-cols-12 border-t border-t-gray-300">
-            <div className="col-span-4 border-r border-r-gray-300">
+          <div className="w-full grid grid-cols-12 border-t border-t-gray-400">
+            <div className="col-span-4 border-r border-r-gray-400">
               <HeadText className="py-2 text-center">Cognitive</HeadText>
 
-              <div className="w-full grid grid-cols-4 border-t border-gray-300">
+              <div className="w-full grid grid-cols-4 border-t border-gray-400">
                 {[1, 2, 3, 4].map((el) => (
                   <FlexBox
                     key={el + "table-cogni"}
                     className={cn(
                       "col-span-1 py-2 justify-center",
-                      el !== 4 ? "border-r border-r-gray-300 " : ""
+                      el !== 4 ? "border-r border-r-gray-400 " : ""
                     )}
                   >
                     <HeadText>{"GA" + el}</HeadText>
@@ -95,12 +95,12 @@ export const CourseWorkPlanning = () => {
               </div>
             </div>
 
-            <div className="col-span-1 overflow-clip border-r border-r-gray-300">
+            <div className="col-span-1 overflow-clip border-r border-r-gray-400">
               <CustomTooltip label="Psychomotor">
                 <HeadText className="py-2">Psychomotor</HeadText>
               </CustomTooltip>
 
-              <div className="w-full border-t border-gray-300">
+              <div className="w-full border-t border-gray-400">
                 <FlexBox className={cn("py-2 justify-center")}>
                   <HeadText>GA5</HeadText>
                 </FlexBox>
@@ -110,13 +110,13 @@ export const CourseWorkPlanning = () => {
             <div className="col-span-7">
               <HeadText className="py-2 text-center">Affective</HeadText>
 
-              <div className="w-full grid grid-cols-7 border-t border-gray-300">
+              <div className="w-full grid grid-cols-7 border-t border-gray-400">
                 {[6, 7, 8, 9, 10, 11, 12].map((el) => (
                   <FlexBox
                     key={el + "table-affective-bo"}
                     className={cn(
                       "col-span-1 py-2 justify-center",
-                      el !== 12 ? "border-r border-r-gray-300 " : ""
+                      el !== 12 ? "border-r border-r-gray-400 " : ""
                     )}
                   >
                     <HeadText>{"GA" + el}</HeadText>
@@ -145,7 +145,7 @@ export const CourseWorkPlanning = () => {
 
       {(attributes?.length ?? 0) > 0 ? (
         <>
-          <div className="col-span-full bg-gray-50 h-6 border-t border-t-gray-300" />
+          <div className="col-span-full bg-gray-50 h-6 border-t border-t-gray-400" />
 
           <CustomRow
             name="Total Course Works"
@@ -218,8 +218,8 @@ const CustomRow = (props: CustomRowType) => {
   };
 
   return (
-    <div ref={ref} className="grid grid-cols-12 border-t border-t-gray-300">
-      <FlexBox className="col-span-2 border-r border-r-gray-300 justify-center relative">
+    <div ref={ref} className="grid grid-cols-12 border-t border-t-gray-400">
+      <FlexBox className="col-span-2 border-r border-r-gray-400 justify-center relative">
         <Text className="text-gray-600">{name}</Text>
 
         {allowDelete && hovering ? (
@@ -232,15 +232,15 @@ const CustomRow = (props: CustomRowType) => {
         ) : null}
       </FlexBox>
 
-      <FlexBox className="col-span-1 border-r border-r-gray-300 justify-center">
+      <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
         <Text className="">{cos}</Text>
       </FlexBox>
 
-      <FlexBox className="col-span-1 border-r border-r-gray-300 justify-center">
+      <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
         <Text className="">{fullMark}</Text>
       </FlexBox>
 
-      <FlexBox className="col-span-1 justify-center border-r border-r-gray-300">
+      <FlexBox className="col-span-1 justify-center border-r border-r-gray-400">
         <Text className="">{percentMark}</Text>
       </FlexBox>
 
@@ -257,7 +257,7 @@ const CustomRow = (props: CustomRowType) => {
                 key={el + "table-cw-lis"}
                 className={cn(
                   "col-span-1 py-2 justify-center",
-                  el !== 12 ? "border-r border-r-gray-300 " : ""
+                  el !== 12 ? "border-r border-r-gray-400 " : ""
                 )}
               >
                 <Text
@@ -281,7 +281,7 @@ export const HeadText = (props: {
   const { children, className } = props;
 
   return (
-    <Text className={cn("font-semibold text-gray-400", className)}>
+    <Text className={cn("font-semibold text-gray-700", className)}>
       {children}
     </Text>
   );
