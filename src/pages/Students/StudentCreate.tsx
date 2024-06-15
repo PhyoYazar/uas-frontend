@@ -26,6 +26,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { dualYears } from "@/common/constants/helpers";
+import { BackBtn } from "@/components/common/back-button";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import timezone from "dayjs/plugin/timezone";
@@ -102,6 +103,8 @@ export const StudentCreate = () => {
 
   return (
     <section className="space-y-4">
+      <BackBtn />
+
       <FlexBox className="">
         <Form {...form}>
           <form

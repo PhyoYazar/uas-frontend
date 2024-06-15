@@ -1,3 +1,4 @@
+import { BackBtn } from "@/components/common/back-button";
 import { FlexBox } from "@/components/common/flex-box";
 import { Text } from "@/components/common/text";
 import { Button } from "@/components/ui/button";
@@ -22,10 +23,14 @@ export const SubjectDetail = () => {
   return (
     <section className="w-full p-4">
       <Tabs defaultValue="subject">
-        <TabsList className="mb-4">
-          <TabsTrigger value="subject">Subject</TabsTrigger>
-          <TabsTrigger value="student">Student</TabsTrigger>
-        </TabsList>
+        <FlexBox className="mb-4 gap-2">
+          <BackBtn />
+
+          <TabsList>
+            <TabsTrigger value="subject">Subject</TabsTrigger>
+            <TabsTrigger value="student">Student</TabsTrigger>
+          </TabsList>
+        </FlexBox>
 
         <TabsContent value="subject">
           <div className="space-y-6">

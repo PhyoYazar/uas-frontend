@@ -3,6 +3,7 @@ import {
   useGetAllGAs,
   useGetAttributes,
 } from "@/common/hooks/useFetches";
+import { BackBtn } from "@/components/common/back-button";
 import { Card } from "@/components/common/card";
 import { FlexBox } from "@/components/common/flex-box";
 import { Text } from "@/components/common/text";
@@ -80,11 +81,15 @@ export const CoGaCreate = () => {
   return (
     <section className="space-y-16 h-full">
       <Tabs defaultValue="co">
-        <TabsList className="mb-4">
-          <TabsTrigger value="co">Course Outlines</TabsTrigger>
-          <TabsTrigger value="exam_marks">Exam</TabsTrigger>
-          <TabsTrigger value="cw_marks">Course Work</TabsTrigger>
-        </TabsList>
+        <FlexBox className="mb-4 gap-2">
+          <BackBtn />
+
+          <TabsList className="">
+            <TabsTrigger value="co">Course Outlines</TabsTrigger>
+            <TabsTrigger value="exam_marks">Exam</TabsTrigger>
+            <TabsTrigger value="cw_marks">Course Work</TabsTrigger>
+          </TabsList>
+        </FlexBox>
 
         <TabsContent value="co">
           <Card className="space-y-4 bg-gray-50">

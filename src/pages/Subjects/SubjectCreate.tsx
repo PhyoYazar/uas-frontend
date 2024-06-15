@@ -26,6 +26,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { dualYears } from "@/common/constants/helpers";
+import { BackBtn } from "@/components/common/back-button";
 import { Label } from "@/components/ui/label";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -125,6 +126,8 @@ export const SubjectCreate = () => {
 
   return (
     <section className="space-y-4">
+      <BackBtn />
+
       <FlexBox className="">
         <Form {...form}>
           <form
