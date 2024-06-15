@@ -162,7 +162,7 @@ export const SubjectCreate = () => {
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Start Year" />
+                          <SelectValue placeholder="Academic Year" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>

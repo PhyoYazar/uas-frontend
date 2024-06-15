@@ -37,6 +37,7 @@ type Attribute = {
   id: string;
   type: string;
   instance: number;
+  fullMark: number;
   marks: { id: string; mark: number; gaSlug: string; gaID: string }[];
   co: { id: string; name: string; instance: number }[];
 };
@@ -60,7 +61,7 @@ export const useGetExamAttributeWithCoGaMarks = (
     queryKey: ["attributes-co-ga-exam-marks", subjectId],
     queryFn: ({ signal }) =>
       axios.get<AttributeResponse>(
-        `attributes_ga_mark?page=1&subject_id=${subjectId}&type=EXAM&orderBy=instance`,
+        `attributes_ga_mark/${subjectId}?page=1&type=EXAM&orderBy=instance`,
         {
           signal,
         }
@@ -81,7 +82,7 @@ export const useGetCWAttributeWithCoGaMarks = (
     queryKey: ["attributes-co-ga-cw-marks", subjectId],
     queryFn: ({ signal }) =>
       axios.get<AttributeResponse>(
-        `attributes_ga_mark?page=1&subject_id=${subjectId}&type=COURSEWORK&orderBy=name,DESC`,
+        `attributes_ga_mark/${subjectId}?page=1&type=COURSEWORK&orderBy=name,DESC`,
         {
           signal,
         }
@@ -111,7 +112,7 @@ export const useGetAttributeWithCoGaMarks = (
     queryKey: ["attributes-co-ga-exam-marks", subjectId, type],
     queryFn: ({ signal }) =>
       axios.get<AttributeResponse>(
-        `attributes_ga_mark?page=1&subject_id=${subjectId}${
+        `attributes_ga_mark/${subjectId}?page=1${
           type ? `&name=${type}` : ""
         }&orderBy=instance`,
         {

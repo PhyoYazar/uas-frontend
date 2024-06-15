@@ -159,6 +159,7 @@ const fieldSchema = z.object({
 
 const examQformSchema = z.object({
   attributeId: z.string().min(1),
+  fullMark: z.string().min(1, "Full Mark is required"),
   fields: z.array(fieldSchema),
 });
 
@@ -186,6 +187,7 @@ const CreateMark = (props: CreateMarkProps) => {
     resolver: zodResolver(examQformSchema),
     defaultValues: {
       attributeId: "",
+      fullMark: "",
       fields: [],
     },
   });
@@ -234,6 +236,7 @@ const CreateMark = (props: CreateMarkProps) => {
     const result = {
       subjectID: subjectId,
       attributeID: values.attributeId,
+      fullMark: +values.fullMark,
       coIDs: coLists,
       gas: values.fields.map((f) => ({ gaID: f.key, mark: +f.value })),
     };
@@ -306,6 +309,20 @@ const CreateMark = (props: CreateMarkProps) => {
                       ))}
                   </SelectContent>
                 </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="fullMark"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Full Mark</FormLabel>
+                <FormControl>
+                  <Input placeholder="Full mark" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
