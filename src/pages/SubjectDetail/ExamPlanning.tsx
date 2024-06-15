@@ -1,3 +1,4 @@
+import { get2Decimal } from "@/common/utils/utils";
 import { FlexBox } from "@/components/common/flex-box";
 import Icon from "@/components/common/icon";
 import { Text } from "@/components/common/text";
@@ -75,8 +76,7 @@ export const ExamPlanning = () => {
           marks={attribute?.marks}
           fullMark={attribute?.fullMark + ""}
           percentMark={
-            Math.round((attribute?.fullMark / 100) * examPercent * 100) / 100 +
-            ""
+            get2Decimal((attribute?.fullMark / 100) * examPercent) + ""
           }
         />
       ))}

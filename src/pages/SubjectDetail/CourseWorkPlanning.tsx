@@ -1,3 +1,4 @@
+import { get2Decimal } from "@/common/utils/utils";
 import { CustomTooltip } from "@/components/common/custom-tooltip";
 import { FlexBox } from "@/components/common/flex-box";
 import Icon from "@/components/common/icon";
@@ -123,11 +124,7 @@ export const CourseWorkPlanning = () => {
           marks={attribute?.marks}
           fullMark={attribute?.fullMark + "" ?? ""}
           percentMark={
-            Math.round(
-              (attribute?.fullMark / 100) * (100 - examPercent) * 100
-            ) /
-              100 +
-            ""
+            get2Decimal((attribute?.fullMark / 100) * (100 - examPercent)) + ""
           }
         />
       ))}
@@ -140,7 +137,7 @@ export const CourseWorkPlanning = () => {
             name="Total Course Works"
             marks={cwGaMarks?.map((m) => ({
               ...m,
-              mark: Math.floor((m.mark / 100) * examPercent * 10) / 10,
+              mark: get2Decimal((m.mark / 100) * (100 - examPercent)),
             }))}
             percentMark={100 - examPercent + ""}
           />
@@ -148,7 +145,7 @@ export const CourseWorkPlanning = () => {
             name="Final Exam"
             marks={examGaMarks?.map((m) => ({
               ...m,
-              mark: Math.floor((m.mark / 100) * examPercent * 10) / 10,
+              mark: get2Decimal((m.mark / 100) * examPercent),
             }))}
             percentMark={examPercent}
           />
@@ -156,7 +153,7 @@ export const CourseWorkPlanning = () => {
             name="Total Marks"
             marks={totalGaMarks?.map((m) => ({
               ...m,
-              mark: Math.floor((m.mark / 100) * examPercent * 10) / 10,
+              mark: get2Decimal((m.mark / 100) * examPercent),
             }))}
             percentMark="100"
           />

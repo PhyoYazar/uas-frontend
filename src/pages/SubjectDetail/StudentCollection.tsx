@@ -1,3 +1,4 @@
+import { get2Decimal } from "@/common/utils/utils";
 import { FlexBox } from "@/components/common/flex-box";
 import { Text } from "@/components/common/text";
 import { Input } from "@/components/ui/input";
@@ -62,7 +63,8 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
     (data) => data?.data?.exam
   );
 
-  const fullMark = 20;
+  // -------------------------------------------------------------
+
   const totalAttributes = attributes?.length ?? 0;
 
   const gaArray =
@@ -74,6 +76,9 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
     attributes?.map((attribute) =>
       attribute?.co?.map((c) => c.instance)?.join(", ")
     ) ?? [];
+
+  const fullMarks =
+    attributes?.map((attribute) => attribute?.fullMark + "") ?? [];
 
   return (
     <div className="w-full overflow-auto border border-gray-300 rounded-md">
@@ -108,21 +113,30 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
       <SubjectRow
         cols={totalAttributes}
         name="Full mark"
-        values={Array.from({ length: totalAttributes }, () => fullMark + "")}
+        values={fullMarks}
+        // values={Array.from({ length: totalAttributes }, () => fullMark + "")}
       />
 
       <SubjectRow
         cols={totalAttributes}
         name="Percentage"
-        values={Array.from(
-          { length: totalAttributes },
-          () =>
-            `${
+        values={fullMarks.map(
+          (fm) =>
+            `${get2Decimal(
               type === "Question"
-                ? (examPercent / 100) * fullMark
-                : ((100 - examPercent) / 100) * fullMark
-            }`
+                ? (examPercent / 100) * +fm
+                : ((100 - examPercent) / 100) * +fm
+            )}`
         )}
+        // values={Array.from(
+        //   { length: totalAttributes },
+        //   () =>
+        //     `${
+        //       type === "Question"
+        //         ? (examPercent / 100) * fullMark
+        //         : ((100 - examPercent) / 100) * fullMark
+        //     }`
+        // )}
       />
 
       <SubjectRow

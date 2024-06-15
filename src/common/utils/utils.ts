@@ -9,3 +9,7 @@ export function getUniqueObjects<T>(arr: T[]) {
     );
   });
 }
+
+export function get2Decimal(val: number) {
+  return Math.round(val * 100) / 100;
+}
