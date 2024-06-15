@@ -93,6 +93,39 @@ export const useGetCWAttributeWithCoGaMarks = (
   return { attributes: data, isPending, isError };
 };
 
+//=======================================================
+
+type GetAttributeWithCoGaMarksProps = {
+  subjectId: string | undefined;
+  type?: "Question" | "Tutorial" | "Assignment" | "Lab";
+  select?: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ((data: AxiosResponse<AttributeResponse, any>) => Attribute[]) | undefined;
+};
+
+export const useGetAttributeWithCoGaMarks = (
+  props: GetAttributeWithCoGaMarksProps
+) => {
+  const { subjectId, type, select = (data) => data?.data?.items } = props;
+
+  const { data, isPending, isError } = useQuery({
+    queryKey: ["attributes-co-ga-exam-marks", subjectId, type],
+    queryFn: ({ signal }) =>
+      axios.get<AttributeResponse>(
+        `attributes_ga_mark?page=1&subject_id=${subjectId}${
+          type ? `&name=${type}` : ""
+        }&orderBy=instance`,
+        {
+          signal,
+        }
+      ),
+    enabled: subjectId !== undefined,
+    staleTime: 5000,
+    select,
+  });
+
+  return { attributes: isPending ? [] : data, isPending, isError };
+};
+
 //================================================================================================
 
 export const useGetSubjectById = (

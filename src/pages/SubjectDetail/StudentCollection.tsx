@@ -3,7 +3,12 @@ import { Text } from "@/components/common/text";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 import { HeadText } from "./CourseWorkPlanning";
+import {
+  useGetAttributeWithCoGaMarks,
+  useGetSubjectById,
+} from "./hooks/useFetches";
 
 export const StudentCollection = () => {
   return (
@@ -17,11 +22,20 @@ export const StudentCollection = () => {
         </TabsList>
 
         <TabsContent value="question">
-          <StudentAssessment cols={5} />
+          <StudentAssessment type="Question" />
         </TabsContent>
-        <TabsContent value="tutorial"></TabsContent>
-        <TabsContent value="assignment"></TabsContent>
-        <TabsContent value="lab"></TabsContent>
+
+        <TabsContent value="tutorial">
+          <StudentAssessment type="Tutorial" />
+        </TabsContent>
+
+        <TabsContent value="assignment">
+          <StudentAssessment type="Assignment" />
+        </TabsContent>
+
+        <TabsContent value="lab">
+          <StudentAssessment type="Lab" />
+        </TabsContent>
       </Tabs>
     </div>
   );
@@ -30,11 +44,36 @@ export const StudentCollection = () => {
 // =================================================================================================
 
 type StudentAssessmentProps = {
-  cols: number;
+  type: "Question" | "Tutorial" | "Assignment" | "Lab";
 };
 
 const StudentAssessment = (props: StudentAssessmentProps) => {
-  const { cols } = props;
+  const { type } = props;
+
+  const { subjectId } = useParams();
+
+  const { attributes } = useGetAttributeWithCoGaMarks({
+    subjectId,
+    type,
+  });
+
+  const { subject: examPercent } = useGetSubjectById(
+    subjectId,
+    (data) => data?.data?.exam
+  );
+
+  const fullMark = 20;
+  const totalAttributes = attributes?.length ?? 0;
+
+  const gaArray =
+    attributes?.map((attribute) =>
+      attribute?.marks?.map((m) => m.gaSlug.slice(2))?.join(", ")
+    ) ?? [];
+
+  const coArray =
+    attributes?.map((attribute) =>
+      attribute?.co?.map((c) => c.instance)?.join(", ")
+    ) ?? [];
 
   return (
     <div className="w-full overflow-auto border border-gray-300 rounded-md">
@@ -48,25 +87,57 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
           <div
             className={`w-full grid justify-center`}
             style={{
-              gridTemplateColumns: `repeat(${cols}, 1fr)`,
+              gridTemplateColumns: `repeat(${totalAttributes}, 1fr)`,
             }}
           >
-            {[1, 2, 3, 4, 5].map((e) => (
+            {attributes?.map(({ id, instance, name }) => (
               <HeadText
-                key={"asflke" + e}
+                key={id}
                 className="col-span-1 p-2 border-r border-r-gray-300 text-center"
               >
-                Q{e}
+                {name + instance}
               </HeadText>
             ))}
           </div>
         </FlexBox>
       </div>
-      <SubjectRow cols={5} name="GA" />
-      <SubjectRow cols={5} name="CO" />
-      <SubjectRow cols={5} name="Full mark" />
-      <SubjectRow cols={5} name="Percentage" />
-      <SubjectRow cols={5} name="Calculation" />
+
+      <SubjectRow cols={totalAttributes} name="GA" values={gaArray} />
+      <SubjectRow cols={totalAttributes} name="CO" values={coArray} />
+
+      <SubjectRow
+        cols={totalAttributes}
+        name="Full mark"
+        values={Array.from({ length: totalAttributes }, () => fullMark + "")}
+      />
+
+      <SubjectRow
+        cols={totalAttributes}
+        name="Percentage"
+        values={Array.from(
+          { length: totalAttributes },
+          () =>
+            `${
+              type === "Question"
+                ? (examPercent / 100) * fullMark
+                : ((100 - examPercent) / 100) * fullMark
+            }`
+        )}
+      />
+
+      <SubjectRow
+        cols={totalAttributes}
+        name="Calculation"
+        values={Array.from(
+          { length: totalAttributes },
+          () =>
+            `${
+              type === "Question"
+                ? examPercent / 100
+                : (100 - examPercent) / 100
+            }`
+        )}
+      />
 
       <div className={`grid grid-cols-12 h-8 border-t border-t-gray-300`} />
 
@@ -104,10 +175,11 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
 type SubjectRowProps = {
   cols: number;
   name: string;
+  values: string[];
 };
 
 const SubjectRow = (props: SubjectRowProps) => {
-  const { name, cols } = props;
+  const { name, cols, values } = props;
 
   return (
     <div className={`grid grid-cols-12 border-t border-t-gray-300`}>
@@ -122,12 +194,12 @@ const SubjectRow = (props: SubjectRowProps) => {
             gridTemplateColumns: `repeat(${cols}, 1fr)`,
           }}
         >
-          {[1, 2, 3, 4, 5].map((el) => (
+          {values.map((val, index) => (
             <HeadText
-              key={"123s" + el}
+              key={val + "brnyr" + index}
               className="col-span-1 text-gray-500 p-2 border-r border-r-gray-300 text-center"
             >
-              {el * 10}
+              {val}
             </HeadText>
           ))}
         </div>
