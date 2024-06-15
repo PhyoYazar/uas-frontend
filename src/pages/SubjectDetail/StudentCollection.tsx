@@ -81,10 +81,10 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
     attributes?.map((attribute) => attribute?.fullMark + "") ?? [];
 
   return (
-    <div className="w-full overflow-auto border border-gray-300 rounded-md">
+    <div className="w-full overflow-auto border border-gray-400 rounded-md">
       {/* ------------------ header ---------------- */}
       <div className={`grid grid-cols-12`}>
-        <FlexBox className="col-span-3 border-r border-r-gray-300 justify-center p-2">
+        <FlexBox className="col-span-3 border-r border-r-gray-400 justify-center p-2">
           <HeadText>Assessment</HeadText>
         </FlexBox>
 
@@ -98,7 +98,7 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
             {attributes?.map(({ id, instance, name }) => (
               <HeadText
                 key={id}
-                className="col-span-1 p-2 border-r border-r-gray-300 text-center"
+                className="col-span-1 p-2 border-r border-r-gray-400 text-center"
               >
                 {name + instance}
               </HeadText>
@@ -128,15 +128,6 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
                 : ((100 - examPercent) / 100) * +fm
             )}`
         )}
-        // values={Array.from(
-        //   { length: totalAttributes },
-        //   () =>
-        //     `${
-        //       type === "Question"
-        //         ? (examPercent / 100) * fullMark
-        //         : ((100 - examPercent) / 100) * fullMark
-        //     }`
-        // )}
       />
 
       <SubjectRow
@@ -153,33 +144,43 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
         )}
       />
 
-      <div className={`grid grid-cols-12 h-8 border-t border-t-gray-300`} />
+      <div className={`grid grid-cols-12 h-8 border-t border-t-gray-400`} />
 
-      {/* ================================= Sub Headers ================================= */}
+      {/* ================================= Student Headers ================================= */}
       <div
-        className={`grid grid-cols-12 border-t border-t-gray-300 bg-yellow-400`}
+        className={`grid grid-cols-12 border-t border-t-gray-400 bg-yellow-400`}
       >
-        <FlexBox className="col-span-1 border-r border-r-gray-300 justify-center p-2">
+        <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center p-2">
           <HeadText>No</HeadText>
         </FlexBox>
 
-        <FlexBox className="col-span-2 border-r border-r-gray-300 justify-center p-2">
+        <FlexBox className="col-span-2 border-r border-r-gray-400 justify-center p-2">
           <HeadText>Student ID</HeadText>
         </FlexBox>
 
-        <FlexBox className="col-span-7 justify-center border-r border-r-gray-300" />
+        <FlexBox className="col-span-7 justify-center border-r border-r-gray-400" />
 
-        <FlexBox className="col-span-1 border-r border-r-gray-300 justify-center">
+        <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
           <HeadText className="">Total</HeadText>
         </FlexBox>
 
-        <FlexBox className="col-span-1 border-r border-r-gray-300 justify-center">
-          <HeadText className="">Total (20%)</HeadText>
+        <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
+          <HeadText className="">
+            Total (
+            {type === "Question" ? examPercent + "" : 100 - examPercent + ""}%)
+          </HeadText>
         </FlexBox>
       </div>
 
       {/* ================================= ROWS ================================= */}
-      <StudentRow rollNumber={1} id="102" cols={5} />
+      <StudentRow
+        rollNumber={1}
+        stdId="102"
+        cols={totalAttributes}
+        markArray={
+          attributes?.map(({ id }) => ({ attributeId: id, mark: 0 })) ?? []
+        }
+      />
     </div>
   );
 };
@@ -196,8 +197,8 @@ const SubjectRow = (props: SubjectRowProps) => {
   const { name, cols, values } = props;
 
   return (
-    <div className={`grid grid-cols-12 border-t border-t-gray-300`}>
-      <FlexBox className="col-span-3 border-r border-r-gray-300 justify-center p-2">
+    <div className={`grid grid-cols-12 border-t border-t-gray-400`}>
+      <FlexBox className="col-span-3 border-r border-r-gray-400 justify-center p-2">
         <HeadText className="text-gray-500">{name}</HeadText>
       </FlexBox>
 
@@ -211,7 +212,7 @@ const SubjectRow = (props: SubjectRowProps) => {
           {values.map((val, index) => (
             <HeadText
               key={val + "brnyr" + index}
-              className="col-span-1 text-gray-500 p-2 border-r border-r-gray-300 text-center"
+              className="col-span-1 text-gray-500 p-2 border-r border-r-gray-400 text-center"
             >
               {val}
             </HeadText>
@@ -227,20 +228,21 @@ const SubjectRow = (props: SubjectRowProps) => {
 type StudentRowProps = {
   cols: number;
   rollNumber: number;
-  id: string;
+  stdId: string;
+  markArray: { attributeId: string; mark: number }[];
 };
 
 const StudentRow = (props: StudentRowProps) => {
-  const { rollNumber, id, cols } = props;
+  const { rollNumber, stdId, markArray, cols } = props;
 
   return (
-    <div className={`grid grid-cols-12 border-t border-t-gray-300`}>
-      <FlexBox className="col-span-1 border-r border-r-gray-300 justify-center p-2">
+    <div className={`grid grid-cols-12 border-t border-t-gray-400`}>
+      <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center p-2">
         <HeadText className="text-gray-600">{rollNumber}</HeadText>
       </FlexBox>
 
-      <FlexBox className="col-span-2 border-r border-r-gray-300 justify-center p-2">
-        <HeadText className="text-gray-600">{id}</HeadText>
+      <FlexBox className="col-span-2 border-r border-r-gray-400 justify-center p-2">
+        <HeadText className="text-gray-600">{stdId}</HeadText>
       </FlexBox>
 
       <FlexBox className="col-span-7 justify-center">
@@ -250,13 +252,13 @@ const StudentRow = (props: StudentRowProps) => {
             gridTemplateColumns: `repeat(${cols}, 1fr)`,
           }}
         >
-          {[1, 2, 3, 4, 5].map((el) => (
-            <EditInput val="e" key={"adfasdf" + el} />
+          {markArray.map(({ attributeId, mark }) => (
+            <EditInput val={mark + ""} key={"attStd" + attributeId} />
           ))}
         </div>
       </FlexBox>
 
-      <FlexBox className="col-span-1 border-r border-r-gray-300 justify-center">
+      <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
         <HeadText className="text-gray-600">80</HeadText>
       </FlexBox>
 
@@ -277,15 +279,16 @@ const EditInput = (props: EditInputProps) => {
   const [isEditing, setIsEditing] = useState(false);
 
   return (
-    <div className="col-span-1 border-r border-r-gray-300">
+    <div className="col-span-1 border-r border-r-gray-400">
       {isEditing ? (
         <div
-          className="border-r border-r-gray-300 p-1"
+          className="border-r border-r-gray-400 p-1"
           onDoubleClick={() => setIsEditing(false)}
         >
           <Input
+            autoFocus
             type="number"
-            className="w-full h-7 focus-visible:ring-green-300  rounded-none"
+            className="w-full h-7 focus-visible:ring-green-500  rounded-none"
           />
         </div>
       ) : (
