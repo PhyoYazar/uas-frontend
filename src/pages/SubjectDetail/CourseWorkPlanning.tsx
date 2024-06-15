@@ -121,7 +121,14 @@ export const CourseWorkPlanning = () => {
           name={attribute?.name + " " + attribute?.instance}
           cos={attribute?.co?.map((c) => c.instance).join(", ")}
           marks={attribute?.marks}
-          total={`20`}
+          fullMark={attribute?.fullMark + "" ?? ""}
+          percentMark={
+            Math.round(
+              (attribute?.fullMark / 100) * (100 - examPercent) * 100
+            ) /
+              100 +
+            ""
+          }
         />
       ))}
 
@@ -164,7 +171,7 @@ type CustomRowType = {
   cos?: string;
   allowDelete?: boolean;
   marks: { gaID: string; gaSlug: string; id: string; mark: number }[];
-  total?: string;
+  fullMark?: string;
   percentMark?: string;
   attributeId?: string;
 };
@@ -176,7 +183,7 @@ const CustomRow = (props: CustomRowType) => {
     attributeId,
     allowDelete = false,
     cos = "",
-    total = "",
+    fullMark = "",
     percentMark = "",
   } = props;
 
@@ -228,7 +235,7 @@ const CustomRow = (props: CustomRowType) => {
       </FlexBox>
 
       <FlexBox className="col-span-1 border-r border-r-gray-300 justify-center">
-        <Text className="">{total}</Text>
+        <Text className="">{fullMark}</Text>
       </FlexBox>
 
       <FlexBox className="col-span-1 justify-center border-r border-r-gray-300">
