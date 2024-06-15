@@ -61,7 +61,7 @@ export const ExamPlanning = () => {
         </FlexBox>
 
         <FlexBox className="col-span-1 justify-center">
-          <HeadText>Time, min</HeadText>
+          <HeadText>% Marks</HeadText>
         </FlexBox>
       </div>
 
@@ -73,7 +73,11 @@ export const ExamPlanning = () => {
           name={attribute?.name + " " + attribute?.instance}
           cos={attribute?.co?.map((c) => c.instance).join(", ")}
           marks={attribute?.marks}
-          total={`20`}
+          fullMark={attribute?.fullMark + ""}
+          percentMark={
+            Math.round((attribute?.fullMark / 100) * examPercent * 100) / 100 +
+            ""
+          }
         />
       ))}
 
@@ -84,7 +88,7 @@ export const ExamPlanning = () => {
           <CustomRow
             name="Total Marks Upon 100%"
             marks={gaMarks}
-            total={`100`}
+            fullMark={`100`}
           />
           <CustomRow
             name={`Total Marks Upon ` + examPercent + "%"}
@@ -92,7 +96,7 @@ export const ExamPlanning = () => {
               ...m,
               mark: Math.floor((m.mark / 100) * examPercent * 10) / 10,
             }))}
-            total={examPercent}
+            fullMark={examPercent}
           />
         </>
       ) : null}
@@ -105,7 +109,8 @@ type CustomRowType = {
   cos?: string;
   allowDelete?: boolean;
   marks: { gaID: string; gaSlug: string; id: string; mark: number }[];
-  total?: string;
+  fullMark?: string;
+  percentMark?: string;
   time?: string;
   attributeId?: string;
 };
@@ -117,8 +122,8 @@ const CustomRow = (props: CustomRowType) => {
     allowDelete = false,
     marks,
     attributeId,
-    total = "",
-    time = "",
+    fullMark = "",
+    percentMark = "",
   } = props;
 
   const { subjectId } = useParams();
@@ -195,11 +200,11 @@ const CustomRow = (props: CustomRowType) => {
       </FlexBox>
 
       <FlexBox className="col-span-1 border-r border-r-gray-300 justify-center">
-        <Text className="">{total}</Text>
+        <Text className="">{fullMark}</Text>
       </FlexBox>
 
       <FlexBox className="col-span-1 justify-center">
-        <Text className="">{time}</Text>
+        <Text className="">{percentMark}</Text>
       </FlexBox>
     </div>
   );
