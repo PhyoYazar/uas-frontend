@@ -107,7 +107,7 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
                 key={id}
                 className="col-span-1 p-2 border-r border-r-gray-400 text-center"
               >
-                {name + instance}
+                {name + " " + instance}
               </HeadText>
             ))}
           </div>
@@ -188,16 +188,24 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
           stdNumber={std?.studentNumber}
           cols={totalAttributes}
           markArray={
-            std?.attributes?.length === 0
-              ? attributes?.map(({ id }) => ({ attributeId: id, mark: 0 })) ??
-                []
-              : std?.attributes?.map(
-                  ({ attributeId, studentMarkId, fullMark }) => ({
-                    attributeId: attributeId,
-                    studentMarkId: studentMarkId,
-                    mark: fullMark,
-                  })
-                ) ?? []
+            attributes?.map(({ id }) => {
+              const findAttribute = std?.attributes?.find(
+                (att) => att.attributeId === id
+              );
+
+              if (findAttribute) {
+                return {
+                  attributeId: findAttribute.attributeId,
+                  mark: findAttribute.fullMark,
+                  studentMarkId: findAttribute.studentMarkId,
+                };
+              }
+
+              return {
+                attributeId: id,
+                mark: 0,
+              };
+            }) ?? []
           }
         />
       ))}
