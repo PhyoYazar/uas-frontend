@@ -31,6 +31,41 @@ export const useGetSubjectDetail = (subjectId: string | undefined) => {
 };
 
 //================================================================================================
+type StudentLists = {
+  id: string;
+  rollNumber: number;
+  studentNumber: number;
+  attributes: {
+    attributeId: string;
+    studentMarkId: string;
+    fullMark: number;
+  }[];
+};
+
+type StudentListResponse = APIResponse & {
+  items: StudentLists[];
+};
+
+export const useGetAllStudentsBySubject = (
+  year: string | undefined,
+  academicYear: string | undefined
+) => {
+  const { data, isPending, isError } = useQuery({
+    queryKey: ["all-students-by-subject-id", year, academicYear],
+    queryFn: ({ signal }) =>
+      axios.get<StudentListResponse>(
+        `student_attributes_marks?year=${year}&academic_year=${academicYear}&orderBy=rollnumber`,
+        { signal }
+      ),
+    staleTime: 5000,
+    enabled: !!year && !!academicYear,
+    select: (data) => data?.data,
+  });
+
+  return { students: data, isPending, isError };
+};
+
+//================================================================================================
 
 type Attribute = {
   name: string;
@@ -132,8 +167,9 @@ export const useGetAttributeWithCoGaMarks = (
 export const useGetSubjectById = (
   subjectId: string | undefined,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  select: ((data: AxiosResponse<Subject, any>) => any) | undefined = (data) =>
-    data?.data
+  select: ((data: AxiosResponse<Subject, any>) => Subject) | undefined = (
+    data
+  ) => data?.data
 ) => {
   const { data, isPending, isError } = useQuery({
     queryKey: ["subject-by-id", subjectId],

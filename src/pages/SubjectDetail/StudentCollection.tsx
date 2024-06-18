@@ -3,10 +3,14 @@ import { FlexBox } from "@/components/common/flex-box";
 import { Text } from "@/components/common/text";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { toast } from "sonner";
 import { HeadText } from "./CourseWorkPlanning";
 import {
+  useGetAllStudentsBySubject,
   useGetAttributeWithCoGaMarks,
   useGetSubjectById,
 } from "./hooks/useFetches";
@@ -58,9 +62,12 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
     type,
   });
 
-  const { subject: examPercent } = useGetSubjectById(
-    subjectId,
-    (data) => data?.data?.exam
+  const { subject } = useGetSubjectById(subjectId, (data) => data?.data);
+  const examPercent = subject?.exam ?? 0;
+
+  const { students } = useGetAllStudentsBySubject(
+    subject?.year,
+    subject?.academicYear
   );
 
   // -------------------------------------------------------------
@@ -173,14 +180,27 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
       </div>
 
       {/* ================================= ROWS ================================= */}
-      <StudentRow
-        rollNumber={1}
-        stdId="102"
-        cols={totalAttributes}
-        markArray={
-          attributes?.map(({ id }) => ({ attributeId: id, mark: 0 })) ?? []
-        }
-      />
+      {students?.items.map((std) => (
+        <StudentRow
+          key={std?.id}
+          studentId={std?.id}
+          rollNumber={std?.rollNumber}
+          stdNumber={std?.studentNumber}
+          cols={totalAttributes}
+          markArray={
+            std?.attributes?.length === 0
+              ? attributes?.map(({ id }) => ({ attributeId: id, mark: 0 })) ??
+                []
+              : std?.attributes?.map(
+                  ({ attributeId, studentMarkId, fullMark }) => ({
+                    attributeId: attributeId,
+                    studentMarkId: studentMarkId,
+                    mark: fullMark,
+                  })
+                ) ?? []
+          }
+        />
+      ))}
     </div>
   );
 };
@@ -228,12 +248,13 @@ const SubjectRow = (props: SubjectRowProps) => {
 type StudentRowProps = {
   cols: number;
   rollNumber: number;
-  stdId: string;
-  markArray: { attributeId: string; mark: number }[];
+  studentId: string;
+  stdNumber: number;
+  markArray: { attributeId: string; studentMarkId?: string; mark: number }[];
 };
 
 const StudentRow = (props: StudentRowProps) => {
-  const { rollNumber, stdId, markArray, cols } = props;
+  const { rollNumber, studentId, stdNumber, markArray, cols } = props;
 
   return (
     <div className={`grid grid-cols-12 border-t border-t-gray-400`}>
@@ -242,7 +263,7 @@ const StudentRow = (props: StudentRowProps) => {
       </FlexBox>
 
       <FlexBox className="col-span-2 border-r border-r-gray-400 justify-center p-2">
-        <HeadText className="text-gray-600">{stdId}</HeadText>
+        <HeadText className="text-gray-600">{stdNumber}</HeadText>
       </FlexBox>
 
       <FlexBox className="col-span-7 justify-center">
@@ -252,8 +273,14 @@ const StudentRow = (props: StudentRowProps) => {
             gridTemplateColumns: `repeat(${cols}, 1fr)`,
           }}
         >
-          {markArray.map(({ attributeId, mark }) => (
-            <EditInput val={mark + ""} key={"attStd" + attributeId} />
+          {markArray.map(({ attributeId, studentMarkId, mark }) => (
+            <EditInput
+              val={mark}
+              studentId={studentId}
+              attributeId={attributeId}
+              studentMarkId={studentMarkId}
+              key={"attStd" + attributeId}
+            />
           ))}
         </div>
       </FlexBox>
@@ -270,25 +297,100 @@ const StudentRow = (props: StudentRowProps) => {
 };
 
 type EditInputProps = {
-  val: string;
+  val: number;
+  attributeId: string;
+  studentId: string;
+  studentMarkId?: string;
 };
 
 const EditInput = (props: EditInputProps) => {
-  const { val } = props;
+  const { val, studentId, attributeId, studentMarkId } = props;
 
   const [isEditing, setIsEditing] = useState(false);
+  const [mark, setMark] = useState("");
+
+  const { subjectId } = useParams();
+  const queryClient = useQueryClient();
+
+  const { subject } = useGetSubjectById(subjectId, (data) => data?.data);
+
+  const addMarkMutation = useMutation({
+    mutationFn: (newMark: {
+      subjectID: string;
+      attributeID: string;
+      studentID: string;
+      mark: number;
+    }) => axios.post("student_mark", newMark),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [
+          "all-students-by-subject-id",
+          subject?.year,
+          subject?.academicYear,
+        ],
+      });
+    },
+    onError() {
+      toast.error("Fail to add the mark.");
+    },
+  });
+
+  const updateMarkMutation = useMutation({
+    mutationFn: (newMark: { mark: number }) =>
+      axios.put(`student_mark/${studentMarkId}`, newMark),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [
+          "all-students-by-subject-id",
+          subject?.year,
+          subject?.academicYear,
+        ],
+      });
+    },
+    onError() {
+      toast.error("Fail to update the mark.");
+    },
+  });
+
+  useEffect(() => {
+    setMark(val + "");
+  }, [val]);
 
   return (
     <div className="col-span-1 border-r border-r-gray-400">
       {isEditing ? (
-        <div
-          className="border-r border-r-gray-400 p-1"
-          onDoubleClick={() => setIsEditing(false)}
-        >
+        <div className="border-r border-r-gray-400 p-1">
           <Input
             autoFocus
             type="number"
             className="w-full h-7 focus-visible:ring-green-500  rounded-none"
+            value={mark}
+            onChange={(e) => setMark(e.target.value)}
+            onBlur={() => {
+              setIsEditing(false);
+              setMark(val + "");
+            }}
+            min={1}
+            onKeyUp={(e) => {
+              if (e.key !== "Enter") return;
+
+              if (studentMarkId === undefined) {
+                if (subjectId) {
+                  addMarkMutation.mutate({
+                    subjectID: subjectId,
+                    attributeID: attributeId,
+                    studentID: studentId,
+                    mark: +mark,
+                  });
+                }
+              } else {
+                updateMarkMutation.mutate({
+                  mark: +mark,
+                });
+              }
+
+              setIsEditing(false);
+            }}
           />
         </div>
       ) : (
@@ -296,7 +398,7 @@ const EditInput = (props: EditInputProps) => {
           onDoubleClick={() => setIsEditing(true)}
           className="font-semibold p-2 text-gray-600 text-center"
         >
-          {val}
+          {mark}
         </Text>
       )}
     </div>

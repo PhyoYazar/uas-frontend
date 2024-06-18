@@ -27,10 +27,8 @@ export const CourseWorkPlanning = () => {
     subjectId,
   });
 
-  const { subject: examPercent } = useGetSubjectById(
-    subjectId,
-    (data) => data?.data?.exam
-  );
+  const { subject } = useGetSubjectById(subjectId, (data) => data?.data);
+  const examPercent = subject?.exam ?? 0;
 
   const { gaMarks: cwGaMarks } = useCalculateMarks(attributes ?? []);
   const { gaMarks: examGaMarks } = useCalculateMarks(examAttributes ?? []);
@@ -137,9 +135,9 @@ export const CourseWorkPlanning = () => {
           cos={attribute?.co?.map((c) => c.instance).join(", ")}
           marks={attribute?.marks}
           fullMark={attribute?.fullMark + "" ?? ""}
-          percentMark={
-            get2Decimal((attribute?.fullMark / 100) * (100 - examPercent)) + ""
-          }
+          percentMark={get2Decimal(
+            (attribute?.fullMark / 100) * (100 - examPercent)
+          )}
         />
       ))}
 
@@ -150,7 +148,7 @@ export const CourseWorkPlanning = () => {
           <CustomRow
             name="Total Course Works"
             marks={calculatedCwGaMarks}
-            percentMark={100 - examPercent + ""}
+            percentMark={100 - examPercent}
           />
           <CustomRow
             name="Final Exam"
@@ -160,7 +158,7 @@ export const CourseWorkPlanning = () => {
           <CustomRow
             name="Total Marks"
             marks={totalGaMarks}
-            percentMark="100"
+            percentMark={100}
           />
         </>
       ) : null}
@@ -174,7 +172,7 @@ type CustomRowType = {
   allowDelete?: boolean;
   marks: { gaID: string; gaSlug: string; id: string; mark: number }[];
   fullMark?: string;
-  percentMark?: string;
+  percentMark?: number;
   attributeId?: string;
 };
 
@@ -186,7 +184,7 @@ const CustomRow = (props: CustomRowType) => {
     allowDelete = false,
     cos = "",
     fullMark = "",
-    percentMark = "",
+    percentMark,
   } = props;
 
   const { subjectId } = useParams();

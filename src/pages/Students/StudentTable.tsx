@@ -113,10 +113,10 @@ export function StudentTable() {
   const columns: ColumnDef<Student>[] = useMemo(
     () => [
       {
-        accessorKey: "name",
-        header: "Name",
+        accessorKey: "studentNumber",
+        header: "Student ID",
         cell: ({ row }) => (
-          <div className="capitalize">{row.getValue("name")}</div>
+          <div className="capitalize">{row.getValue("studentNumber")}</div>
         ),
       },
       {
