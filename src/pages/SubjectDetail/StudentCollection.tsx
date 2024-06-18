@@ -1,12 +1,13 @@
 import { get2Decimal } from "@/common/utils/utils";
 import { FlexBox } from "@/components/common/flex-box";
 import { Text } from "@/components/common/text";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { HeadText } from "./CourseWorkPlanning";
 import {
@@ -86,6 +87,22 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
 
   const fullMarks =
     attributes?.map((attribute) => attribute?.fullMark + "") ?? [];
+
+  console.log("hello", attributes?.length);
+
+  if (!attributes?.length) {
+    return (
+      <FlexBox className="h-96 justify-center flex-col gap-4">
+        <Text className="text-lg font-semibold text-gray-700">
+          Create {type} first to see the students results.
+        </Text>
+
+        <Link to={`/subject/create/${subjectId}`}>
+          <Button>Create</Button>
+        </Link>
+      </FlexBox>
+    );
+  }
 
   return (
     <div className="w-full overflow-auto border border-gray-400 rounded-md">
