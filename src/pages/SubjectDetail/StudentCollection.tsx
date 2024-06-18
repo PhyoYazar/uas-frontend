@@ -168,7 +168,7 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
         <FlexBox className="col-span-7 justify-center border-r border-r-gray-400" />
 
         <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
-          <HeadText className="">Total</HeadText>
+          <HeadText className="">Total 100%</HeadText>
         </FlexBox>
 
         <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
@@ -180,35 +180,48 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
       </div>
 
       {/* ================================= ROWS ================================= */}
-      {students?.items.map((std) => (
-        <StudentRow
-          key={std?.id}
-          studentId={std?.id}
-          rollNumber={std?.rollNumber}
-          stdNumber={std?.studentNumber}
-          cols={totalAttributes}
-          markArray={
-            attributes?.map(({ id }) => {
-              const findAttribute = std?.attributes?.find(
-                (att) => att.attributeId === id
-              );
+      {students?.items?.map((std) => {
+        const totalMarks = std?.attributes?.reduce(
+          (acc, cur) => acc + cur.fullMark,
+          0
+        );
 
-              if (findAttribute) {
+        return (
+          <StudentRow
+            key={std?.id}
+            total={totalMarks}
+            totalPercents={
+              type === "Question"
+                ? (totalMarks / 100) * examPercent
+                : (totalMarks / 100) * (100 - examPercent)
+            }
+            studentId={std?.id}
+            rollNumber={std?.rollNumber}
+            stdNumber={std?.studentNumber}
+            cols={totalAttributes}
+            markArray={
+              attributes?.map(({ id }) => {
+                const findAttribute = std?.attributes?.find(
+                  (att) => att.attributeId === id
+                );
+
+                if (findAttribute) {
+                  return {
+                    attributeId: findAttribute.attributeId,
+                    mark: findAttribute.fullMark,
+                    studentMarkId: findAttribute.studentMarkId,
+                  };
+                }
+
                 return {
-                  attributeId: findAttribute.attributeId,
-                  mark: findAttribute.fullMark,
-                  studentMarkId: findAttribute.studentMarkId,
+                  attributeId: id,
+                  mark: 0,
                 };
-              }
-
-              return {
-                attributeId: id,
-                mark: 0,
-              };
-            }) ?? []
-          }
-        />
-      ))}
+              }) ?? []
+            }
+          />
+        );
+      })}
     </div>
   );
 };
@@ -259,10 +272,20 @@ type StudentRowProps = {
   studentId: string;
   stdNumber: number;
   markArray: { attributeId: string; studentMarkId?: string; mark: number }[];
+  total: number;
+  totalPercents: number;
 };
 
 const StudentRow = (props: StudentRowProps) => {
-  const { rollNumber, studentId, stdNumber, markArray, cols } = props;
+  const {
+    rollNumber,
+    studentId,
+    stdNumber,
+    markArray,
+    cols,
+    total,
+    totalPercents,
+  } = props;
 
   return (
     <div className={`grid grid-cols-12 border-t border-t-gray-400`}>
@@ -294,11 +317,11 @@ const StudentRow = (props: StudentRowProps) => {
       </FlexBox>
 
       <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
-        <HeadText className="text-gray-600">80</HeadText>
+        <HeadText className="text-gray-600">{total}</HeadText>
       </FlexBox>
 
       <FlexBox className="col-span-1 justify-center">
-        <HeadText className="text-gray-600">40</HeadText>
+        <HeadText className="text-gray-600">{totalPercents}</HeadText>
       </FlexBox>
     </div>
   );
