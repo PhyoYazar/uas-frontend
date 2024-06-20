@@ -88,8 +88,6 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
   const fullMarks =
     attributes?.map((attribute) => attribute?.fullMark + "") ?? [];
 
-  console.log("hello", attributes?.length);
-
   if (!attributes?.length) {
     return (
       <FlexBox className="h-96 justify-center flex-col gap-4">

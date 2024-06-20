@@ -358,8 +358,12 @@ const CreateMark = (props: CreateMarkProps) => {
                             value: "",
                           }));
 
+                          const updatedGaArray = gaArray.filter(
+                            (g) => !fields?.map((f) => f.key).includes(g.key)
+                          );
+
                           // add to the fields
-                          append(gaArray);
+                          append(updatedGaArray);
 
                           return;
                         }
