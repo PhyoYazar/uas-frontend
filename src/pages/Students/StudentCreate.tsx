@@ -44,14 +44,14 @@ const formatDateString = (dateString: string): string => {
 };
 
 const formSchema = z.object({
-  studentNumber: z.string().min(1, { message: "Student name is required" }),
-  rollNumber: z.string().min(1, { message: "Code is required" }),
+  studentName: z.string().min(1, { message: "Student name is required" }),
+  rollNumber: z.string().min(1, { message: "Roll Number is required" }),
   year: z.string().min(1, { message: "Year is empty" }),
   academicYear: z.string().min(1, { message: "Academic Year is required" }),
 });
 
 type CreateStudent = {
-  studentNumber: number;
+  studentName: string;
   year: string;
   academicYear: string;
   rollNumber: number;
@@ -63,7 +63,7 @@ export const StudentCreate = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      studentNumber: "",
+      studentName: "",
       rollNumber: "",
       year: "",
       academicYear: "",
@@ -94,7 +94,7 @@ export const StudentCreate = () => {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     createSubjectMutation.mutate({
-      studentNumber: +values.studentNumber,
+      studentName: values.studentName,
       rollNumber: +values.rollNumber,
       year: values.year,
       academicYear: values.academicYear,
@@ -118,12 +118,12 @@ export const StudentCreate = () => {
             <div className="items-start  grid grid-cols-2 gap-x-12 gap-y-8">
               <FormField
                 control={form.control}
-                name="studentNumber"
+                name="studentName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Student Number</FormLabel>
+                    <FormLabel>Student Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Type student number" {...field} />
+                      <Input placeholder="Type student name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

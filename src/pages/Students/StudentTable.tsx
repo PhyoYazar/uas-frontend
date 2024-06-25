@@ -34,7 +34,7 @@ import { useGetStudentById } from "./hooks/useFetches";
 
 export type Student = {
   id: string;
-  studentNumber: number;
+  studentName: string;
   rollNumber: number;
   year: string;
   academicYear: string;
@@ -113,10 +113,10 @@ export function StudentTable() {
   const columns: ColumnDef<Student>[] = useMemo(
     () => [
       {
-        accessorKey: "studentNumber",
-        header: "Student ID",
+        accessorKey: "studentName",
+        header: "Student Name",
         cell: ({ row }) => (
-          <div className="capitalize">{row.getValue("studentNumber")}</div>
+          <div className="capitalize">{row.getValue("studentName")}</div>
         ),
       },
       {

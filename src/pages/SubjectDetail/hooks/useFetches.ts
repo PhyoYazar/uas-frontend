@@ -34,7 +34,7 @@ export const useGetSubjectDetail = (subjectId: string | undefined) => {
 type StudentLists = {
   id: string;
   rollNumber: number;
-  studentNumber: number;
+  studentName: string;
   attributes: {
     attributeId: string;
     studentMarkId: string;

@@ -177,7 +177,7 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
         </FlexBox>
 
         <FlexBox className="col-span-2 border-r border-r-gray-400 justify-center p-2">
-          <HeadText>Student ID</HeadText>
+          <HeadText>Student Name</HeadText>
         </FlexBox>
 
         <FlexBox className="col-span-7 justify-center border-r border-r-gray-400" />
@@ -212,7 +212,7 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
             }
             studentId={std?.id}
             rollNumber={std?.rollNumber}
-            stdNumber={std?.studentNumber}
+            studentName={std?.studentName}
             cols={totalAttributes}
             markArray={
               attributes?.map(({ id }) => {
@@ -285,7 +285,7 @@ type StudentRowProps = {
   cols: number;
   rollNumber: number;
   studentId: string;
-  stdNumber: number;
+  studentName: string;
   markArray: { attributeId: string; studentMarkId?: string; mark: number }[];
   total: number;
   totalPercents: number;
@@ -295,7 +295,7 @@ const StudentRow = (props: StudentRowProps) => {
   const {
     rollNumber,
     studentId,
-    stdNumber,
+    studentName,
     markArray,
     cols,
     total,
@@ -309,7 +309,7 @@ const StudentRow = (props: StudentRowProps) => {
       </FlexBox>
 
       <FlexBox className="col-span-2 border-r border-r-gray-400 justify-center p-2">
-        <HeadText className="text-gray-600">{stdNumber}</HeadText>
+        <HeadText className="text-gray-600">{studentName}</HeadText>
       </FlexBox>
 
       <FlexBox className="col-span-7 justify-center">
