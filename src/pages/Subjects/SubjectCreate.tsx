@@ -27,7 +27,6 @@ import { z } from "zod";
 
 import { dualYears } from "@/common/constants/helpers";
 import { BackBtn } from "@/components/common/back-button";
-import { Label } from "@/components/ui/label";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import timezone from "dayjs/plugin/timezone";
@@ -51,9 +50,19 @@ const formSchema = z.object({
   year: z.string().min(1, { message: "Year is empty" }),
   semester: z.string().min(1, { message: "Semester is required" }),
   academicYear: z.string().min(1, { message: "Academic Year is required" }),
-  examPercentage: z
+  examPercent: z
     .string()
     .min(1, { message: "Exam mark percentage is required" }),
+  tutorialPercent: z
+    .string()
+    .min(1, { message: "Tutorial percentage is required" }),
+  assignmentPercent: z
+    .string()
+    .min(1, { message: "Assignment percentage is required" }),
+  labPercent: z.string().min(1, { message: "Lab percentage is required" }),
+  practicalPercent: z
+    .string()
+    .min(1, { message: "Practical percentage is required" }),
 });
 
 type CreateSubject = {
@@ -64,6 +73,10 @@ type CreateSubject = {
   semester: string;
   instructor: string;
   exam: number;
+  tutorial: number;
+  practical: number;
+  lab: number;
+  assignment: number;
 };
 
 export const SubjectCreate = () => {
@@ -78,12 +91,16 @@ export const SubjectCreate = () => {
       year: "",
       semester: "",
       academicYear: "",
-      examPercentage: "",
+      examPercent: "",
+      practicalPercent: "0",
+      tutorialPercent: "",
+      labPercent: "0",
+      assignmentPercent: "",
     },
   });
 
-  const examPercentValue = +form.watch("examPercentage");
-  const cwPercent = examPercentValue === 0 ? "" : 100 - examPercentValue + "";
+  // const examPercentValue = +form.watch("examPercent");
+  // const cwPercent = examPercentValue === 0 ? "" : 100 - examPercentValue + "";
 
   const createSubjectMutation = useMutation({
     mutationFn: (newSub: CreateSubject) => axios.post("subject", newSub),
@@ -108,8 +125,20 @@ export const SubjectCreate = () => {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    if (isNaN(+values.examPercentage)) {
-      toast.warning("Exam Percentage must be a number");
+    // if (isNaN(+values.examPercent)) {
+    //   toast.warning("Exam Percentage must be a number");
+    //   return;
+    // }
+
+    const totalPercent =
+      +values.examPercent +
+      +values.labPercent +
+      +values.assignmentPercent +
+      +values.tutorialPercent +
+      +values.practicalPercent;
+
+    if (totalPercent !== 100) {
+      toast.warning("Exam and Course work's total percentage must be 100.");
       return;
     }
 
@@ -120,7 +149,11 @@ export const SubjectCreate = () => {
       academicYear: values.academicYear,
       semester: values.semester,
       instructor: values.instructor,
-      exam: +values.examPercentage,
+      exam: +values.examPercent,
+      practical: +values.practicalPercent,
+      tutorial: +values.tutorialPercent,
+      lab: +values.labPercent,
+      assignment: +values.assignmentPercent,
     });
   }
 
@@ -238,20 +271,6 @@ export const SubjectCreate = () => {
 
               <FormField
                 control={form.control}
-                name="examPercentage"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Exam Percentage</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Type exam percentage" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
                 name="semester"
                 render={({ field }) => (
                   <FormItem>
@@ -275,14 +294,95 @@ export const SubjectCreate = () => {
                 )}
               />
 
-              <div className="space-y-2">
-                <Label>Course Work Percentage</Label>
-                <Input
-                  placeholder="Type exam percentage"
-                  value={cwPercent}
-                  disabled
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="examPercent"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Exam Percentage</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Type exam percentage"
+                        type="number"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="tutorialPercent"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tutorial Percentage</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Tutorial percentage"
+                        type="number"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="practicalPercent"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Practical Percentage</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Practical percentage"
+                        type="number"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="labPercent"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Lab Percentage</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Lab percentage"
+                        type="number"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="assignmentPercent"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Assignment Percentage</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Assignment percentage"
+                        type="number"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             <FlexBox className="justify-end">

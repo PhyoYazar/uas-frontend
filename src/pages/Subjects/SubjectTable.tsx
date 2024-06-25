@@ -43,6 +43,9 @@ export type Subject = {
   instructor: string;
   exam: number;
   practical: number;
+  tutorial: number;
+  assignment: number;
+  lab: number;
   semester: string;
 };
 

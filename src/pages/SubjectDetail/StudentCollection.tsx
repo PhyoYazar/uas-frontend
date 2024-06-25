@@ -375,6 +375,8 @@ const EditInput = (props: EditInputProps) => {
           subject?.academicYear,
         ],
       });
+
+      toast.success("Mark is successfully created");
     },
     onError() {
       toast.error("Fail to add the mark.");
@@ -392,6 +394,8 @@ const EditInput = (props: EditInputProps) => {
           subject?.academicYear,
         ],
       });
+
+      toast.success("Mark is successfully updated");
     },
     onError() {
       toast.error("Fail to update the mark.");
