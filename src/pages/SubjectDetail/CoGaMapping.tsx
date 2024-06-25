@@ -28,13 +28,14 @@ export const CoGaMapping = () => {
     <section>
       <div
         className="grid bg-yellow-400 w-full overflow-auto"
-        style={{ gridTemplateColumns: "repeat(22, 1fr)" }}
+        style={{ gridTemplateColumns: "repeat(23, 1fr)" }}
       >
         <HeadItem name="No" />
         <HeadItem name="Co Description" className="col-span-9" />
         {allGAs?.map(({ name, slug }) => (
           <HeadItem key={slug + "helsa"} name={slug} tooltipLabel={name} />
         ))}
+        <HeadItem name="Full Mark" className="col-span-1" />
       </div>
 
       {cos.map((co) => (
@@ -43,6 +44,7 @@ export const CoGaMapping = () => {
           name={co?.name ?? ""}
           instance={co?.instance ?? ""}
           ga={co?.ga ?? []}
+          fullMark={co?.mark ?? ""}
         />
       ))}
     </section>
@@ -53,11 +55,12 @@ type CoRowProps = {
   id: string;
   instance: string;
   name: string;
+  fullMark: number;
   ga: { slug: string; id: string; name: string }[];
 };
 
 const CoRow = (props: CoRowProps) => {
-  const { id, instance, name, ga } = props;
+  const { id, instance, name, fullMark, ga } = props;
 
   const queryClient = useQueryClient();
   const { subjectId } = useParams();
@@ -89,7 +92,7 @@ const CoRow = (props: CoRowProps) => {
       ref={ref}
       key={id + "what ev"}
       className="grid w-full overflow-auto"
-      style={{ gridTemplateColumns: "repeat(22, 1fr)" }}
+      style={{ gridTemplateColumns: "repeat(23, 1fr)" }}
     >
       <HeadItem
         name={instance}
@@ -103,6 +106,7 @@ const CoRow = (props: CoRowProps) => {
           {ga?.map((ga) => ga?.slug).includes(slug) ? <CheckIcon /> : "-"}
         </ElItem>
       ))}
+      <HeadItem name={fullMark + ""} className="col-span-1 justify-start" />
     </div>
   );
 };

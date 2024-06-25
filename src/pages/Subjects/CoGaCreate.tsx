@@ -429,7 +429,8 @@ const coCreateformSchema = z.object({
   name: z
     .string()
     .min(1, { message: "Course outline description is required" }),
-  instance: z.string().min(1, { message: "Course outline name is required" }),
+  instance: z.string().min(1, { message: "Course outline number is required" }),
+  mark: z.string().min(1, { message: "Course outline mark is required" }),
   gas: z.array(z.string()).refine((value) => value.some((item) => item), {
     message: "You have to select at least one graduate attribute.",
   }),
@@ -446,6 +447,7 @@ const CoCreate = () => {
     defaultValues: {
       name: "",
       instance: "",
+      mark: "",
       gas: [],
     },
   });
@@ -479,6 +481,7 @@ const CoCreate = () => {
       connectCoGaMutation.mutate({
         coName: values.name,
         coInstance: +values.instance,
+        mark: +values.mark,
         subjectID: subjectId,
         gaIDs: values.gas,
       });
@@ -523,6 +526,20 @@ const CoCreate = () => {
                     placeholder="Type course outline description"
                     {...field}
                   />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="mark"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Full Mark</FormLabel>
+                <FormControl>
+                  <Input placeholder="Full mark" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

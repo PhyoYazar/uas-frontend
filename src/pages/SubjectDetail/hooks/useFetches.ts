@@ -9,6 +9,7 @@ type SubjectDetail = Subject & {
     instance: string;
     name: string;
     id: string;
+    mark: number;
     ga: {
       id: string;
       name: string;
