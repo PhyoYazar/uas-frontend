@@ -34,7 +34,7 @@ import { dualYears } from "@/common/constants/helpers";
 import { Student } from "./StudentTable";
 
 const formSchema = z.object({
-  name: z.string().min(1, { message: "Student name is required" }),
+  studentNumber: z.string().min(1, { message: "Student name is required" }),
   rollNumber: z.string().min(1, { message: "Roll Number is required" }),
   year: z.string().min(1, { message: "Year is empty" }),
   academicYear: z.string().min(1, { message: "Academic Year is required" }),
@@ -54,7 +54,7 @@ export const EditStudent = (props: EditSubjectProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: student.name,
+      studentNumber: student.studentNumber + "",
       year: student.year,
       rollNumber: student.rollNumber + "",
       academicYear: student.academicYear,
@@ -82,7 +82,7 @@ export const EditStudent = (props: EditSubjectProps) => {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     updateStudentMutation.mutate({
-      name: values.name,
+      studentNumber: +values.studentNumber,
       rollNumber: +values.rollNumber,
       year: values.year,
       academicYear: values.academicYear,
@@ -107,12 +107,12 @@ export const EditStudent = (props: EditSubjectProps) => {
             <div className="items-start  grid grid-cols-2 gap-x-12 gap-y-8">
               <FormField
                 control={form.control}
-                name="name"
+                name="studentNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Subject Name</FormLabel>
+                    <FormLabel>Student Number</FormLabel>
                     <FormControl>
-                      <Input placeholder="Type student name" {...field} />
+                      <Input placeholder="Type student number" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

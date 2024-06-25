@@ -54,6 +54,7 @@ export function SubjectTable() {
   const [search, setSearch] = useState("");
   const [year, setYear] = useState("");
   const [academicYear, setAcademicYear] = useState("");
+  const [semester, setSemester] = useState("");
   const [page, setPage] = useState(1);
 
   const [editOpen, setEditOpen] = useState(false);
@@ -71,13 +72,21 @@ export function SubjectTable() {
   } = useGetSubjectById(subjectId);
 
   const { data: subjects, isFetching } = useQuery({
-    queryKey: ["all-subjects", year, debounceSearch, academicYear, page],
+    queryKey: [
+      "all-subjects",
+      page,
+      debounceSearch,
+      year,
+      academicYear,
+      semester,
+    ],
     queryFn: ({ signal }) => {
       let queryStr = `page=${page}`;
 
       if (debounceSearch.length > 2) queryStr += `&name=${debounceSearch}`;
       if (year !== "") queryStr += `&year=${year}`;
       if (academicYear !== "") queryStr += `&academicYear=${academicYear}`;
+      if (semester !== "") queryStr += `&semester=${semester.toLowerCase()}`;
 
       return axios.get<SubjectsResponse>(`subjects?${queryStr}`, { signal });
     },
@@ -134,6 +143,13 @@ export function SubjectTable() {
         header: "Instructor",
         cell: ({ row }) => (
           <div className="capitalize">{row.getValue("instructor")}</div>
+        ),
+      },
+      {
+        accessorKey: "semester",
+        header: "Semester",
+        cell: ({ row }) => (
+          <div className="capitalize">{row.getValue("semester")}</div>
         ),
       },
       {
@@ -243,6 +259,21 @@ export function SubjectTable() {
               ))}
             </SelectContent>
           </Select>
+
+          <Select
+            onValueChange={(val) => setSemester(val === "None" ? "" : val)}
+          >
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Semester" />
+            </SelectTrigger>
+            <SelectContent>
+              {["None", "First", "Second"].map((y) => (
+                <SelectItem key={y} value={y}>
+                  {y}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </FlexBox>
 
         <Link to={"/subject/create"}>
@@ -252,13 +283,7 @@ export function SubjectTable() {
 
       <CustomTable
         isLoading={isFetching}
-        data={
-          subjects?.items?.filter((sub) => {
-            if (year !== "") return sub.year === year;
-
-            return true;
-          }) ?? []
-        }
+        data={subjects?.items ?? []}
         columns={columns}
         onRowClick={({ id }) => navigate(`${id}`)}
       />

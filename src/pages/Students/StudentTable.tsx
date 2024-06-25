@@ -34,7 +34,7 @@ import { useGetStudentById } from "./hooks/useFetches";
 
 export type Student = {
   id: string;
-  name: string;
+  studentNumber: number;
   rollNumber: number;
   year: string;
   academicYear: string;
@@ -74,7 +74,7 @@ export function StudentTable() {
       if (debounceSearch.length > 0)
         queryStr += `&roll_number=${debounceSearch}`;
       if (year !== "") queryStr += `&year=${year}`;
-      if (academicYear !== "") queryStr += `&academicYear=${academicYear}`;
+      if (academicYear !== "") queryStr += `&academic_year=${academicYear}`;
 
       return axios.get<StudentsResponse>(`students?${queryStr}`, { signal });
     },

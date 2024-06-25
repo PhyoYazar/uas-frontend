@@ -44,14 +44,14 @@ const formatDateString = (dateString: string): string => {
 };
 
 const formSchema = z.object({
-  name: z.string().min(1, { message: "Student name is required" }),
+  studentNumber: z.string().min(1, { message: "Student name is required" }),
   rollNumber: z.string().min(1, { message: "Code is required" }),
   year: z.string().min(1, { message: "Year is empty" }),
   academicYear: z.string().min(1, { message: "Academic Year is required" }),
 });
 
 type CreateStudent = {
-  name: string;
+  studentNumber: number;
   year: string;
   academicYear: string;
   rollNumber: number;
@@ -63,7 +63,7 @@ export const StudentCreate = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      studentNumber: "",
       rollNumber: "",
       year: "",
       academicYear: "",
@@ -94,7 +94,7 @@ export const StudentCreate = () => {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     createSubjectMutation.mutate({
-      name: values.name,
+      studentNumber: +values.studentNumber,
       rollNumber: +values.rollNumber,
       year: values.year,
       academicYear: values.academicYear,
@@ -118,12 +118,12 @@ export const StudentCreate = () => {
             <div className="items-start  grid grid-cols-2 gap-x-12 gap-y-8">
               <FormField
                 control={form.control}
-                name="name"
+                name="studentNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Student Name</FormLabel>
+                    <FormLabel>Student Number</FormLabel>
                     <FormControl>
-                      <Input placeholder="Type subject name" {...field} />
+                      <Input placeholder="Type student number" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
