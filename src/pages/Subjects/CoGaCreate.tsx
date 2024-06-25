@@ -173,7 +173,7 @@ type CreateMarkProps = {
   attributes: Attribute[] | undefined;
 };
 
-type CWType = "Tutorial" | "Lab" | "Assignment";
+type CWType = "Tutorial" | "Lab" | "Assignment" | "Practical";
 
 const CreateMark = (props: CreateMarkProps) => {
   const { type, attributes } = props;
@@ -238,6 +238,17 @@ const CreateMark = (props: CreateMarkProps) => {
   });
 
   function onSubmit(values: z.infer<typeof examQformSchema>) {
+    const totalGaMarks = values.fields.reduce(
+      (cur, acc) => cur + +acc.value,
+      0
+    );
+
+    if (totalGaMarks !== +values.fullMark) {
+      toast.warning("Full marks and total ga marks are not same");
+
+      return;
+    }
+
     const result = {
       subjectID: subjectId,
       attributeID: values.attributeId,
@@ -268,7 +279,7 @@ const CreateMark = (props: CreateMarkProps) => {
                   <SelectValue placeholder="Select Course Work Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  {["Tutorial", "Lab", "Assignment"].map((cw) => (
+                  {["Tutorial", "Lab", "Assignment", "Practical"].map((cw) => (
                     <SelectItem key={cw + "whaadsf"} value={cw}>
                       {cw}
                     </SelectItem>

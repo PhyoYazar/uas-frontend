@@ -23,7 +23,7 @@ export const App = () => {
       <RootRoute />
       <Toaster
         richColors
-        position="top-center"
+        position="bottom-left"
         duration={5000}
         theme="light"
         visibleToasts={3}

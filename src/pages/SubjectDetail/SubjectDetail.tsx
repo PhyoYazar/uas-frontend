@@ -56,8 +56,17 @@ export const SubjectDetail = () => {
                 value={`${subject?.exam ?? ""}%`}
               />
               <ListItem
-                label="% of Course Work"
-                value={`${100 - (subject?.exam ?? 100) ?? ""}%`}
+                label="% of Tutorial"
+                value={`${subject?.tutorial ?? ""}%`}
+              />
+              <ListItem label="% of Lab" value={`${subject?.lab ?? ""}%`} />
+              <ListItem
+                label="% of Assignment"
+                value={`${subject?.assignment ?? ""}%`}
+              />
+              <ListItem
+                label="% of Practical"
+                value={`${subject?.practical ?? ""}%`}
               />
             </div>
 
