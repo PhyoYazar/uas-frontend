@@ -171,10 +171,10 @@ const CustomRow = (props: CustomRowType) => {
       <FlexBox className="col-span-7 flex-col border-r border-r-gray-400 justify-center">
         <div className="w-full grid grid-cols-12">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((el) => {
-            const mark = marks?.find((m) => +m?.gaSlug?.slice(-1) === el);
+            const mark = marks?.find((m) => +m?.gaSlug?.slice(2) === el);
 
             const markIsExist =
-              +(mark?.gaSlug?.slice(-1) ?? 0) === el && (mark?.mark ?? 0) > 0;
+              +(mark?.gaSlug?.slice(2) ?? 0) === el && (mark?.mark ?? 0) > 0;
 
             return (
               <FlexBox

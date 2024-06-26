@@ -28,7 +28,12 @@ export const CourseWorkPlanning = () => {
   });
 
   const { subject } = useGetSubjectById(subjectId, (data) => data?.data);
+
   const examPercent = subject?.exam ?? 0;
+  const tutorialPercent = subject?.tutorial ?? 0;
+  const labPercent = subject?.lab ?? 0;
+  const assignmentPercent = subject?.assignment ?? 0;
+  const practicalPercent = subject?.practical ?? 0;
 
   const { gaMarks: cwGaMarks } = useCalculateMarks(attributes ?? []);
   const { gaMarks: examGaMarks } = useCalculateMarks(examAttributes ?? []);
@@ -38,6 +43,7 @@ export const CourseWorkPlanning = () => {
     mark: get2Decimal((m.mark / 100) * (100 - examPercent)),
   }));
 
+  // exam calculation
   const calculatedExamGaMarks = examGaMarks?.map((m) => ({
     ...m,
     mark: get2Decimal((m.mark / 100) * examPercent),
@@ -126,20 +132,25 @@ export const CourseWorkPlanning = () => {
         </FlexBox>
       </div>
 
-      {attributes?.map((attribute) => (
-        <CustomRow
-          allowDelete
-          key={attribute?.id}
-          attributeId={attribute?.id}
-          name={attribute?.name + " " + attribute?.instance}
-          cos={attribute?.co?.map((c) => c.instance).join(", ")}
-          marks={attribute?.marks}
-          fullMark={attribute?.fullMark + "" ?? ""}
-          percentMark={get2Decimal(
-            (attribute?.fullMark / 100) * (100 - examPercent)
-          )}
-        />
-      ))}
+      {attributes?.map((attribute) => {
+        let percent = assignmentPercent;
+        if (attribute.name === "Tutorial") percent = tutorialPercent;
+        if (attribute.name === "Practical") percent = practicalPercent;
+        if (attribute.name === "Lab") percent = labPercent;
+
+        return (
+          <CustomRow
+            allowDelete
+            key={attribute?.id}
+            attributeId={attribute?.id}
+            name={attribute?.name + " " + attribute?.instance}
+            cos={attribute?.co?.map((c) => c.instance).join(", ")}
+            marks={attribute?.marks}
+            fullMark={attribute?.fullMark + "" ?? ""}
+            percentMark={get2Decimal((attribute?.fullMark / 100) * percent)}
+          />
+        );
+      })}
 
       {(attributes?.length ?? 0) > 0 ? (
         <>
@@ -245,10 +256,10 @@ const CustomRow = (props: CustomRowType) => {
       <FlexBox className="col-span-7 flex-col  justify-center">
         <div className="w-full grid grid-cols-12">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((el) => {
-            const mark = marks?.find((m) => +m?.gaSlug?.slice(-1) === el);
+            const mark = marks?.find((m) => +m?.gaSlug?.slice(2) === el);
 
             const markIsExist =
-              +(mark?.gaSlug?.slice(-1) ?? 0) === el && (mark?.mark ?? 0) > 0;
+              +(mark?.gaSlug?.slice(2) ?? 0) === el && (mark?.mark ?? 0) > 0;
 
             return (
               <FlexBox
