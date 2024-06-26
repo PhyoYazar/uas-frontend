@@ -134,7 +134,7 @@ export const useGetCWAttributeWithCoGaMarks = (
 
 type GetAttributeWithCoGaMarksProps = {
   subjectId: string | undefined;
-  type?: "Question" | "Tutorial" | "Assignment" | "Lab";
+  type?: "Question" | "Tutorial" | "Assignment" | "Lab" | "Practical";
   select?: // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ((data: AxiosResponse<AttributeResponse, any>) => Attribute[]) | undefined;
 };

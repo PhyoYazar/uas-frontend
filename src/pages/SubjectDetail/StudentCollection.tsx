@@ -25,6 +25,7 @@ export const StudentCollection = () => {
           <TabsTrigger value="tutorial">Tutorial</TabsTrigger>
           <TabsTrigger value="assignment">Assignment</TabsTrigger>
           <TabsTrigger value="lab">Lab</TabsTrigger>
+          <TabsTrigger value="practical">Practical</TabsTrigger>
         </TabsList>
 
         <TabsContent value="question">
@@ -42,6 +43,10 @@ export const StudentCollection = () => {
         <TabsContent value="lab">
           <StudentAssessment type="Lab" />
         </TabsContent>
+
+        <TabsContent value="practical">
+          <StudentAssessment type="Practical" />
+        </TabsContent>
       </Tabs>
     </div>
   );
@@ -50,7 +55,7 @@ export const StudentCollection = () => {
 // =================================================================================================
 
 type StudentAssessmentProps = {
-  type: "Question" | "Tutorial" | "Assignment" | "Lab";
+  type: "Question" | "Tutorial" | "Assignment" | "Lab" | "Practical";
 };
 
 const StudentAssessment = (props: StudentAssessmentProps) => {
@@ -65,6 +70,16 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
 
   const { subject } = useGetSubjectById(subjectId, (data) => data?.data);
   const examPercent = subject?.exam ?? 0;
+  const tutorialPercent = subject?.tutorial ?? 0;
+  const labPercent = subject?.lab ?? 0;
+  const assignmentPercent = subject?.assignment ?? 0;
+  const practicalPercent = subject?.practical ?? 0;
+
+  let percent = examPercent;
+  if (type === "Tutorial") percent = tutorialPercent;
+  if (type === "Practical") percent = practicalPercent;
+  if (type === "Lab") percent = labPercent;
+  if (type === "Assignment") percent = assignmentPercent;
 
   const { students } = useGetAllStudentsBySubject(
     subject?.year,
@@ -134,22 +149,15 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
 
       <SubjectRow
         cols={totalAttributes}
-        name="Full mark"
+        name="Full mark (100%)"
         values={fullMarks}
         // values={Array.from({ length: totalAttributes }, () => fullMark + "")}
       />
 
       <SubjectRow
         cols={totalAttributes}
-        name="Percentage"
-        values={fullMarks.map(
-          (fm) =>
-            `${get2Decimal(
-              type === "Question"
-                ? (examPercent / 100) * +fm
-                : ((100 - examPercent) / 100) * +fm
-            )}`
-        )}
+        name={`Percentage (${percent}%)`}
+        values={fullMarks.map((fm) => `${get2Decimal((percent / 100) * +fm)}`)}
       />
 
       <SubjectRow
@@ -157,12 +165,7 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
         name="Calculation"
         values={Array.from(
           { length: totalAttributes },
-          () =>
-            `${
-              type === "Question"
-                ? examPercent / 100
-                : (100 - examPercent) / 100
-            }`
+          () => `${percent / 100}`
         )}
       />
 
