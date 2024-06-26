@@ -23,6 +23,14 @@ export const CourseWorkPlanning = () => {
     subjectId,
   });
 
+  const tutorialAttributes =
+    attributes?.filter(({ name }) => name === "Tutorial") ?? [];
+  const labAttributes = attributes?.filter(({ name }) => name === "Lab") ?? [];
+  const practicalAttributes =
+    attributes?.filter(({ name }) => name === "Practical") ?? [];
+  const assignmentAttributes =
+    attributes?.filter(({ name }) => name === "Assignment") ?? [];
+
   const { attributes: examAttributes } = useGetExamAttributeWithCoGaMarks({
     subjectId,
   });
@@ -35,8 +43,39 @@ export const CourseWorkPlanning = () => {
   const assignmentPercent = subject?.assignment ?? 0;
   const practicalPercent = subject?.practical ?? 0;
 
-  const { gaMarks: cwGaMarks } = useCalculateMarks(attributes ?? []);
+  const { gaMarks: labGaMarks } = useCalculateMarks(labAttributes ?? []);
+  const { gaMarks: practicalGaMarks } = useCalculateMarks(
+    practicalAttributes ?? []
+  );
+  const { gaMarks: assignmentGaMarks } = useCalculateMarks(
+    assignmentAttributes ?? []
+  );
+  const { gaMarks: tutorialGaMarks } = useCalculateMarks(
+    tutorialAttributes ?? []
+  );
+
+  const calculatedLabGaMarks = labGaMarks?.map((m) => ({
+    ...m,
+    mark: get2Decimal((m.mark / 100) * labPercent),
+  }));
+
+  const calculatedPracticalGaMarks = practicalGaMarks?.map((m) => ({
+    ...m,
+    mark: get2Decimal((m.mark / 100) * practicalPercent),
+  }));
+
+  const calculatedTutorialGaMarks = tutorialGaMarks?.map((m) => ({
+    ...m,
+    mark: get2Decimal((m.mark / 100) * tutorialPercent),
+  }));
+
+  const calculatedAssignmentGaMarks = assignmentGaMarks?.map((m) => ({
+    ...m,
+    mark: get2Decimal((m.mark / 100) * assignmentPercent),
+  }));
+
   const { gaMarks: examGaMarks } = useCalculateMarks(examAttributes ?? []);
+  const { gaMarks: cwGaMarks } = useCalculateMarks(attributes ?? []);
 
   const calculatedCwGaMarks = cwGaMarks?.map((m) => ({
     ...m,
@@ -154,6 +193,40 @@ export const CourseWorkPlanning = () => {
 
       {(attributes?.length ?? 0) > 0 ? (
         <>
+          <div className="col-span-full bg-gray-50 h-6 border-t border-t-gray-400" />
+
+          {calculatedPracticalGaMarks.some((item) => item?.mark > 0) ? (
+            <CustomRow
+              name="Total Practical"
+              marks={calculatedPracticalGaMarks}
+              percentMark={practicalPercent}
+            />
+          ) : null}
+
+          {calculatedTutorialGaMarks.some((item) => item?.mark > 0) ? (
+            <CustomRow
+              name="Total Tutorial"
+              marks={calculatedTutorialGaMarks}
+              percentMark={tutorialPercent}
+            />
+          ) : null}
+
+          {calculatedLabGaMarks.some((item) => item?.mark > 0) ? (
+            <CustomRow
+              name="Total Lab"
+              marks={calculatedLabGaMarks}
+              percentMark={labPercent}
+            />
+          ) : null}
+
+          {calculatedAssignmentGaMarks.some((item) => item?.mark > 0) ? (
+            <CustomRow
+              name="Total Assignment"
+              marks={calculatedAssignmentGaMarks}
+              percentMark={assignmentPercent}
+            />
+          ) : null}
+
           <div className="col-span-full bg-gray-50 h-6 border-t border-t-gray-400" />
 
           <CustomRow
