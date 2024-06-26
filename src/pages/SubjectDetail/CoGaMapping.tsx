@@ -25,21 +25,27 @@ export const CoGaMapping = () => {
     ) ?? [];
 
   return (
-    <section>
-      <div
-        className="grid bg-yellow-400 w-full overflow-auto"
-        style={{ gridTemplateColumns: "repeat(23, 1fr)" }}
-      >
-        <HeadItem name="No" />
-        <HeadItem name="Co Description" className="col-span-9" />
-        {allGAs?.map(({ name, slug }) => (
-          <HeadItem key={slug + "helsa"} name={slug} tooltipLabel={name} />
-        ))}
-        <HeadItem name="Full Mark" className="col-span-1" />
+    <section className="overflow-auto pb-2">
+      <div className="w-full flex flex-nowrap">
+        <div
+          className="grid bg-yellow-400 w-full"
+          style={{ gridTemplateColumns: "repeat(22, 1fr)" }}
+        >
+          <HeadItem name="No" />
+          <HeadItem name="Co Description" className="col-span-9 min-w-56" />
+          {allGAs?.map(({ name, slug }) => (
+            <HeadItem key={slug + "helsa"} name={slug} tooltipLabel={name} />
+          ))}
+        </div>
+
+        <FlexBox className="justify-center col-span-1 min-w-28 bg-yellow-400 border border-gray-400">
+          Full Mark
+        </FlexBox>
       </div>
 
       {cos.map((co) => (
         <CoRow
+          key={co?.id + "what ev"}
           id={co?.id ?? ""}
           name={co?.name ?? ""}
           instance={co?.instance ?? ""}
@@ -88,25 +94,30 @@ const CoRow = (props: CoRowProps) => {
   });
 
   return (
-    <div
-      ref={ref}
-      key={id + "what ev"}
-      className="grid w-full overflow-auto"
-      style={{ gridTemplateColumns: "repeat(23, 1fr)" }}
-    >
-      <HeadItem
-        name={instance}
-        hover={hovering}
-        onDelete={() => deleteMutation.mutate({ coId: id })}
-      />
-      <HeadItem name={name} className="col-span-9 justify-start" />
+    <div className="w-full flex flex-nowrap">
+      <div
+        ref={ref}
+        className="grid w-full"
+        style={{ gridTemplateColumns: "repeat(22, 1fr)" }}
+      >
+        <HeadItem
+          name={instance}
+          hover={hovering}
+          onDelete={() => deleteMutation.mutate({ coId: id })}
+        />
+        <HeadItem name={name} className="col-span-9 justify-start min-w-56" />
 
-      {allGAs?.map(({ slug }) => (
-        <ElItem key={slug + "wwdfaf osp"}>
-          {ga?.map((ga) => ga?.slug).includes(slug) ? <CheckIcon /> : "-"}
-        </ElItem>
-      ))}
-      <HeadItem name={fullMark + ""} className="col-span-1 justify-start" />
+        {allGAs?.map(({ slug }) => (
+          <ElItem key={slug + "wwdfaf osp"}>
+            {ga?.map((ga) => ga?.slug).includes(slug) ? <CheckIcon /> : "-"}
+          </ElItem>
+        ))}
+      </div>
+
+      <HeadItem
+        name={fullMark + ""}
+        className="col-span-1 justify-center min-w-28"
+      />
     </div>
   );
 };
@@ -125,7 +136,7 @@ const HeadItem = (props: {
   return (
     <FlexBox
       className={cn(
-        "border justify-center min-w-16 col-span-1 p-2 border-gray-400",
+        "justify-center min-w-16 col-span-1 p-2 border border-gray-400",
         hover ? "relative" : "",
         className
       )}
