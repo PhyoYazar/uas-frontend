@@ -355,44 +355,48 @@ const CreateMark = (props: CreateMarkProps) => {
               </div>
 
               <div className="grid grid-cols-3 gap-4">
-                {allCOs?.map((item) => (
-                  <FlexBox key={item?.id} className="gap-2">
-                    <Checkbox
-                      id={item?.id}
-                      onCheckedChange={(check) => {
-                        if (check) {
-                          setCoLists((perv) => [...perv, item?.id]);
+                {allCOs
+                  ?.sort((a, b) => +a.instance - +b.instance)
+                  ?.map((item) => (
+                    <FlexBox key={item?.id} className="gap-2">
+                      <Checkbox
+                        id={item?.id}
+                        onCheckedChange={(check) => {
+                          if (check) {
+                            setCoLists((perv) => [...perv, item?.id]);
 
-                          const gaArray = item?.ga?.map((g) => ({
-                            key: g.id,
-                            slug: g.slug,
-                            value: "",
-                          }));
+                            const gaArray = item?.ga?.map((g) => ({
+                              key: g.id,
+                              slug: g.slug,
+                              value: "",
+                            }));
 
-                          const updatedGaArray = gaArray.filter(
-                            (g) => !fields?.map((f) => f.key).includes(g.key)
+                            const updatedGaArray = gaArray.filter(
+                              (g) => !fields?.map((f) => f.key).includes(g.key)
+                            );
+
+                            // add to the fields
+                            append(updatedGaArray);
+
+                            return;
+                          }
+                          setCoLists((perv) =>
+                            perv.filter((id) => id !== item?.id)
                           );
 
-                          // add to the fields
-                          append(updatedGaArray);
+                          const indexes = item?.ga
+                            ?.map((g) =>
+                              fields.findIndex((f) => f.key === g.id)
+                            )
+                            .filter((num) => num !== -1);
 
-                          return;
-                        }
-                        setCoLists((perv) =>
-                          perv.filter((id) => id !== item?.id)
-                        );
-
-                        const indexes = item?.ga
-                          ?.map((g) => fields.findIndex((f) => f.key === g.id))
-                          .filter((num) => num !== -1);
-
-                        // remove from fields
-                        remove(indexes);
-                      }}
-                    />
-                    <Label htmlFor={item?.id}>{"CO" + item?.instance}</Label>
-                  </FlexBox>
-                ))}
+                          // remove from fields
+                          remove(indexes);
+                        }}
+                      />
+                      <Label htmlFor={item?.id}>{"CO" + item?.instance}</Label>
+                    </FlexBox>
+                  ))}
               </div>
             </Card>
           ) : null}
