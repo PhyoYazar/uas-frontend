@@ -190,29 +190,25 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
         </FlexBox>
 
         <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
-          <HeadText className="">
-            Total (
-            {type === "Question" ? examPercent + "" : 100 - examPercent + ""}%)
-          </HeadText>
+          <HeadText className="">Total ({percent}%)</HeadText>
         </FlexBox>
       </div>
 
       {/* ================================= ROWS ================================= */}
       {students?.items?.map((std) => {
-        const totalMarks = std?.attributes?.reduce(
-          (acc, cur) => acc + cur.fullMark,
-          0
-        );
+        const totalMarks = std?.attributes?.reduce((acc, cur) => {
+          if (cur.name === type) {
+            acc += cur.fullMark;
+          }
+
+          return acc;
+        }, 0);
 
         return (
           <StudentRow
             key={std?.id}
             total={totalMarks}
-            totalPercents={
-              type === "Question"
-                ? (totalMarks / 100) * examPercent
-                : (totalMarks / 100) * (100 - examPercent)
-            }
+            totalPercents={(totalMarks / 100) * percent}
             studentId={std?.id}
             rollNumber={std?.rollNumber}
             studentName={std?.studentName}

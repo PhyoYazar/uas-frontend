@@ -40,6 +40,7 @@ type StudentLists = {
     attributeId: string;
     studentMarkId: string;
     fullMark: number;
+    name: string;
   }[];
 };
 
