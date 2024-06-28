@@ -28,7 +28,7 @@ export const CoGaMapping = () => {
     <section className="overflow-auto pb-2">
       <div className="w-full flex flex-nowrap">
         <div
-          className="grid bg-yellow-400 w-full"
+          className="grid bg-yellow-400"
           style={{ gridTemplateColumns: "repeat(22, 1fr)" }}
         >
           <HeadItem name="No" />
@@ -97,7 +97,7 @@ const CoRow = (props: CoRowProps) => {
     <div className="w-full flex flex-nowrap">
       <div
         ref={ref}
-        className="grid w-full"
+        className="grid"
         style={{ gridTemplateColumns: "repeat(22, 1fr)" }}
       >
         <HeadItem
