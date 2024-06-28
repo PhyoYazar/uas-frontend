@@ -27,45 +27,51 @@ export const ExamPlanning = () => {
   const { gaMarks } = useCalculateMarks(attributes ?? []);
 
   return (
-    <div className="w-full overflow-auto border border-gray-400 rounded-md">
+    <div className="overflow-auto">
       {/* ------------------ header ---------------- */}
-      <div className="grid grid-cols-12 bg-yellow-400">
-        <FlexBox className="col-span-2 border-r border-r-gray-400 justify-center">
-          <HeadText>Question No</HeadText>
-        </FlexBox>
+      <div className="w-full flex flex-nowrap">
+        <div
+          className="grid bg-yellow-400 border border-gray-400 border-b-0"
+          style={{ gridTemplateColumns: "repeat(12, 1fr)" }}
+        >
+          <FlexBox className="col-span-2 border-r border-r-gray-400 min-w-40 justify-center">
+            <HeadText>Question No</HeadText>
+          </FlexBox>
 
-        <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
-          <HeadText>Co</HeadText>
-        </FlexBox>
+          <FlexBox className="col-span-1 border-r border-r-gray-400 min-w-16 justify-center">
+            <HeadText>Co</HeadText>
+          </FlexBox>
 
-        <FlexBox className="col-span-7 flex-col border-r border-r-gray-400 justify-center">
-          <HeadText className="py-2">Graduate Attributes</HeadText>
-          <div className="w-full grid grid-cols-12 border-t border-gray-400">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((el) => (
-              <FlexBox
-                key={el + "table-ma"}
-                className={cn(
-                  "col-span-1 py-2 justify-center",
-                  el !== 12 ? "border-r border-r-gray-400 " : ""
-                )}
-              >
-                <HeadText>{"GA" + el}</HeadText>
-              </FlexBox>
-            ))}
-          </div>
-        </FlexBox>
+          <FlexBox className="col-span-7 flex-col border-r border-r-gray-400 justify-center min-w-[550px]">
+            <HeadText className="py-2">Graduate Attributes</HeadText>
+            <div className="w-full grid grid-cols-12 border-t border-gray-400 min-w-16">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((el) => (
+                <FlexBox
+                  key={el + "table-ma"}
+                  className={cn(
+                    "col-span-1 py-2 justify-center min-w-12",
+                    el !== 12 ? "border-r border-r-gray-400 " : ""
+                  )}
+                >
+                  <HeadText>{"GA" + el}</HeadText>
+                </FlexBox>
+              ))}
+            </div>
+          </FlexBox>
 
-        <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
-          <HeadText>% Total</HeadText>
-        </FlexBox>
+          <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center min-w-16">
+            <HeadText>% Total</HeadText>
+          </FlexBox>
 
-        <FlexBox className="col-span-1 justify-center">
-          <HeadText>% Marks</HeadText>
-        </FlexBox>
+          <FlexBox className="col-span-1 justify-center min-w-16">
+            <HeadText>% Marks</HeadText>
+          </FlexBox>
+        </div>
       </div>
 
-      {attributes?.map((attribute) => (
+      {attributes?.map((attribute, index, arr) => (
         <CustomRow
+          className={arr.length - 1 === index ? "border-b-1" : ""}
           allowDelete
           key={attribute?.id}
           attributeId={attribute?.id}
@@ -79,7 +85,7 @@ export const ExamPlanning = () => {
 
       {(attributes?.length ?? 0) > 0 ? (
         <>
-          <div className="col-span-full bg-gray-50 h-6 border-t border-t-gray-400" />
+          <div className="h-6" />
 
           <CustomRow
             name="Total Marks Upon 100%"
@@ -87,6 +93,7 @@ export const ExamPlanning = () => {
             fullMark={100}
           />
           <CustomRow
+            className="border-b-1"
             name={`Total Marks Upon ` + examPercent + "%"}
             marks={gaMarks?.map((m) => ({
               ...m,
@@ -109,6 +116,7 @@ type CustomRowType = {
   percentMark?: number;
   time?: string;
   attributeId?: string;
+  className?: string;
 };
 
 const CustomRow = (props: CustomRowType) => {
@@ -120,6 +128,7 @@ const CustomRow = (props: CustomRowType) => {
     attributeId,
     fullMark,
     percentMark,
+    className,
   } = props;
 
   const { subjectId } = useParams();
@@ -151,57 +160,65 @@ const CustomRow = (props: CustomRowType) => {
   };
 
   return (
-    <div ref={ref} className="grid grid-cols-12 border-t border-t-gray-400">
-      <FlexBox className="col-span-2 border-r border-r-gray-400 justify-center relative">
-        <Text className="">{name}</Text>
-        {allowDelete && hovering ? (
-          <FlexBox
-            className="justify-center w-full h-full cursor-pointer bg-gradient-to-r from-red-400 to-red-300 absolute top-0"
-            onClick={() => onDeleteHandler()}
-          >
-            <Icon name="trash-2" className="text-red-700" />
-          </FlexBox>
-        ) : null}
-      </FlexBox>
+    <div className="w-full flex flex-nowrap">
+      <div
+        ref={ref}
+        className={cn("grid border border-gray-400 border-b-0", className)}
+        style={{ gridTemplateColumns: "repeat(12, 1fr)" }}
+      >
+        <FlexBox className="col-span-2 border-r border-r-gray-400 justify-center relative min-w-40">
+          <Text className="">{name}</Text>
+          {allowDelete && hovering ? (
+            <FlexBox
+              className="justify-center w-full h-full cursor-pointer bg-gradient-to-r from-red-400 to-red-300 absolute top-0"
+              onClick={() => onDeleteHandler()}
+            >
+              <Icon name="trash-2" className="text-red-700" />
+            </FlexBox>
+          ) : null}
+        </FlexBox>
 
-      <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
-        <Text className="">{cos}</Text>
-      </FlexBox>
+        <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center min-w-16">
+          <Text className="">{cos}</Text>
+        </FlexBox>
 
-      <FlexBox className="col-span-7 flex-col border-r border-r-gray-400 justify-center">
-        <div className="w-full grid grid-cols-12">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((el) => {
-            const mark = marks?.find((m) => +m?.gaSlug?.slice(2) === el);
+        <FlexBox className="col-span-7 flex-col border-r border-r-gray-400 justify-center min-w-[550px]">
+          <div className="w-full grid grid-cols-12">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((el) => {
+              const mark = marks?.find((m) => +m?.gaSlug?.slice(2) === el);
 
-            const markIsExist =
-              +(mark?.gaSlug?.slice(2) ?? 0) === el && (mark?.mark ?? 0) > 0;
+              const markIsExist =
+                +(mark?.gaSlug?.slice(2) ?? 0) === el && (mark?.mark ?? 0) > 0;
 
-            return (
-              <FlexBox
-                key={el + "table-body"}
-                className={cn(
-                  "col-span-1 py-2 justify-center",
-                  el !== 12 ? "border-r border-r-gray-400 " : ""
-                )}
-              >
-                <Text
-                  className={cn(markIsExist ? "text-medium" : "text-gray-200")}
+              return (
+                <FlexBox
+                  key={el + "table-body"}
+                  className={cn(
+                    "col-span-1 py-2 justify-center min-w-12",
+                    el !== 12 ? "border-r border-r-gray-400 " : ""
+                  )}
                 >
-                  {markIsExist ? mark?.mark : "-"}
-                </Text>
-              </FlexBox>
-            );
-          })}
-        </div>
-      </FlexBox>
+                  <Text
+                    className={cn(
+                      markIsExist ? "text-medium" : "text-gray-200"
+                    )}
+                  >
+                    {markIsExist ? mark?.mark : "-"}
+                  </Text>
+                </FlexBox>
+              );
+            })}
+          </div>
+        </FlexBox>
 
-      <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
-        <Text className="">{fullMark}</Text>
-      </FlexBox>
+        <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center min-w-16">
+          <Text className="">{fullMark}</Text>
+        </FlexBox>
 
-      <FlexBox className="col-span-1 justify-center">
-        <Text className="">{percentMark}</Text>
-      </FlexBox>
+        <FlexBox className="col-span-1 justify-center min-w-16">
+          <Text className="">{percentMark}</Text>
+        </FlexBox>
+      </div>
     </div>
   );
 };
