@@ -34,7 +34,7 @@ export const ExamPlanning = () => {
           className="grid bg-yellow-400 border border-gray-400 border-b-0"
           style={{ gridTemplateColumns: "repeat(12, 1fr)" }}
         >
-          <FlexBox className="col-span-2 border-r border-r-gray-400 min-w-40 justify-center">
+          <FlexBox className="col-span-2 border-r border-r-gray-400 min-w-44 justify-center">
             <HeadText>Question No</HeadText>
           </FlexBox>
 
@@ -44,7 +44,7 @@ export const ExamPlanning = () => {
 
           <FlexBox className="col-span-7 flex-col border-r border-r-gray-400 justify-center min-w-[550px]">
             <HeadText className="py-2">Graduate Attributes</HeadText>
-            <div className="w-full grid grid-cols-12 border-t border-gray-400 min-w-16">
+            <div className="w-full grid grid-cols-12 border-t border-gray-400">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((el) => (
                 <FlexBox
                   key={el + "table-ma"}
@@ -166,7 +166,7 @@ const CustomRow = (props: CustomRowType) => {
         className={cn("grid border border-gray-400 border-b-0", className)}
         style={{ gridTemplateColumns: "repeat(12, 1fr)" }}
       >
-        <FlexBox className="col-span-2 border-r border-r-gray-400 justify-center relative min-w-40">
+        <FlexBox className="col-span-2 border-r border-r-gray-400 justify-center relative min-w-44">
           <Text className="">{name}</Text>
           {allowDelete && hovering ? (
             <FlexBox
