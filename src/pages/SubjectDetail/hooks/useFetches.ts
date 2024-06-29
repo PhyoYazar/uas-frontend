@@ -32,7 +32,7 @@ export const useGetSubjectDetail = (subjectId: string | undefined) => {
 };
 
 //================================================================================================
-type StudentLists = {
+export type StudentLists = {
   id: string;
   rollNumber: number;
   studentName: string;
@@ -64,14 +64,12 @@ export const useGetAllStudentsBySubject = (
     select: (data) => data?.data,
   });
 
-  console.log("hello ", data);
-
   return { students: data, isPending, isError };
 };
 
 //================================================================================================
 
-type Attribute = {
+export type Attribute = {
   name: string;
   id: string;
   type: string;
@@ -137,7 +135,7 @@ export const useGetCWAttributeWithCoGaMarks = (
 
 type GetAttributeWithCoGaMarksProps = {
   subjectId: string | undefined;
-  type?: "Question" | "Tutorial" | "Assignment" | "Lab" | "Practical";
+  type?: "Question" | "Tutorial" | "Assignment" | "Lab" | "Practical" | "Total";
   select?: // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ((data: AxiosResponse<AttributeResponse, any>) => Attribute[]) | undefined;
 };
@@ -152,7 +150,7 @@ export const useGetAttributeWithCoGaMarks = (
     queryFn: ({ signal }) =>
       axios.get<AttributeResponse>(
         `attributes_ga_mark/${subjectId}?page=1${
-          type ? `&name=${type}` : ""
+          type !== "Total" ? `&name=${type}` : ""
         }&orderBy=instance`,
         {
           signal,

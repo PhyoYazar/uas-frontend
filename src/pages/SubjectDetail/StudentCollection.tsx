@@ -1,4 +1,4 @@
-import { get2Decimal } from "@/common/utils/utils";
+import { get2Decimal, transformGrade } from "@/common/utils/utils";
 import { FlexBox } from "@/components/common/flex-box";
 import { Text } from "@/components/common/text";
 import { Button } from "@/components/ui/button";
@@ -7,11 +7,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { HeadText } from "./CourseWorkPlanning";
 import {
+  Attribute,
+  StudentLists,
   useGetAllStudentsBySubject,
   useGetAttributeWithCoGaMarks,
   useGetSubjectById,
@@ -27,6 +29,7 @@ export const StudentCollection = () => {
           <TabsTrigger value="assignment">Assignment</TabsTrigger>
           <TabsTrigger value="lab">Lab</TabsTrigger>
           <TabsTrigger value="practical">Practical</TabsTrigger>
+          <TabsTrigger value="total">Total</TabsTrigger>
         </TabsList>
 
         <TabsContent value="question">
@@ -48,6 +51,10 @@ export const StudentCollection = () => {
         <TabsContent value="practical">
           <StudentAssessment type="Practical" />
         </TabsContent>
+
+        <TabsContent value="total">
+          <StudentAssessment type="Total" />
+        </TabsContent>
       </Tabs>
     </div>
   );
@@ -55,8 +62,30 @@ export const StudentCollection = () => {
 
 // =================================================================================================
 
+const calculateAttributeFinalResult = (
+  type: AttributeType,
+  percent: number,
+  std: StudentLists
+) => {
+  const result =
+    std.attributes
+      .filter((att) => att.name === type)
+      .reduce((acc, cur) => acc + cur.fullMark, 0) *
+    (percent / 100);
+
+  return get2Decimal(result);
+};
+
+type AttributeType =
+  | "Question"
+  | "Tutorial"
+  | "Assignment"
+  | "Lab"
+  | "Practical"
+  | "Total";
+
 type StudentAssessmentProps = {
-  type: "Question" | "Tutorial" | "Assignment" | "Lab" | "Practical";
+  type: AttributeType;
 };
 
 const StudentAssessment = (props: StudentAssessmentProps) => {
@@ -69,18 +98,44 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
     type,
   });
 
+  const sortedAttributes = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let upd: Attribute[] = [];
+
+    ["Question", "Tutorial", "Practical", "Lab", "Assignment"].forEach(
+      (typ) => {
+        upd = [
+          ...upd,
+          ...(attributes
+            ?.filter((att) => att.name === typ)
+            .sort((a, b) => a.instance - b.instance) ?? []),
+        ];
+      }
+    );
+
+    return upd;
+  }, [attributes]);
+
+  const updatedAttributes = type === "Total" ? sortedAttributes : attributes;
+
   const { subject } = useGetSubjectById(subjectId, (data) => data?.data);
+
   const examPercent = subject?.exam ?? 0;
   const tutorialPercent = subject?.tutorial ?? 0;
   const labPercent = subject?.lab ?? 0;
   const assignmentPercent = subject?.assignment ?? 0;
   const practicalPercent = subject?.practical ?? 0;
 
-  let percent = examPercent;
-  if (type === "Tutorial") percent = tutorialPercent;
-  if (type === "Practical") percent = practicalPercent;
-  if (type === "Lab") percent = labPercent;
-  if (type === "Assignment") percent = assignmentPercent;
+  const getPercent = (typ: AttributeType) => {
+    if (typ === "Question") return examPercent;
+    if (typ === "Tutorial") return tutorialPercent;
+    if (typ === "Practical") return practicalPercent;
+    if (typ === "Lab") return labPercent;
+    if (typ === "Assignment") return assignmentPercent;
+
+    return 0;
+  };
+  const percent = getPercent(type);
 
   const { students } = useGetAllStudentsBySubject(
     subject?.year,
@@ -89,22 +144,22 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
 
   // -------------------------------------------------------------
 
-  const totalAttributes = attributes?.length ?? 0;
+  const totalAttributes = updatedAttributes?.length ?? 0;
 
   const gaArray =
-    attributes?.map((attribute) =>
+    updatedAttributes?.map((attribute) =>
       attribute?.marks?.map((m) => m.gaSlug.slice(2))?.join(", ")
     ) ?? [];
 
   const coArray =
-    attributes?.map((attribute) =>
+    updatedAttributes?.map((attribute) =>
       attribute?.co?.map((c) => c.instance)?.join(", ")
     ) ?? [];
 
   const fullMarks =
-    attributes?.map((attribute) => attribute?.fullMark + "") ?? [];
+    updatedAttributes?.map((attribute) => attribute?.fullMark + "") ?? [];
 
-  if (!attributes?.length) {
+  if (!updatedAttributes?.length) {
     return (
       <FlexBox className="h-96 justify-center flex-col gap-4">
         <Text className="text-lg font-semibold text-gray-700">
@@ -129,7 +184,7 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
 
           <FlexBox className="min-w-[700px]">
             <div className={`w-full flex flex-nowrap`}>
-              {attributes?.map(({ id, instance, name }, index, arr) => (
+              {updatedAttributes?.map(({ id, instance, name }, index, arr) => (
                 <HeadText
                   key={id}
                   className={cn(
@@ -155,17 +210,26 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
       />
 
       <SubjectRow
-        name={`Percentage (${percent}%)`}
-        values={fullMarks.map((fm) => `${get2Decimal((percent / 100) * +fm)}`)}
+        name={`Percentage`}
+        values={updatedAttributes.map(
+          (att) =>
+            `${get2Decimal(
+              (getPercent(att?.name as AttributeType) / 100) * +att.fullMark
+            )}`
+        )}
       />
 
       <SubjectRow
         className="border-b-1"
         name="Calculation"
-        values={Array.from(
-          { length: totalAttributes },
-          () => `${percent / 100}`
+        values={updatedAttributes.map(
+          (att) =>
+            `${get2Decimal(getPercent(att?.name as AttributeType) / 100)}`
         )}
+        // values={Array.from(
+        //   { length: totalAttributes },
+        //   () => `${percent / 100}`
+        // )}
       />
 
       <div className={`h-8`} />
@@ -193,9 +257,15 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
           <HeadText className="">Total 100%</HeadText>
         </FlexBox>
 
-        <FlexBox className="border border-gray-400 justify-center min-w-24">
-          <HeadText className="">Total ({percent}%)</HeadText>
-        </FlexBox>
+        {type === "Total" ? (
+          <FlexBox className="border border-gray-400 justify-center min-w-24">
+            <HeadText className="">Grade</HeadText>
+          </FlexBox>
+        ) : (
+          <FlexBox className="border border-gray-400 justify-center min-w-24">
+            <HeadText className="">Total ({percent}%)</HeadText>
+          </FlexBox>
+        )}
       </div>
 
       {/* ================================= ROWS ================================= */}
@@ -208,18 +278,60 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
           return acc;
         }, 0);
 
+        const tutorialResults = calculateAttributeFinalResult(
+          "Tutorial",
+          tutorialPercent,
+          std
+        );
+
+        const practicalResults = calculateAttributeFinalResult(
+          "Practical",
+          practicalPercent,
+          std
+        );
+
+        const labResults = calculateAttributeFinalResult(
+          "Lab",
+          labPercent,
+          std
+        );
+
+        const assignmentResults = calculateAttributeFinalResult(
+          "Assignment",
+          assignmentPercent,
+          std
+        );
+
+        const questionResults = calculateAttributeFinalResult(
+          "Question",
+          examPercent,
+          std
+        );
+
+        const totalResult = get2Decimal(
+          tutorialResults +
+            practicalResults +
+            labResults +
+            assignmentResults +
+            questionResults
+        );
+
         return (
           <StudentRow
             className={index === arr.length - 1 ? "border-b-1" : ""}
             key={std?.id}
-            total={totalMarks}
-            totalPercents={(totalMarks / 100) * percent}
+            total={type === "Total" ? totalResult : totalMarks}
+            totalPercents={
+              type === "Total"
+                ? transformGrade(totalResult)
+                : (totalMarks / 100) * percent
+            }
             studentId={std?.id}
             rollNumber={std?.rollNumber}
             studentName={std?.studentName}
             cols={totalAttributes}
             markArray={
-              attributes?.map(({ id }) => {
+              updatedAttributes?.map(({ id }) => {
                 const findAttribute = std?.attributes?.find(
                   (att) => att.attributeId === id
                 );
@@ -301,7 +413,7 @@ type StudentRowProps = {
   studentName: string;
   markArray: { attributeId: string; studentMarkId?: string; mark: number }[];
   total: number;
-  totalPercents: number;
+  totalPercents: number | string;
   className?: string;
 };
 
