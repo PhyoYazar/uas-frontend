@@ -64,6 +64,8 @@ export const useGetAllStudentsBySubject = (
     select: (data) => data?.data,
   });
 
+  console.log("hello ", data);
+
   return { students: data, isPending, isError };
 };
 

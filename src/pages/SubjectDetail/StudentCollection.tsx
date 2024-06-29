@@ -4,6 +4,7 @@ import { Text } from "@/components/common/text";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -118,50 +119,48 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
   }
 
   return (
-    <div className="w-full overflow-auto border border-gray-400 rounded-md">
+    <div className="overflow-auto pb-2">
       {/* ------------------ header ---------------- */}
-      <div className={`grid grid-cols-12`}>
-        <FlexBox className="col-span-3 border-r border-r-gray-400 justify-center p-2">
-          <HeadText>Assessment</HeadText>
-        </FlexBox>
+      <div className="w-full flex flex-nowrap">
+        <div className={`flex flex-nowrap`}>
+          <FlexBox className="border border-gray-400 border-b-0 border-r-0 justify-center p-2 min-w-52">
+            <HeadText>Assessment</HeadText>
+          </FlexBox>
 
-        <FlexBox className="col-span-7 justify-center">
-          <div
-            className={`w-full grid justify-center`}
-            style={{
-              gridTemplateColumns: `repeat(${totalAttributes}, 1fr)`,
-            }}
-          >
-            {attributes?.map(({ id, instance, name }) => (
-              <HeadText
-                key={id}
-                className="col-span-1 p-2 border-r border-r-gray-400 text-center"
-              >
-                {name + " " + instance}
-              </HeadText>
-            ))}
-          </div>
-        </FlexBox>
+          <FlexBox className="min-w-[700px]">
+            <div className={`w-full flex flex-nowrap`}>
+              {attributes?.map(({ id, instance, name }, index, arr) => (
+                <HeadText
+                  key={id}
+                  className={cn(
+                    "p-2 border border-gray-400 border-b-0 border-r-0 text-center min-w-32",
+                    index === arr.length - 1 ? "border-r-1" : ""
+                  )}
+                >
+                  {name + " " + instance}
+                </HeadText>
+              ))}
+            </div>
+          </FlexBox>
+        </div>
       </div>
 
-      <SubjectRow cols={totalAttributes} name="GA" values={gaArray} />
-      <SubjectRow cols={totalAttributes} name="CO" values={coArray} />
+      <SubjectRow name="GA" values={gaArray} />
+      <SubjectRow name="CO" values={coArray} />
 
       <SubjectRow
-        cols={totalAttributes}
         name="Full mark (100%)"
         values={fullMarks}
         // values={Array.from({ length: totalAttributes }, () => fullMark + "")}
       />
 
       <SubjectRow
-        cols={totalAttributes}
         name={`Percentage (${percent}%)`}
         values={fullMarks.map((fm) => `${get2Decimal((percent / 100) * +fm)}`)}
       />
 
       <SubjectRow
-        cols={totalAttributes}
+        className="border-b-1"
         name="Calculation"
         values={Array.from(
           { length: totalAttributes },
@@ -169,33 +168,38 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
         )}
       />
 
-      <div className={`grid grid-cols-12 h-8 border-t border-t-gray-400`} />
+      <div className={`h-8`} />
 
       {/* ================================= Student Headers ================================= */}
       <div
-        className={`grid grid-cols-12 border-t border-t-gray-400 bg-yellow-400`}
+        className={`w-full flex flex-nowrap`}
+        style={{ gridTemplateColumns: "repeat(12, 1fr)" }}
       >
-        <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center p-2">
+        <FlexBox className="border border-gray-400 border-r-0 justify-center p-2 min-w-20">
           <HeadText>No</HeadText>
         </FlexBox>
 
-        <FlexBox className="col-span-2 border-r border-r-gray-400 justify-center p-2">
+        <FlexBox className="border border-gray-400 border-r-0 justify-center p-2 min-w-32">
           <HeadText>Student Name</HeadText>
         </FlexBox>
 
-        <FlexBox className="col-span-7 justify-center border-r border-r-gray-400" />
+        <FlexBox className="min-w-700 border border-gray-400 border-r-0">
+          {Array.from({ length: totalAttributes }).map((t) => (
+            <div key={"asdfaa--" + t} className="min-w-32" />
+          ))}
+        </FlexBox>
 
-        <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
+        <FlexBox className="border border-gray-400 border-r-0 justify-center min-w-24">
           <HeadText className="">Total 100%</HeadText>
         </FlexBox>
 
-        <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
+        <FlexBox className="border border-gray-400 justify-center min-w-24">
           <HeadText className="">Total ({percent}%)</HeadText>
         </FlexBox>
       </div>
 
       {/* ================================= ROWS ================================= */}
-      {students?.items?.map((std) => {
+      {students?.items?.map((std, index, arr) => {
         const totalMarks = std?.attributes?.reduce((acc, cur) => {
           if (cur.name === type) {
             acc += cur.fullMark;
@@ -206,6 +210,7 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
 
         return (
           <StudentRow
+            className={index === arr.length - 1 ? "border-b-1" : ""}
             key={std?.id}
             total={totalMarks}
             totalPercents={(totalMarks / 100) * percent}
@@ -243,37 +248,46 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
 // =================================================================================================
 
 type SubjectRowProps = {
-  cols: number;
   name: string;
   values: string[];
+  className?: string;
 };
 
 const SubjectRow = (props: SubjectRowProps) => {
-  const { name, cols, values } = props;
+  const { name, values, className } = props;
 
   return (
-    <div className={`grid grid-cols-12 border-t border-t-gray-400`}>
-      <FlexBox className="col-span-3 border-r border-r-gray-400 justify-center p-2">
-        <HeadText className="text-gray-500">{name}</HeadText>
-      </FlexBox>
-
-      <FlexBox className="col-span-7 justify-center">
-        <div
-          className={`w-full grid justify-center`}
-          style={{
-            gridTemplateColumns: `repeat(${cols}, 1fr)`,
-          }}
+    <div className="w-full flex flex-nowrap">
+      <div
+        className={cn(`flex flex-nowrap`)}
+        style={{ gridTemplateColumns: "repeat(12, 1fr)" }}
+      >
+        <FlexBox
+          className={cn(
+            "border border-gray-400 border-r-0 border-b-0 justify-center p-2 min-w-52",
+            className
+          )}
         >
-          {values.map((val, index) => (
-            <HeadText
-              key={val + "brnyr" + index}
-              className="col-span-1 text-gray-500 p-2 border-r border-r-gray-400 text-center"
-            >
-              {val}
-            </HeadText>
-          ))}
-        </div>
-      </FlexBox>
+          <HeadText className="text-gray-500">{name}</HeadText>
+        </FlexBox>
+
+        <FlexBox className="min-w-[700px]">
+          <div className={`w-full flex flex-nowrap`}>
+            {values.map((val, index, arr) => (
+              <HeadText
+                key={val + "brnyr" + index}
+                className={cn(
+                  "text-gray-500 p-2 border border-gray-400 border-b-0 border-r-0 text-center min-w-32",
+                  index === arr.length - 1 ? "border-r-1" : "",
+                  className
+                )}
+              >
+                {val}
+              </HeadText>
+            ))}
+          </div>
+        </FlexBox>
+      </div>
     </div>
   );
 };
@@ -288,6 +302,7 @@ type StudentRowProps = {
   markArray: { attributeId: string; studentMarkId?: string; mark: number }[];
   total: number;
   totalPercents: number;
+  className?: string;
 };
 
 const StudentRow = (props: StudentRowProps) => {
@@ -296,28 +311,23 @@ const StudentRow = (props: StudentRowProps) => {
     studentId,
     studentName,
     markArray,
-    cols,
     total,
     totalPercents,
+    className,
   } = props;
 
   return (
-    <div className={`grid grid-cols-12 border-t border-t-gray-400`}>
-      <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center p-2">
+    <div className={cn(`flex flex-nowrap`, className)}>
+      <FlexBox className="border border-gray-400 border-r-0 border-t-0 justify-center p-2 min-w-20">
         <HeadText className="text-gray-600">{rollNumber}</HeadText>
       </FlexBox>
 
-      <FlexBox className="col-span-2 border-r border-r-gray-400 justify-center p-2">
+      <FlexBox className="border border-gray-400 border-r-0 border-t-0 justify-center p-2 min-w-32">
         <HeadText className="text-gray-600">{studentName}</HeadText>
       </FlexBox>
 
-      <FlexBox className="col-span-7 justify-center">
-        <div
-          className={`w-full grid justify-center`}
-          style={{
-            gridTemplateColumns: `repeat(${cols}, 1fr)`,
-          }}
-        >
+      <FlexBox className="min-w-700 border-r">
+        <div className={`w-full flex flex-nowrap`}>
           {markArray.map(({ attributeId, studentMarkId, mark }) => (
             <EditInput
               val={mark}
@@ -330,12 +340,12 @@ const StudentRow = (props: StudentRowProps) => {
         </div>
       </FlexBox>
 
-      <FlexBox className="col-span-1 border-r border-r-gray-400 justify-center">
-        <HeadText className="text-gray-600">{total}</HeadText>
+      <FlexBox className="justify-center border border-gray-400 border-t-0 border-r-0 min-w-24">
+        <HeadText className="text-gray-600">{total || "-"}</HeadText>
       </FlexBox>
 
-      <FlexBox className="col-span-1 justify-center">
-        <HeadText className="text-gray-600">{totalPercents}</HeadText>
+      <FlexBox className="justify-center border border-gray-400 border-t-0 min-w-24">
+        <HeadText className="text-gray-600">{totalPercents || "-"}</HeadText>
       </FlexBox>
     </div>
   );
@@ -346,10 +356,11 @@ type EditInputProps = {
   attributeId: string;
   studentId: string;
   studentMarkId?: string;
+  className?: string;
 };
 
 const EditInput = (props: EditInputProps) => {
-  const { val, studentId, attributeId, studentMarkId } = props;
+  const { val, studentId, attributeId, className, studentMarkId } = props;
 
   const [isEditing, setIsEditing] = useState(false);
   const [mark, setMark] = useState("");
@@ -406,13 +417,18 @@ const EditInput = (props: EditInputProps) => {
   }, [val]);
 
   return (
-    <div className="col-span-1 border-r border-r-gray-400">
+    <div
+      className={cn(
+        "border border-gray-400 border-r-0 border-t-0 w-32",
+        className
+      )}
+    >
       {isEditing ? (
-        <div className="border-r border-r-gray-400 p-1">
+        <div className="p-1">
           <Input
             autoFocus
             type="number"
-            className="w-full h-7 focus-visible:ring-green-500  rounded-none"
+            className="w-full h-7 focus-visible:ring-green-500 rounded-none"
             value={mark}
             onChange={(e) => setMark(e.target.value)}
             onBlur={() => {
