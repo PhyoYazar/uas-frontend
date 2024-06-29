@@ -27,7 +27,7 @@ export const ExamPlanning = () => {
   const { gaMarks } = useCalculateMarks(attributes ?? []);
 
   return (
-    <div className="overflow-auto">
+    <div className="overflow-auto pb-2">
       {/* ------------------ header ---------------- */}
       <div className="w-full flex flex-nowrap">
         <div

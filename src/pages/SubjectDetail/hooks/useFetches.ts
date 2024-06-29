@@ -98,7 +98,7 @@ export const useGetExamAttributeWithCoGaMarks = (
     queryKey: ["attributes-co-ga-exam-marks", subjectId],
     queryFn: ({ signal }) =>
       axios.get<AttributeResponse>(
-        `attributes_ga_mark/${subjectId}?page=1&type=EXAM&orderBy=instance`,
+        `attributes_ga_mark/${subjectId}?type=EXAM&orderBy=instance`,
         {
           signal,
         }
