@@ -324,14 +324,14 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
             totalPercents={
               type === "Total"
                 ? transformGrade(totalResult)
-                : (totalMarks / 100) * percent
+                : get2Decimal((totalMarks / 100) * percent)
             }
             studentId={std?.id}
             rollNumber={std?.rollNumber}
             studentName={std?.studentName}
             cols={totalAttributes}
             markArray={
-              updatedAttributes?.map(({ id }) => {
+              updatedAttributes?.map(({ id, fullMark }) => {
                 const findAttribute = std?.attributes?.find(
                   (att) => att.attributeId === id
                 );
@@ -340,6 +340,7 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
                   return {
                     attributeId: findAttribute.attributeId,
                     mark: findAttribute.fullMark,
+                    fullMark: fullMark,
                     studentMarkId: findAttribute.studentMarkId,
                   };
                 }
@@ -347,6 +348,7 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
                 return {
                   attributeId: id,
                   mark: 0,
+                  fullMark: fullMark,
                 };
               }) ?? []
             }
@@ -411,7 +413,12 @@ type StudentRowProps = {
   rollNumber: number;
   studentId: string;
   studentName: string;
-  markArray: { attributeId: string; studentMarkId?: string; mark: number }[];
+  markArray: {
+    attributeId: string;
+    fullMark: number;
+    studentMarkId?: string;
+    mark: number;
+  }[];
   total: number;
   totalPercents: number | string;
   className?: string;
@@ -440,9 +447,10 @@ const StudentRow = (props: StudentRowProps) => {
 
       <FlexBox className="min-w-700 border-r">
         <div className={`w-full flex flex-nowrap`}>
-          {markArray.map(({ attributeId, studentMarkId, mark }) => (
+          {markArray.map(({ attributeId, studentMarkId, mark, fullMark }) => (
             <EditInput
               val={mark}
+              fullMark={fullMark}
               studentId={studentId}
               attributeId={attributeId}
               studentMarkId={studentMarkId}
@@ -469,10 +477,12 @@ type EditInputProps = {
   studentId: string;
   studentMarkId?: string;
   className?: string;
+  fullMark: number;
 };
 
 const EditInput = (props: EditInputProps) => {
-  const { val, studentId, attributeId, className, studentMarkId } = props;
+  const { val, studentId, attributeId, className, fullMark, studentMarkId } =
+    props;
 
   const [isEditing, setIsEditing] = useState(false);
   const [mark, setMark] = useState("");
@@ -550,6 +560,11 @@ const EditInput = (props: EditInputProps) => {
             min={1}
             onKeyUp={(e) => {
               if (e.key !== "Enter") return;
+
+              if (+mark > fullMark) {
+                toast.error("Mark is higher than the full mark");
+                return;
+              }
 
               if (studentMarkId === undefined) {
                 if (subjectId) {
