@@ -11,7 +11,7 @@ import { CheckIcon } from "lucide-react";
 import { ReactNode } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { useGetSubjectDetail } from "./hooks/useFetches";
+import { useGetSubjectDetail } from "../hooks/useFetches";
 
 export const CoGaMapping = () => {
   const { subjectId } = useParams();

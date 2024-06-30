@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { Link, useParams } from "react-router-dom";
-import { CoGaMapping } from "./CoGaMapping";
-import { CourseWorkPlanning } from "./CourseWorkPlanning";
-import { ExamPlanning } from "./ExamPlanning";
-import { StudentCollection } from "./StudentCollection";
+import { StudentCollection } from "./Student/StudentCollection";
+import { CoGaMapping } from "./Subject/CoGaMapping";
+import { CourseWorkPlanning } from "./Subject/CourseWorkPlanning";
+import { ExamPlanning } from "./Subject/ExamPlanning";
 import { useGetSubjectById } from "./hooks/useFetches";
 
 // const fetchBySubjectId = () => {
@@ -29,6 +29,8 @@ export const SubjectDetail = () => {
           <TabsList>
             <TabsTrigger value="subject">Subject</TabsTrigger>
             <TabsTrigger value="student">Student</TabsTrigger>
+            <TabsTrigger value="co">Course Outlines</TabsTrigger>
+            <TabsTrigger value="ga">Graduate Attribute</TabsTrigger>
           </TabsList>
         </FlexBox>
 
@@ -107,6 +109,14 @@ export const SubjectDetail = () => {
 
         <TabsContent value="student">
           <StudentCollection />
+        </TabsContent>
+
+        <TabsContent value="co">
+          <Text>Co</Text>
+        </TabsContent>
+
+        <TabsContent value="ga">
+          <Text>GA</Text>
         </TabsContent>
       </Tabs>
     </section>

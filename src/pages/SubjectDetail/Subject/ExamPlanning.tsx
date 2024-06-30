@@ -8,12 +8,12 @@ import { useHover } from "@uidotdev/usehooks";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { HeadText } from "./CourseWorkPlanning";
 import {
   useCalculateMarks,
   useGetExamAttributeWithCoGaMarks,
   useGetSubjectById,
-} from "./hooks/useFetches";
+} from "../hooks/useFetches";
+import { HeadText } from "./CourseWorkPlanning";
 
 export const ExamPlanning = () => {
   const { subjectId } = useParams();

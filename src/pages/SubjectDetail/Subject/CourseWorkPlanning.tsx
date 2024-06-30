@@ -15,7 +15,7 @@ import {
   useGetCWAttributeWithCoGaMarks,
   useGetExamAttributeWithCoGaMarks,
   useGetSubjectById,
-} from "./hooks/useFetches";
+} from "../hooks/useFetches";
 
 export const CourseWorkPlanning = () => {
   const { subjectId } = useParams();

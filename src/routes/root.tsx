@@ -1,5 +1,4 @@
 import { Layout } from "@/components/layout/Layout";
-import { Dashboard } from "@/pages/Dashboard/Dashboard";
 import { Settings } from "@/pages/Settings/Settings";
 import { Student } from "@/pages/Students/Student";
 import { StudentCreate } from "@/pages/Students/StudentCreate";
@@ -16,7 +15,7 @@ const router = createBrowserRouter([
     Component: Layout,
     errorElement: <ErrorPage />,
     children: [
-      { path: "dashboard", element: <Dashboard /> },
+      // { path: "dashboard", element: <Dashboard /> },
       {
         path: "subject",
         element: <Subjects />,

@@ -30,7 +30,7 @@ import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useGetSubjectById } from "../SubjectDetail/hooks/useFetches";
-import { EditSubject } from "./EditSubject";
+import { EditSubject } from "./SubjectEdit";
 
 export type Subject = {
   id: string;

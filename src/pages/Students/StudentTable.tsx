@@ -29,7 +29,7 @@ import { MoreVertical } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { EditStudent } from "./EditStudent";
+import { EditStudent } from "./StudentEdit";
 import { useGetStudentById } from "./hooks/useFetches";
 
 export type Student = {

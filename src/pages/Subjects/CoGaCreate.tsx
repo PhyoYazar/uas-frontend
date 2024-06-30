@@ -35,9 +35,9 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
-import { CoGaMapping } from "../SubjectDetail/CoGaMapping";
-import { CourseWorkPlanning } from "../SubjectDetail/CourseWorkPlanning";
-import { ExamPlanning } from "../SubjectDetail/ExamPlanning";
+import { CoGaMapping } from "../SubjectDetail/Subject/CoGaMapping";
+import { CourseWorkPlanning } from "../SubjectDetail/Subject/CourseWorkPlanning";
+import { ExamPlanning } from "../SubjectDetail/Subject/ExamPlanning";
 import {
   useGetCWAttributeWithCoGaMarks,
   useGetExamAttributeWithCoGaMarks,

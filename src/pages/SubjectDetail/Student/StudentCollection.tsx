@@ -10,14 +10,14 @@ import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { HeadText } from "./CourseWorkPlanning";
+import { HeadText } from "../Subject/CourseWorkPlanning";
 import {
   Attribute,
   StudentLists,
   useGetAllStudentsBySubject,
   useGetAttributeWithCoGaMarks,
   useGetSubjectById,
-} from "./hooks/useFetches";
+} from "../hooks/useFetches";
 
 export const StudentCollection = () => {
   return (
