@@ -1,9 +1,9 @@
 import { Layout } from "@/components/layout/Layout";
+import { CreateCoGaMark } from "@/pages/CoGaMark/CreateCoGaMark";
 import { Settings } from "@/pages/Settings/Settings";
 import { Student } from "@/pages/Students/Student";
 import { StudentCreate } from "@/pages/Students/StudentCreate";
 import { SubjectDetail } from "@/pages/SubjectDetail/SubjectDetail";
-import { CoGaCreate } from "@/pages/Subjects/CoGaCreate";
 import { SubjectCreate } from "@/pages/Subjects/SubjectCreate";
 import { Subjects } from "@/pages/Subjects/Subjects";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
@@ -30,7 +30,7 @@ const router = createBrowserRouter([
       },
       {
         path: "subject/create/:subjectId",
-        element: <CoGaCreate />,
+        element: <CreateCoGaMark />,
       },
       { path: "student", element: <Student /> },
       { path: "student/create", element: <StudentCreate /> },
