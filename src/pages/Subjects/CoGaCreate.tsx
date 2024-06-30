@@ -471,7 +471,9 @@ const CoCreate = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: (newCo: any) => axios.post("connect_co_gas", newCo),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["subject-detail-by-id"] });
+      queryClient.invalidateQueries({
+        queryKey: ["subject-detail-by-id", subjectId],
+      });
 
       form.reset();
 

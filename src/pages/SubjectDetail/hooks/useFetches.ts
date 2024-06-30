@@ -146,7 +146,7 @@ export const useGetAttributeWithCoGaMarks = (
   const { subjectId, type, select = (data) => data?.data?.items } = props;
 
   const { data, isPending, isError } = useQuery({
-    queryKey: ["attributes-co-ga-exam-marks", subjectId, type],
+    queryKey: ["attributes-co-ga-all-marks", subjectId, type],
     queryFn: ({ signal }) =>
       axios.get<AttributeResponse>(
         `attributes_ga_mark/${subjectId}?page=1${
