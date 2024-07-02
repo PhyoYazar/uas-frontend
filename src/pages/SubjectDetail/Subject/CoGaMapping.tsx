@@ -16,13 +16,8 @@ import { useGetSubjectDetail } from "../hooks/useFetches";
 export const CoGaMapping = () => {
   const { subjectId } = useParams();
 
-  const { subject } = useGetSubjectDetail(subjectId);
+  const { cos } = useGetSubjectDetail(subjectId);
   const { allGAs } = useGetAllGAs();
-
-  const cos =
-    subject?.co?.filter(
-      (c) => c.id !== "00000000-0000-0000-0000-000000000000"
-    ) ?? [];
 
   return (
     <section className="overflow-auto pb-2">

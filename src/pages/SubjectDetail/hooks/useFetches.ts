@@ -28,7 +28,11 @@ export const useGetSubjectDetail = (subjectId: string | undefined) => {
     select: (data) => data?.data,
   });
 
-  return { subject: data, isPending, isError };
+  const cos =
+    data?.co?.filter((c) => c.id !== "00000000-0000-0000-0000-000000000000") ??
+    [];
+
+  return { subject: data, cos, isPending, isError };
 };
 
 //================================================================================================

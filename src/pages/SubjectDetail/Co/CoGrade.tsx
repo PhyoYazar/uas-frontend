@@ -3,59 +3,43 @@ import { Text } from "@/components/common/text";
 import { cn } from "@/lib/utils";
 import { useParams } from "react-router-dom";
 import { Fragment } from "react/jsx-runtime";
-import {
-  useGetAllStudentsBySubject,
-  useGetSubjectDetail,
-} from "../hooks/useFetches";
+import { useGetSubjectDetail } from "../hooks/useFetches";
 
-export const StudentAchievement = () => {
+export const CoGrade = () => {
   const { subjectId } = useParams();
-  const { subject, cos } = useGetSubjectDetail(subjectId);
+  const { cos } = useGetSubjectDetail(subjectId);
 
   const coLists = [...cos].sort((a, b) => +a.instance - +b.instance);
 
-  const { students } = useGetAllStudentsBySubject(
-    subject?.year,
-    subject?.academicYear
-  );
+  //   const { students } = useGetAllStudentsBySubject(
+  //     subject?.year,
+  //     subject?.academicYear
+  //   );
 
   return (
     <div className="overflow-auto pb-2">
       <div className="flex flex-nowrap">
         <FlexBox className="w-16 flex-shrink-0 justify-center border border-gray-400 border-r-0">
-          No
+          Grade
         </FlexBox>
 
         <FlexBox className="w-52 flex-shrink-0 justify-center border border-gray-400">
-          Student ID
+          Mark
         </FlexBox>
 
         {coLists.map((co, index, arr) => (
           <Fragment key={"std-achi-keys" + co.id}>
-            <FlexBox className="flex-nowrap w-72 border border-gray-400 border-l-0">
-              <FlexBox className="flex-col w-48 border-r border-r-gray-400">
-                <Text className="w-full py-1 text-center border-b border-b-gray-400">
-                  CO{co.instance}
+            <FlexBox className="flex-col border border-gray-400 border-l-0">
+              <Text className="w-full py-1 text-center border-b border-b-gray-400">
+                CO{co.instance}
+              </Text>
+
+              <FlexBox className="w-full flex-nowrap">
+                <Text className="w-24 py-1 text-center border-r border-r-gray-400">
+                  No. of student
                 </Text>
-
-                <FlexBox className="flex-nowrap border-b border-b-gray-400">
-                  <Text className="flex-1 py-1 text-center border-r border-r-gray-400">
-                    Mark Distribution
-                  </Text>
-                  <Text className="flex-1 py-1 text-center">
-                    Student Achievement
-                  </Text>
-                </FlexBox>
-
-                <FlexBox className="flex-nowrap w-full ">
-                  <Text className="flex-1 py-1 text-center border-r border-r-gray-400">
-                    19.4
-                  </Text>
-                  <Text className="flex-1 py-1 text-center">100</Text>
-                </FlexBox>
+                <Text className="w-24 py-1 text-center mr-[-1px]">% (Nos)</Text>
               </FlexBox>
-
-              <Text className="text-center w-24">CO{co.instance} Grade</Text>
             </FlexBox>
 
             {arr.length - 1 !== index ? (
@@ -65,25 +49,19 @@ export const StudentAchievement = () => {
         ))}
       </div>
 
-      {students?.items?.map((std, stdIndex, stdArr) => (
-        <div className="flex flex-nowrap " key={std.id + "std-keys"}>
-          <FlexBox className="w-16 py-1 flex-shrink-0 justify-center border border-gray-400 border-r-0 border-t-0">
-            {std.rollNumber}
+      {grades.map((grade, stdIndex, stdArr) => (
+        <div className="flex flex-nowrap " key={grade.grade + "co-grade-keys"}>
+          <FlexBox className="w-16 py-1 flex-shrink-0 pl-6 border border-gray-400 border-r-0 border-t-0">
+            {grade.grade}
           </FlexBox>
 
           <FlexBox className="w-52 flex-shrink-0 justify-center border border-gray-400 border-t-0">
-            {std.studentName}
+            {grade.mark}
           </FlexBox>
 
           {cos.map((co, index, arr) => (
             <Fragment key={"std-achi-keys" + co.id}>
               <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-l-0 border-t-0">
-                <Text className="text-center flex-1">
-                  CO{co.instance} Grade
-                </Text>
-              </FlexBox>
-
-              <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-t-0 border-l-0">
                 <Text className="text-center flex-1">
                   CO{co.instance} Grade
                 </Text>
@@ -110,3 +88,16 @@ export const StudentAchievement = () => {
     </div>
   );
 };
+
+const grades = [
+  { grade: "A+", mark: "75" },
+  { grade: "A", mark: "70" },
+  { grade: "A-", mark: "65" },
+  { grade: "B+", mark: "60" },
+  { grade: "B", mark: "55" },
+  { grade: "B-", mark: "50" },
+  { grade: "C+", mark: "45" },
+  { grade: "C", mark: "42" },
+  { grade: "C-", mark: "40" },
+  { grade: "D", mark: "<40" },
+];

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { Link, useParams } from "react-router-dom";
+import { CoResults } from "./Co/CoResults";
 import { StudentCollection } from "./Student/StudentCollection";
 import { CoGaMapping } from "./Subject/CoGaMapping";
 import { CourseWorkPlanning } from "./Subject/CourseWorkPlanning";
@@ -112,7 +113,7 @@ export const SubjectDetail = () => {
         </TabsContent>
 
         <TabsContent value="co">
-          <Text>Co</Text>
+          <CoResults />
         </TabsContent>
 
         <TabsContent value="ga">
