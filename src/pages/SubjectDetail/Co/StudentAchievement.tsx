@@ -1,12 +1,10 @@
+import { get2Decimal, transformGrade } from "@/common/utils/utils";
 import { FlexBox } from "@/components/common/flex-box";
 import { Text } from "@/components/common/text";
 import { cn } from "@/lib/utils";
 import { useParams } from "react-router-dom";
 import { Fragment } from "react/jsx-runtime";
-import {
-  useGetAllStudentsBySubject,
-  useGetSubjectDetail,
-} from "../hooks/useFetches";
+import { useGetSubjectDetail, useStdCoGrades } from "../hooks/useFetches";
 
 export const StudentAchievement = () => {
   const { subjectId } = useParams();
@@ -20,12 +18,7 @@ export const StudentAchievement = () => {
 
   const coLists = [...cos].sort((a, b) => +a.instance - +b.instance);
 
-  const { students } = useGetAllStudentsBySubject(
-    subject?.year,
-    subject?.academicYear
-  );
-
-  // addition mark base on co instance / addition full mark base on co instance * 100
+  const { data } = useStdCoGrades(subject?.year, subject?.academicYear);
 
   return (
     <div className="overflow-auto pb-2">
@@ -73,7 +66,7 @@ export const StudentAchievement = () => {
         ))}
       </div>
 
-      {students?.items?.map((std, stdIndex, stdArr) => {
+      {data?.map((std, stdIndex, stdArr) => {
         // const tutorialResults = calculateAttributeFinalResult(
         //   "Tutorial",
         //   tutorialPercent,
@@ -122,36 +115,47 @@ export const StudentAchievement = () => {
               {std.studentName}
             </FlexBox>
 
-            {cos.map((co, index, arr) => (
-              <Fragment key={"std-achi-keys" + co.id}>
-                <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-l-0 border-t-0">
-                  <Text className="text-center flex-1">
-                    CO{co.instance} Grade
-                  </Text>
-                </FlexBox>
+            {coLists.map((co, index, arr) => {
+              const coValue = std?.co?.find((c) => c.coId === co.id);
 
-                <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-t-0 border-l-0">
-                  <Text className="text-center flex-1">
-                    CO{co.instance} Grade
-                  </Text>
-                </FlexBox>
+              if (coValue === undefined) return null;
 
-                <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-t-0 border-l-0">
-                  <Text className="text-center flex-1">
-                    CO{co.instance} Grade
-                  </Text>
-                </FlexBox>
+              // addition mark base on co instance / addition full mark base on co instance * 100
+              const calculatedValue = get2Decimal(
+                (coValue?.totalMarks / coValue?.totalFullMarks) * 100
+              );
 
-                {arr.length - 1 !== index ? (
-                  <div
-                    className={cn(
-                      "w-12 bg-gray-200 flex-shrink-0 border border-gray-400 border-l-0 border-t-0  border-b-0",
-                      stdIndex === stdArr.length - 1 ? "border-b-1" : ""
-                    )}
-                  />
-                ) : null}
-              </Fragment>
-            ))}
+              return (
+                <Fragment key={"std-achi-keys" + co.id}>
+                  <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-l-0 border-t-0">
+                    <Text className="text-center flex-1">
+                      CO{co.instance} Grade
+                    </Text>
+                  </FlexBox>
+
+                  <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-t-0 border-l-0">
+                    <Text className="text-center flex-1">
+                      {calculatedValue}
+                    </Text>
+                  </FlexBox>
+
+                  <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-t-0 border-l-0">
+                    <Text className="text-center flex-1">
+                      {transformGrade(calculatedValue)}
+                    </Text>
+                  </FlexBox>
+
+                  {arr.length - 1 !== index ? (
+                    <div
+                      className={cn(
+                        "w-12 bg-gray-200 flex-shrink-0 border border-gray-400 border-l-0 border-t-0  border-b-0",
+                        stdIndex === stdArr.length - 1 ? "border-b-1" : ""
+                      )}
+                    />
+                  ) : null}
+                </Fragment>
+              );
+            })}
           </div>
         );
       })}

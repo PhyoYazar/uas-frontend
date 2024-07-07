@@ -302,8 +302,6 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
             questionResults
         );
 
-        console.log("hello ", totalResult, questionResults);
-
         return (
           <StudentRow
             className={index === arr.length - 1 ? "border-b-1" : ""}

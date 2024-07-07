@@ -211,3 +211,42 @@ export const useCalculateMarks = (attributes: Attribute[]) => {
 
   return { gaMarks };
 };
+
+// =================================================================================================
+type Co = {
+  coName: string;
+  coInstance: number;
+  coId: string;
+  totalFullMarks: number;
+  totalMarks: number;
+};
+
+export type StudentCoGrade = {
+  studentName: string;
+  rollNumber: number;
+  id: string;
+  co: Co[];
+};
+
+type StudentCoGradeRespone = APIResponse & {
+  items: StudentCoGrade[];
+};
+
+export const useStdCoGrades = (
+  year: string | undefined,
+  academicYear: string | undefined
+) => {
+  const { data, isPending, isError } = useQuery({
+    queryKey: ["all-students-co-grades", year, academicYear],
+    queryFn: ({ signal }) =>
+      axios.get<StudentCoGradeRespone>(
+        `student_co_grades?year=${year}&academic_year=${academicYear}`,
+        { signal }
+      ),
+    staleTime: 5000,
+    enabled: !!year && !!academicYear,
+    select: (data) => (data.status === 200 ? data?.data?.items : []),
+  });
+
+  return { data: data ?? [], isPending, isError };
+};
