@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Link, useParams } from "react-router-dom";
 import { CoResults } from "./Co/CoResults";
 import { StudentCollection } from "./Student/StudentCollection";
+import { AssessmentContribution } from "./Subject/AssessmentContribution";
 import { CoGaMapping } from "./Subject/CoGaMapping";
 import { CourseWorkPlanning } from "./Subject/CourseWorkPlanning";
 import { ExamPlanning } from "./Subject/ExamPlanning";
@@ -83,9 +84,9 @@ export const SubjectDetail = () => {
                   <TabsTrigger value="assessment_course_work_planning">
                     Assessment (Planning) Course Work
                   </TabsTrigger>
-                  {/* <TabsTrigger value="assessment_contribution">
-                  Assessment Contribution
-                </TabsTrigger> */}
+                  <TabsTrigger value="assessment_contribution">
+                    Assessment Contribution
+                  </TabsTrigger>
                 </TabsList>
 
                 <Link to={`/subject/create/${subjectId}`}>
@@ -103,6 +104,10 @@ export const SubjectDetail = () => {
 
               <TabsContent value="assessment_course_work_planning">
                 <CourseWorkPlanning />
+              </TabsContent>
+
+              <TabsContent value="assessment_contribution">
+                <AssessmentContribution />
               </TabsContent>
             </Tabs>
           </div>

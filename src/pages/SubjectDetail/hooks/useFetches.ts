@@ -43,7 +43,7 @@ export type StudentLists = {
   attributes: {
     attributeId: string;
     studentMarkId: string;
-    fullMark: number;
+    mark: number;
     name: string;
   }[];
 };
@@ -60,13 +60,17 @@ export const useGetAllStudentsBySubject = (
     queryKey: ["all-students-by-subject-id", year, academicYear],
     queryFn: ({ signal }) =>
       axios.get<StudentListResponse>(
-        `student_attributes_marks?year=${year}&academic_year=${academicYear}&orderBy=rollnumber`,
+        `student_attributes_marks?year=${year}&academic_year=${academicYear}`,
         { signal }
       ),
     staleTime: 5000,
     enabled: !!year && !!academicYear,
     select: (data) => data?.data,
   });
+
+  // const clone = JSON.parse(JSON.stringify(data)).items?.sort(
+  //   (a, b) => a?.rollNumber - b?.rollNumber
+  // );
 
   return { students: data, isPending, isError };
 };

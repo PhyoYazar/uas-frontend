@@ -12,12 +12,20 @@ export const StudentAchievement = () => {
   const { subjectId } = useParams();
   const { subject, cos } = useGetSubjectDetail(subjectId);
 
+  // const examPercent = subject?.exam ?? 0;
+  // const tutorialPercent = subject?.tutorial ?? 0;
+  // const labPercent = subject?.lab ?? 0;
+  // const assignmentPercent = subject?.assignment ?? 0;
+  // const practicalPercent = subject?.practical ?? 0;
+
   const coLists = [...cos].sort((a, b) => +a.instance - +b.instance);
 
   const { students } = useGetAllStudentsBySubject(
     subject?.year,
     subject?.academicYear
   );
+
+  // addition mark base on co instance / addition full mark base on co instance * 100
 
   return (
     <div className="overflow-auto pb-2">
@@ -65,48 +73,88 @@ export const StudentAchievement = () => {
         ))}
       </div>
 
-      {students?.items?.map((std, stdIndex, stdArr) => (
-        <div className="flex flex-nowrap " key={std.id + "std-keys"}>
-          <FlexBox className="w-16 py-1 flex-shrink-0 justify-center border border-gray-400 border-r-0 border-t-0">
-            {std.rollNumber}
-          </FlexBox>
+      {students?.items?.map((std, stdIndex, stdArr) => {
+        // const tutorialResults = calculateAttributeFinalResult(
+        //   "Tutorial",
+        //   tutorialPercent,
+        //   std
+        // );
 
-          <FlexBox className="w-52 flex-shrink-0 justify-center border border-gray-400 border-t-0">
-            {std.studentName}
-          </FlexBox>
+        // const practicalResults = calculateAttributeFinalResult(
+        //   "Practical",
+        //   practicalPercent,
+        //   std
+        // );
 
-          {cos.map((co, index, arr) => (
-            <Fragment key={"std-achi-keys" + co.id}>
-              <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-l-0 border-t-0">
-                <Text className="text-center flex-1">
-                  CO{co.instance} Grade
-                </Text>
-              </FlexBox>
+        // const labResults = calculateAttributeFinalResult(
+        //   "Lab",
+        //   labPercent,
+        //   std
+        // );
 
-              <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-t-0 border-l-0">
-                <Text className="text-center flex-1">
-                  CO{co.instance} Grade
-                </Text>
-              </FlexBox>
+        // const assignmentResults = calculateAttributeFinalResult(
+        //   "Assignment",
+        //   assignmentPercent,
+        //   std
+        // );
 
-              <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-t-0 border-l-0">
-                <Text className="text-center flex-1">
-                  CO{co.instance} Grade
-                </Text>
-              </FlexBox>
+        // const questionResults = calculateAttributeFinalResult(
+        //   "Question",
+        //   examPercent,
+        //   std
+        // );
 
-              {arr.length - 1 !== index ? (
-                <div
-                  className={cn(
-                    "w-12 bg-gray-200 flex-shrink-0 border border-gray-400 border-l-0 border-t-0  border-b-0",
-                    stdIndex === stdArr.length - 1 ? "border-b-1" : ""
-                  )}
-                />
-              ) : null}
-            </Fragment>
-          ))}
-        </div>
-      ))}
+        // const totalResult = get2Decimal(
+        //   tutorialResults +
+        //     practicalResults +
+        //     labResults +
+        //     assignmentResults +
+        //     questionResults
+        // );
+
+        return (
+          <div className="flex flex-nowrap " key={std.id + "std-keys"}>
+            <FlexBox className="w-16 py-1 flex-shrink-0 justify-center border border-gray-400 border-r-0 border-t-0">
+              {std.rollNumber}
+            </FlexBox>
+
+            <FlexBox className="w-52 flex-shrink-0 justify-center border border-gray-400 border-t-0">
+              {std.studentName}
+            </FlexBox>
+
+            {cos.map((co, index, arr) => (
+              <Fragment key={"std-achi-keys" + co.id}>
+                <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-l-0 border-t-0">
+                  <Text className="text-center flex-1">
+                    CO{co.instance} Grade
+                  </Text>
+                </FlexBox>
+
+                <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-t-0 border-l-0">
+                  <Text className="text-center flex-1">
+                    CO{co.instance} Grade
+                  </Text>
+                </FlexBox>
+
+                <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-t-0 border-l-0">
+                  <Text className="text-center flex-1">
+                    CO{co.instance} Grade
+                  </Text>
+                </FlexBox>
+
+                {arr.length - 1 !== index ? (
+                  <div
+                    className={cn(
+                      "w-12 bg-gray-200 flex-shrink-0 border border-gray-400 border-l-0 border-t-0  border-b-0",
+                      stdIndex === stdArr.length - 1 ? "border-b-1" : ""
+                    )}
+                  />
+                ) : null}
+              </Fragment>
+            ))}
+          </div>
+        );
+      })}
     </div>
   );
 };

@@ -11,9 +11,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { HeadText } from "../Subject/CourseWorkPlanning";
+import { calculateAttributeFinalResult } from "../helpers/helpers";
 import {
   Attribute,
-  StudentLists,
   useGetAllStudentsBySubject,
   useGetAttributeWithCoGaMarks,
   useGetSubjectById,
@@ -61,20 +61,6 @@ export const StudentCollection = () => {
 };
 
 // =================================================================================================
-
-const calculateAttributeFinalResult = (
-  type: AttributeType,
-  percent: number,
-  std: StudentLists
-) => {
-  const result =
-    std.attributes
-      .filter((att) => att.name === type)
-      .reduce((acc, cur) => acc + cur.fullMark, 0) *
-    (percent / 100);
-
-  return get2Decimal(result);
-};
 
 type AttributeType =
   | "Question"
@@ -248,8 +234,8 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
         </FlexBox>
 
         <FlexBox className="min-w-700 border border-gray-400 border-r-0">
-          {Array.from({ length: totalAttributes }).map((t) => (
-            <div key={"asdfaa--" + t} className="min-w-32" />
+          {Array.from({ length: totalAttributes }).map((t, index) => (
+            <div key={"asdfaa--" + t + index} className="min-w-32" />
           ))}
         </FlexBox>
 
@@ -272,7 +258,7 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
       {students?.items?.map((std, index, arr) => {
         const totalMarks = std?.attributes?.reduce((acc, cur) => {
           if (cur.name === type) {
-            acc += cur.fullMark;
+            acc += cur.mark;
           }
 
           return acc;
@@ -316,6 +302,8 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
             questionResults
         );
 
+        console.log("hello ", totalResult, questionResults);
+
         return (
           <StudentRow
             className={index === arr.length - 1 ? "border-b-1" : ""}
@@ -339,7 +327,7 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
                 if (findAttribute) {
                   return {
                     attributeId: findAttribute.attributeId,
-                    mark: findAttribute.fullMark,
+                    mark: findAttribute.mark,
                     fullMark: fullMark,
                     studentMarkId: findAttribute.studentMarkId,
                   };
