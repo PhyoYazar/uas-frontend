@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { Link, useParams } from "react-router-dom";
-import { GaResults } from "./Co copy/GaResults";
+import { GaResults } from "./Ga/GaResults";
 import { CoResults } from "./Co/CoResults";
 import { StudentCollection } from "./Student/StudentCollection";
 import { AssessmentContribution } from "./Subject/AssessmentContribution";
