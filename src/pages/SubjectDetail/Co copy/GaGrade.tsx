@@ -1,19 +1,24 @@
-import { get2Decimal, transformGrade } from "@/common/utils/utils";
+import {
+  get2Decimal,
+  getUniqueObjects,
+  transformGrade,
+} from "@/common/utils/utils";
 import { FlexBox } from "@/components/common/flex-box";
 import { Text } from "@/components/common/text";
 import { cn } from "@/lib/utils";
 import { useParams } from "react-router-dom";
 import { Fragment } from "react/jsx-runtime";
+import { useGetSubjectDetail, useStdGaGrades } from "../hooks/useFetches";
 import { analyzeGrading } from "../helpers/helpers";
-import { useGetSubjectDetail, useStdCoGrades } from "../hooks/useFetches";
 
-export const CoGrade = () => {
+export const GaGrade = () => {
   const { subjectId } = useParams();
   const { subject, cos } = useGetSubjectDetail(subjectId);
 
-  const coLists = [...cos].sort((a, b) => +a.instance - +b.instance);
-
-  const { data, isPending } = useStdCoGrades(
+  const gaLists = getUniqueObjects(cos.map((c) => c.ga).flat(1)).sort(
+    (a, b) => +a.slug.slice(2) - +b.slug.slice(2)
+  );
+  const { data, isPending } = useStdGaGrades(
     subject?.year,
     subject?.academicYear
   );
@@ -21,28 +26,26 @@ export const CoGrade = () => {
   if (isPending) return null;
 
   const results = analyzeGrading(
-    coLists.map((c) => c.id),
+    gaLists.map((c) => c.id),
     (results) => {
       data.forEach((std) => {
-        std.co.forEach((co) => {
-          const grade = transformGrade(
-            get2Decimal((co?.totalMarks / co?.totalFullMarks) * 100)
-          );
+        std.ga.forEach((ga) => {
+          const grade = transformGrade(get2Decimal(ga.totalMarks));
 
           const index = results.findIndex((r) => r.grade === grade);
           if (index > -1) {
-            const coIndex = results[index].list.findIndex(
-              (c) => c.id === co.coId
+            const gaIndex = results[index].list.findIndex(
+              (g) => g.id === ga.gaId
             );
 
             // co is exist in results
-            if (coIndex > -1) {
-              results[index].list[coIndex].count += 1;
+            if (gaIndex > -1) {
+              results[index].list[gaIndex].count += 1;
               return;
             }
 
             results[index].list.push({
-              id: co.coId,
+              id: ga.gaId,
               count: 1,
             });
           }
@@ -62,11 +65,11 @@ export const CoGrade = () => {
           Mark
         </FlexBox>
 
-        {coLists.map((co, index, arr) => (
-          <Fragment key={"std-achi-keys" + co.id}>
+        {gaLists.map((ga, index, arr) => (
+          <Fragment key={"std-achi-keys-ga" + ga.id}>
             <FlexBox className="flex-col border border-gray-400 border-l-0">
               <Text className="w-full py-1 text-center border-b border-b-gray-400">
-                CO{co.instance}
+                {ga.slug}
               </Text>
 
               <FlexBox className="w-full flex-nowrap">

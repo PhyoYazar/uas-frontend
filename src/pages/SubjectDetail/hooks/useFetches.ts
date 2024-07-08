@@ -250,3 +250,40 @@ export const useStdCoGrades = (
 
   return { data: data ?? [], isPending, isError };
 };
+
+// =================================================================================================
+type Ga = {
+  gaId: string;
+  gaSlug: string;
+  totalMarks: number;
+};
+
+export type StudentGaGrade = {
+  studentName: string;
+  rollNumber: number;
+  id: string;
+  ga: Ga[];
+};
+
+type StudentGaGradeRespone = APIResponse & {
+  items: StudentGaGrade[];
+};
+
+export const useStdGaGrades = (
+  year: string | undefined,
+  academicYear: string | undefined
+) => {
+  const { data, isPending, isError } = useQuery({
+    queryKey: ["all-students-ga-grades", year, academicYear],
+    queryFn: ({ signal }) =>
+      axios.get<StudentGaGradeRespone>(
+        `student_ga_grades?year=${year}&academic_year=${academicYear}`,
+        { signal }
+      ),
+    staleTime: 5000,
+    enabled: !!year && !!academicYear,
+    select: (data) => (data.status === 200 ? data?.data?.items : []),
+  });
+
+  return { data: data ?? [], isPending, isError };
+};

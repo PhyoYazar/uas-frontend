@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { Link, useParams } from "react-router-dom";
+import { GaResults } from "./Co copy/GaResults";
 import { CoResults } from "./Co/CoResults";
 import { StudentCollection } from "./Student/StudentCollection";
 import { AssessmentContribution } from "./Subject/AssessmentContribution";
@@ -12,10 +13,6 @@ import { CoGaMapping } from "./Subject/CoGaMapping";
 import { CourseWorkPlanning } from "./Subject/CourseWorkPlanning";
 import { ExamPlanning } from "./Subject/ExamPlanning";
 import { useGetSubjectById } from "./hooks/useFetches";
-
-// const fetchBySubjectId = () => {
-//   return axios.get("https://jsonplaceholder.typicode.com/posts");
-// };
 
 export const SubjectDetail = () => {
   const { subjectId } = useParams();
@@ -122,7 +119,7 @@ export const SubjectDetail = () => {
         </TabsContent>
 
         <TabsContent value="ga">
-          <Text>GA</Text>
+          <GaResults />
         </TabsContent>
       </Tabs>
     </section>

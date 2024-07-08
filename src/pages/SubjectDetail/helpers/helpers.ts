@@ -1,5 +1,5 @@
-import { get2Decimal, transformGrade } from "@/common/utils/utils";
-import { StudentCoGrade, StudentLists } from "../hooks/useFetches";
+import { get2Decimal } from "@/common/utils/utils";
+import { StudentLists } from "../hooks/useFetches";
 
 export type AttributeType =
   | "Question"
@@ -34,7 +34,10 @@ type TotalGradingResult = {
   }[];
 }[];
 
-export function analyzeGrading(data: StudentCoGrade[], defaultLists: string[]) {
+export function analyzeGrading(
+  defaultLists: string[],
+  fn: (val: TotalGradingResult) => void
+) {
   let results: TotalGradingResult = [
     {
       grade: "A+",
@@ -93,29 +96,7 @@ export function analyzeGrading(data: StudentCoGrade[], defaultLists: string[]) {
     list: r.list.concat(defaultLists.map((val) => ({ id: val, count: 0 }))),
   }));
 
-  data.forEach((std) => {
-    std.co.forEach((co) => {
-      const grade = transformGrade(
-        get2Decimal((co?.totalMarks / co?.totalFullMarks) * 100)
-      );
-
-      const index = results.findIndex((r) => r.grade === grade);
-      if (index > -1) {
-        const coIndex = results[index].list.findIndex((c) => c.id === co.coId);
-
-        // co is exist in results
-        if (coIndex > -1) {
-          results[index].list[coIndex].count += 1;
-          return;
-        }
-
-        results[index].list.push({
-          id: co.coId,
-          count: 1,
-        });
-      }
-    });
-  });
+  fn(results);
 
   return results;
 }
