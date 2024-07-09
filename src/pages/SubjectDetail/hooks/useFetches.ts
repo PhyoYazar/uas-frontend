@@ -77,13 +77,16 @@ export const useGetAllStudentsBySubject = (
 
 //================================================================================================
 
-export type Attribute = {
+type DefaultAttribute = {
   name: string;
   id: string;
   type: string;
   instance: number;
   fullMark: number;
   marks: { id: string; mark: number; gaSlug: string; gaID: string }[];
+};
+
+export type Attribute = DefaultAttribute & {
   co: { id: string; name: string; instance: number }[];
 };
 
@@ -282,6 +285,47 @@ export const useStdGaGrades = (
       ),
     staleTime: 5000,
     enabled: !!year && !!academicYear,
+    select: (data) => (data.status === 200 ? data?.data?.items : []),
+  });
+
+  return { data: data ?? [], isPending, isError };
+};
+
+// =================================================================================================
+
+type AttributeCoGa = DefaultAttribute & {
+  full_mark: number;
+  co: {
+    id: string;
+    name: string;
+    instance: string;
+    coMark: number;
+    co_attribute_id: string;
+  }[];
+  ga: {
+    id: string;
+    name: string;
+    slug: string;
+    gaMark: number;
+    mark_id: string;
+  }[];
+};
+
+type APIRes = APIResponse & {
+  items: AttributeCoGa[];
+};
+
+export const useAttributesWithCoGaFullMarks = (
+  subjectId: string | undefined
+) => {
+  const { data, isPending, isError } = useQuery({
+    queryKey: ["attributes-detail-with-co-ga", subjectId],
+    queryFn: ({ signal }) =>
+      axios.get<APIRes>(`attributes_detail/${subjectId}`, {
+        signal,
+      }),
+    staleTime: 5000,
+    enabled: !!subjectId,
     select: (data) => (data.status === 200 ? data?.data?.items : []),
   });
 
