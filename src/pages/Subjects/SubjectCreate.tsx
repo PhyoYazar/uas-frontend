@@ -203,7 +203,9 @@ export const SubjectCreate = () => {
                       </FormControl>
                       <SelectContent>
                         {dualYears.map((year) => (
-                          <SelectItem value={year}>{year}</SelectItem>
+                          <SelectItem key={year + "dafsklje2"} value={year}>
+                            {year}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>

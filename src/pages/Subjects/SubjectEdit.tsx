@@ -185,7 +185,9 @@ export const EditSubject = (props: EditSubjectProps) => {
                       </FormControl>
                       <SelectContent>
                         {dualYears.map((year) => (
-                          <SelectItem value={year}>{year}</SelectItem>
+                          <SelectItem key={year + "adfk2221"} value={year}>
+                            {year}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>

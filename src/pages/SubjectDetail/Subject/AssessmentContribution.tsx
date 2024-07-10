@@ -57,13 +57,17 @@ export const AssessmentContribution = () => {
         <HeadText className="border-t-1 w-32">Fraction</HeadText>
 
         {coLists?.map((co) => (
-          <HeadText className="border-t-1 ">Co {co.instance}</HeadText>
+          <HeadText key={co.id + "32lsdf"} className="border-t-1 ">
+            Co {co.instance}
+          </HeadText>
         ))}
 
         <HeadText className="border-t-1 w-32">Total</HeadText>
 
         {gaLists?.map((ga) => (
-          <HeadText className="border-t-1 ">{ga.slug}</HeadText>
+          <HeadText key={ga.id + "adhsfw"} className="border-t-1 ">
+            {ga.slug}
+          </HeadText>
         ))}
 
         <HeadText className="border-t-1 w-32 border-r-1">Total</HeadText>
@@ -75,7 +79,7 @@ export const AssessmentContribution = () => {
           (getPercent(attribute?.name as AttributeType) / 100);
 
         return (
-          <div className="flex flex-nowrap">
+          <div className="flex flex-nowrap" key={attribute.id + "att-s"}>
             {/* <HeadText className="">No</HeadText> */}
 
             <HeadText className="w-48">
@@ -91,13 +95,17 @@ export const AssessmentContribution = () => {
             {coLists?.map((co) => {
               const coVal = attribute?.co?.find((c) => c.id === co.id);
 
-              if (!coVal) return <HeadText className="">-</HeadText>;
+              if (!coVal)
+                return (
+                  <HeadText key={co.id + "adf;l"} className="">
+                    -
+                  </HeadText>
+                );
 
               return (
                 <EditInput
+                  key={co.id + "co-klst"}
                   type="co"
-                  id={coVal.id}
-                  attributeId={attribute.id}
                   fullMark={attribute.full_mark}
                   updateAPIId={coVal.co_attribute_id}
                   val={coVal.coMark}
@@ -110,13 +118,17 @@ export const AssessmentContribution = () => {
             {gaLists?.map((ga) => {
               const gaVal = attribute?.ga?.find((g) => g.id === ga.id);
 
-              if (!gaVal) return <HeadText className="">-</HeadText>;
+              if (!gaVal)
+                return (
+                  <HeadText key={ga.id + "123kas2"} className="">
+                    -
+                  </HeadText>
+                );
 
               return (
                 <EditInput
+                  key={ga.id + "galists"}
                   type="ga"
-                  id={gaVal.id}
-                  attributeId={attribute.id}
                   fullMark={attribute.full_mark}
                   updateAPIId={gaVal.mark_id}
                   val={gaVal.gaMark}
@@ -154,8 +166,7 @@ const HeadText = (props: {
 
 type EditInputProps = {
   val: number;
-  attributeId: string;
-  id: string;
+
   updateAPIId?: string;
   className?: string;
   fullMark: number;
@@ -163,32 +174,13 @@ type EditInputProps = {
 };
 
 const EditInput = (props: EditInputProps) => {
-  const { val, id, attributeId, className, fullMark, updateAPIId, type } =
-    props;
+  const { val, className, fullMark, updateAPIId, type } = props;
 
   const [isEditing, setIsEditing] = useState(false);
   const [mark, setMark] = useState("");
 
   const { subjectId } = useParams();
   const queryClient = useQueryClient();
-
-  const addCoMarkMutation = useMutation({
-    mutationFn: (newMark: {
-      attributeID: string;
-      coID: string;
-      coMark: number;
-    }) => axios.post("co_attribute", newMark),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["attributes-detail-with-co-ga", subjectId],
-      });
-
-      toast.success("Mark is successfully created");
-    },
-    onError() {
-      toast.error("Fail to add the mark.");
-    },
-  });
 
   const updateCoMarkMutation = useMutation({
     mutationFn: (newMark: { coMark: number }) =>
@@ -254,17 +246,9 @@ const EditInput = (props: EditInputProps) => {
               }
 
               if (type === "co") {
-                if (updateAPIId === undefined) {
-                  addCoMarkMutation.mutate({
-                    attributeID: attributeId,
-                    coID: id,
-                    coMark: +mark,
-                  });
-                } else {
-                  updateCoMarkMutation.mutate({
-                    coMark: +mark,
-                  });
-                }
+                updateCoMarkMutation.mutate({
+                  coMark: +mark,
+                });
               }
 
               setIsEditing(false);
