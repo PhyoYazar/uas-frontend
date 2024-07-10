@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { AttributeType } from "../helpers/helpers";
@@ -33,18 +33,67 @@ export const AssessmentContribution = () => {
   const assignmentPercent = subject?.assignment ?? 0;
   const practicalPercent = subject?.practical ?? 0;
 
-  const getPercent = (typ?: AttributeType) => {
-    if (typ === "Question") return examPercent;
-    if (typ === "Tutorial") return tutorialPercent;
-    if (typ === "Practical") return practicalPercent;
-    if (typ === "Lab") return labPercent;
-    if (typ === "Assignment") return assignmentPercent;
+  const getPercent = useCallback(
+    (typ?: AttributeType) => {
+      if (typ === "Question") return examPercent;
+      if (typ === "Tutorial") return tutorialPercent;
+      if (typ === "Practical") return practicalPercent;
+      if (typ === "Lab") return labPercent;
+      if (typ === "Assignment") return assignmentPercent;
 
-    return 0;
-  };
+      return 0;
+    },
+    [
+      assignmentPercent,
+      examPercent,
+      labPercent,
+      practicalPercent,
+      tutorialPercent,
+    ]
+  );
+
+  const { coResults, gaResults } = useMemo(() => {
+    const coResults: { id: string; instance: number; result: number }[] = [];
+    const gaResults: { id: string; slug: string; result: number }[] = [];
+
+    data?.forEach((attribute) => {
+      const percent = getPercent(attribute?.name as AttributeType) / 100;
+
+      attribute.co.forEach((c) => {
+        const index = coResults.findIndex((r) => r.id === c.id);
+        if (index > -1) {
+          coResults[index].result += c.coMark * percent;
+        } else {
+          coResults.push({
+            id: c.id,
+            instance: +c.instance,
+            result: c.coMark * percent,
+          });
+        }
+      });
+
+      attribute.ga.forEach((g) => {
+        const index = gaResults.findIndex((r) => r.id === g.id);
+        if (index > -1) {
+          gaResults[index].result += g.gaMark * percent;
+        } else {
+          gaResults.push({
+            id: g.id,
+            slug: g.slug,
+            result: g.gaMark * percent,
+          });
+        }
+      });
+    });
+
+    return { coResults, gaResults };
+  }, [data, getPercent]);
+
+  console.log("hello co ->  ", coResults);
+  console.log("hello ga ->  ", gaResults);
 
   return (
-    <div className="overflow-auto pb-2">
+    <div className="overflow-auto pb-4">
       <div className="flex flex-nowrap">
         {/* <HeadText className="">No</HeadText> */}
 
@@ -106,7 +155,6 @@ export const AssessmentContribution = () => {
                 <EditInput
                   key={co.id + "co-klst"}
                   type="co"
-                  fullMark={attribute.full_mark}
                   updateAPIId={coVal.co_attribute_id}
                   val={coVal.coMark}
                 />
@@ -129,7 +177,6 @@ export const AssessmentContribution = () => {
                 <EditInput
                   key={ga.id + "galists"}
                   type="ga"
-                  fullMark={attribute.full_mark}
                   updateAPIId={gaVal.mark_id}
                   val={gaVal.gaMark}
                 />
@@ -140,6 +187,40 @@ export const AssessmentContribution = () => {
           </div>
         );
       })}
+
+      <div className="flex flex-nowrap">
+        {/* <HeadText className="">No</HeadText> */}
+
+        <HeadText className=" w-[304px]">Total</HeadText>
+
+        <HeadText className=" ">100</HeadText>
+
+        <HeadText className="border-y-0 w-32">{""}</HeadText>
+
+        {coLists?.map((co) => {
+          const coVal = coResults.find((c) => c.id === co.id);
+
+          return (
+            <HeadText key={co.id + "32lsdf"} className="">
+              {coVal?.result}
+            </HeadText>
+          );
+        })}
+
+        <HeadText className=" w-32">100</HeadText>
+
+        {gaLists?.map((ga) => {
+          const gaVal = gaResults.find((g) => g.id === ga.id);
+
+          return (
+            <HeadText key={ga.id + "adhsfw"} className=" ">
+              {gaVal?.result}
+            </HeadText>
+          );
+        })}
+
+        <HeadText className=" w-32 border-r-1">100</HeadText>
+      </div>
     </div>
   );
 };
@@ -166,15 +247,13 @@ const HeadText = (props: {
 
 type EditInputProps = {
   val: number;
-
   updateAPIId?: string;
   className?: string;
-  fullMark: number;
   type: "co" | "ga";
 };
 
 const EditInput = (props: EditInputProps) => {
-  const { val, className, fullMark, updateAPIId, type } = props;
+  const { val, className, updateAPIId, type } = props;
 
   const [isEditing, setIsEditing] = useState(false);
   const [mark, setMark] = useState("");
@@ -234,8 +313,8 @@ const EditInput = (props: EditInputProps) => {
             onKeyUp={(e) => {
               if (e.key !== "Enter") return;
 
-              if (+mark > fullMark) {
-                toast.error("Mark is higher than the full mark");
+              if (+mark > 100) {
+                toast.error("Mark is higher than the 100 mark");
                 return;
               }
 
