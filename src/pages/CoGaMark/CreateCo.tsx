@@ -43,7 +43,7 @@ export const CreateCo = () => {
     defaultValues: {
       name: "",
       instance: "",
-      mark: "",
+      mark: "0",
       gas: [],
     },
   });
@@ -130,7 +130,7 @@ export const CreateCo = () => {
             )}
           />
 
-          <FormField
+          {/* <FormField
             control={form.control}
             name="mark"
             render={({ field }) => (
@@ -142,7 +142,7 @@ export const CreateCo = () => {
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
 
           <FormField
             control={form.control}

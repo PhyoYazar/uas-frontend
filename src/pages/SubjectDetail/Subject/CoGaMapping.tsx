@@ -33,9 +33,9 @@ export const CoGaMapping = () => {
           ))}
         </div>
 
-        <FlexBox className="justify-center col-span-1 min-w-28 bg-yellow-400 border border-gray-400">
+        {/* <FlexBox className="justify-center col-span-1 min-w-28 bg-yellow-400 border border-gray-400">
           Full Mark
-        </FlexBox>
+        </FlexBox> */}
       </div>
 
       {cos.map((co) => (
@@ -45,7 +45,7 @@ export const CoGaMapping = () => {
           name={co?.name ?? ""}
           instance={co?.instance ?? ""}
           ga={co?.ga ?? []}
-          fullMark={co?.mark ?? ""}
+          // fullMark={co?.mark ?? ""}
         />
       ))}
     </section>
@@ -56,12 +56,12 @@ type CoRowProps = {
   id: string;
   instance: string;
   name: string;
-  fullMark: number;
+  // fullMark: number;
   ga: { slug: string; id: string; name: string }[];
 };
 
 const CoRow = (props: CoRowProps) => {
-  const { id, instance, name, fullMark, ga } = props;
+  const { id, instance, name, ga } = props;
 
   const queryClient = useQueryClient();
   const { subjectId } = useParams();
@@ -109,10 +109,10 @@ const CoRow = (props: CoRowProps) => {
         ))}
       </div>
 
-      <HeadItem
+      {/* <HeadItem
         name={fullMark + ""}
         className="col-span-1 justify-center min-w-28"
-      />
+      /> */}
     </div>
   );
 };
