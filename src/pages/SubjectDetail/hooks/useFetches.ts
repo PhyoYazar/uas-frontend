@@ -237,17 +237,18 @@ type StudentCoGradeRespone = APIResponse & {
 
 export const useStdCoGrades = (
   year: string | undefined,
-  academicYear: string | undefined
+  academicYear: string | undefined,
+  subjectId: string | undefined
 ) => {
   const { data, isPending, isError } = useQuery({
     queryKey: ["all-students-co-grades", year, academicYear],
     queryFn: ({ signal }) =>
       axios.get<StudentCoGradeRespone>(
-        `student_co_grades?year=${year}&academic_year=${academicYear}`,
+        `student_co_grades?year=${year}&academic_year=${academicYear}&subject_id=${subjectId}`,
         { signal }
       ),
     staleTime: 5000,
-    enabled: !!year && !!academicYear,
+    enabled: !!year && !!academicYear && !!subjectId,
     select: (data) => (data.status === 200 ? data?.data?.items : []),
   });
 
@@ -274,17 +275,18 @@ type StudentGaGradeRespone = APIResponse & {
 
 export const useStdGaGrades = (
   year: string | undefined,
-  academicYear: string | undefined
+  academicYear: string | undefined,
+  subjectId: string | undefined
 ) => {
   const { data, isPending, isError } = useQuery({
     queryKey: ["all-students-ga-grades", year, academicYear],
     queryFn: ({ signal }) =>
       axios.get<StudentGaGradeRespone>(
-        `student_ga_grades?year=${year}&academic_year=${academicYear}`,
+        `student_ga_grades?year=${year}&academic_year=${academicYear}&subject_id=${subjectId}`,
         { signal }
       ),
     staleTime: 5000,
-    enabled: !!year && !!academicYear,
+    enabled: !!year && !!academicYear && !!subjectId,
     select: (data) => (data.status === 200 ? data?.data?.items : []),
   });
 

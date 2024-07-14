@@ -15,7 +15,8 @@ export const CoGrade = () => {
 
   const { data, isPending } = useStdCoGrades(
     subject?.year,
-    subject?.academicYear
+    subject?.academicYear,
+    subjectId
   );
 
   if (isPending) return null;

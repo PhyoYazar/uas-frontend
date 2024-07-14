@@ -8,8 +8,8 @@ import { Text } from "@/components/common/text";
 import { cn } from "@/lib/utils";
 import { useParams } from "react-router-dom";
 import { Fragment } from "react/jsx-runtime";
-import { useGetSubjectDetail, useStdGaGrades } from "../hooks/useFetches";
 import { analyzeGrading } from "../helpers/helpers";
+import { useGetSubjectDetail, useStdGaGrades } from "../hooks/useFetches";
 
 export const GaGrade = () => {
   const { subjectId } = useParams();
@@ -20,7 +20,8 @@ export const GaGrade = () => {
   );
   const { data, isPending } = useStdGaGrades(
     subject?.year,
-    subject?.academicYear
+    subject?.academicYear,
+    subjectId
   );
 
   if (isPending) return null;
