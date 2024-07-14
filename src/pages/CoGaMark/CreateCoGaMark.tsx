@@ -6,7 +6,7 @@ import { Text } from "@/components/common/text";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { CoGaMapping } from "../SubjectDetail/Subject/CoGaMapping";
 import { CourseWorkPlanning } from "../SubjectDetail/Subject/CourseWorkPlanning";
 import { ExamPlanning } from "../SubjectDetail/Subject/ExamPlanning";
@@ -19,6 +19,9 @@ import { CreateMark } from "./CreateMark";
 
 export const CreateCoGaMark = () => {
   const { subjectId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const assessmentQueryValue = searchParams.get("subject_assessmentType");
 
   const { attributes: isEmptyCW } = useGetCWAttributeWithCoGaMarks({
     subjectId,
@@ -53,18 +56,29 @@ export const CreateCoGaMark = () => {
 
   return (
     <section className="space-y-16 h-full">
-      <Tabs defaultValue="co">
+      <Tabs
+        defaultValue={assessmentQueryValue ?? "co_ga_mapping"}
+        onValueChange={(val) =>
+          setSearchParams({ subject_assessmentType: val })
+        }
+      >
         <FlexBox className="mb-4 gap-2">
-          <BackBtn />
+          <BackBtn
+            route={`/subject/${subjectId}?subject_assessmentType=${
+              assessmentQueryValue ?? "co_ga_mapping"
+            }`}
+          />
 
           <TabsList className="">
-            <TabsTrigger value="co">Course Outlines</TabsTrigger>
-            <TabsTrigger value="exam_marks">Exam</TabsTrigger>
-            <TabsTrigger value="cw_marks">Course Work</TabsTrigger>
+            <TabsTrigger value="co_ga_mapping">Course Outlines</TabsTrigger>
+            <TabsTrigger value="assessment_exam_planning">Exam</TabsTrigger>
+            <TabsTrigger value="assessment_course_work_planning">
+              Course Work
+            </TabsTrigger>
           </TabsList>
         </FlexBox>
 
-        <TabsContent value="co">
+        <TabsContent value="co_ga_mapping">
           <Card className="space-y-4 bg-gray-50">
             {totalCos === 0 ? (
               <Text>
@@ -82,7 +96,7 @@ export const CreateCoGaMark = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="exam_marks">
+        <TabsContent value="assessment_exam_planning">
           <Card className="space-y-4 bg-gray-50">
             {isEmptyExamQ ? (
               <Text>
@@ -102,7 +116,7 @@ export const CreateCoGaMark = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="cw_marks">
+        <TabsContent value="assessment_course_work_planning">
           <Card className="space-y-4 bg-gray-50">
             {isEmptyCW ? (
               <Text>

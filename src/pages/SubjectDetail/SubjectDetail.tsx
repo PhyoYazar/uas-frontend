@@ -4,9 +4,9 @@ import { Text } from "@/components/common/text";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { Link, useParams } from "react-router-dom";
-import { GaResults } from "./Ga/GaResults";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { CoResults } from "./Co/CoResults";
+import { GaResults } from "./Ga/GaResults";
 import { StudentCollection } from "./Student/StudentCollection";
 import { AssessmentContribution } from "./Subject/AssessmentContribution";
 import { CoGaMapping } from "./Subject/CoGaMapping";
@@ -16,6 +16,9 @@ import { useGetSubjectById } from "./hooks/useFetches";
 
 export const SubjectDetail = () => {
   const { subjectId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const assessmentQueryValue = searchParams.get("subject_assessmentType");
 
   const { subject } = useGetSubjectById(subjectId);
 
@@ -23,7 +26,7 @@ export const SubjectDetail = () => {
     <section className="w-full p-4">
       <Tabs defaultValue="subject">
         <FlexBox className="mb-4 gap-4">
-          <BackBtn />
+          <BackBtn route="/subject" />
 
           <TabsList>
             <TabsTrigger value="subject">Subject</TabsTrigger>
@@ -71,7 +74,12 @@ export const SubjectDetail = () => {
               />
             </div>
 
-            <Tabs defaultValue="co_ga_mapping">
+            <Tabs
+              defaultValue={assessmentQueryValue ?? "co_ga_mapping"}
+              onValueChange={(val) =>
+                setSearchParams({ subject_assessmentType: val })
+              }
+            >
               <FlexBox className="justify-between">
                 <TabsList>
                   <TabsTrigger value="co_ga_mapping">CO-GA Mapping</TabsTrigger>
@@ -86,7 +94,15 @@ export const SubjectDetail = () => {
                   </TabsTrigger>
                 </TabsList>
 
-                <Link to={`/subject/create/${subjectId}`}>
+                <Link
+                  to={`/subject/create/${subjectId}${
+                    assessmentQueryValue === "assessment_contribution"
+                      ? ""
+                      : `?subject_assessmentType=${
+                          assessmentQueryValue ?? "co_ga_mapping"
+                        }`
+                  }`}
+                >
                   <Button>Create</Button>
                 </Link>
               </FlexBox>
