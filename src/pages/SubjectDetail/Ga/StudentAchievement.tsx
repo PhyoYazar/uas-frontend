@@ -8,6 +8,7 @@ import { Text } from "@/components/common/text";
 import { cn } from "@/lib/utils";
 import { useParams } from "react-router-dom";
 import { Fragment } from "react/jsx-runtime";
+import { useCalculateMarkDistribution } from "../hooks/useCalculateMarkDistributin";
 import { useGetSubjectDetail, useStdGaGrades } from "../hooks/useFetches";
 
 export const StudentAchievement = () => {
@@ -18,11 +19,7 @@ export const StudentAchievement = () => {
     (a, b) => +a.slug.slice(2) - +b.slug.slice(2)
   );
 
-  // const examPercent = subject?.exam ?? 0;
-  // const tutorialPercent = subject?.tutorial ?? 0;
-  // const labPercent = subject?.lab ?? 0;
-  // const assignmentPercent = subject?.assignment ?? 0;
-  // const practicalPercent = subject?.practical ?? 0;
+  const { gaResults } = useCalculateMarkDistribution(subjectId);
 
   const { data } = useStdGaGrades(subject?.year, subject?.academicYear);
 
@@ -37,79 +34,49 @@ export const StudentAchievement = () => {
           Student ID
         </FlexBox>
 
-        {gaLists.map((ga, index, arr) => (
-          <Fragment key={"std-achi-keys" + ga.id}>
-            <FlexBox className="flex-nowrap w-72 border border-gray-400 border-l-0">
-              <FlexBox className="flex-col w-48 border-r border-r-gray-400">
-                <Text className="w-full py-1 text-center border-b border-b-gray-400">
-                  {ga.slug}
-                </Text>
+        {gaLists.map((ga, index, arr) => {
+          const gaMarkDistribution = gaResults.find(
+            (g) => g.id === ga.id
+          )?.result;
 
-                <FlexBox className="flex-nowrap border-b border-b-gray-400">
-                  <Text className="flex-1 py-1 text-center border-r border-r-gray-400">
-                    Mark Distribution
+          return (
+            <Fragment key={"std-achi-keys" + ga.id}>
+              <FlexBox className="flex-nowrap w-72 border border-gray-400 border-l-0">
+                <FlexBox className="flex-col w-48 border-r border-r-gray-400">
+                  <Text className="w-full py-1 text-center border-b border-b-gray-400">
+                    {ga.slug}
                   </Text>
-                  <Text className="flex-1 py-1 text-center">
-                    Student Achievement
-                  </Text>
+
+                  <FlexBox className="flex-nowrap border-b border-b-gray-400">
+                    <Text className="flex-1 py-1 text-center border-r border-r-gray-400">
+                      Mark Distribution
+                    </Text>
+                    <Text className="flex-1 py-1 text-center">
+                      Student Achievement
+                    </Text>
+                  </FlexBox>
+
+                  <FlexBox className="flex-nowrap w-full ">
+                    <Text className="flex-1 py-1 text-center border-r border-r-gray-400">
+                      {gaMarkDistribution}
+                    </Text>
+                    <Text className="flex-1 py-1 text-center">100</Text>
+                  </FlexBox>
                 </FlexBox>
 
-                <FlexBox className="flex-nowrap w-full ">
-                  <Text className="flex-1 py-1 text-center border-r border-r-gray-400">
-                    19.4
-                  </Text>
-                  <Text className="flex-1 py-1 text-center">100</Text>
-                </FlexBox>
+                <Text className="text-center w-24">{ga.slug} Grade</Text>
               </FlexBox>
 
-              <Text className="text-center w-24">{ga.slug} Grade</Text>
-            </FlexBox>
-
-            {arr.length - 1 !== index ? (
-              <div className="w-12 bg-gray-200 flex-shrink-0 border border-gray-400 border-l-0 border-b-0" />
-            ) : null}
-          </Fragment>
-        ))}
+              {arr.length - 1 !== index ? (
+                <div className="w-12 bg-gray-200 flex-shrink-0 border border-gray-400 border-l-0 border-b-0" />
+              ) : null}
+            </Fragment>
+          );
+        })}
       </div>
 
       {data?.map((std, stdIndex, stdArr) => {
-        // const tutorialResults = calculateAttributeFinalResult(
-        //   "Tutorial",
-        //   tutorialPercent,
-        //   std
-        // );
-
-        // const practicalResults = calculateAttributeFinalResult(
-        //   "Practical",
-        //   practicalPercent,
-        //   std
-        // );
-
-        // const labResults = calculateAttributeFinalResult(
-        //   "Lab",
-        //   labPercent,
-        //   std
-        // );
-
-        // const assignmentResults = calculateAttributeFinalResult(
-        //   "Assignment",
-        //   assignmentPercent,
-        //   std
-        // );
-
-        // const questionResults = calculateAttributeFinalResult(
-        //   "Question",
-        //   examPercent,
-        //   std
-        // );
-
-        // const totalResult = get2Decimal(
-        //   tutorialResults +
-        //     practicalResults +
-        //     labResults +
-        //     assignmentResults +
-        //     questionResults
-        // );
+        //...
 
         return (
           <div className="flex flex-nowrap " key={std.id + "std-keys"}>
@@ -129,10 +96,20 @@ export const StudentAchievement = () => {
               // addition mark base on co instance / addition full mark base on co instance * 100
               const calculatedValue = get2Decimal(gaValue.totalMarks);
 
+              const gaMarkDistribution = gaResults.find(
+                (g) => g.id === ga.id
+              )?.result;
+
+              const markDistributionResult = get2Decimal(
+                (calculatedValue / 100) * (gaMarkDistribution ?? 1)
+              );
+
               return (
                 <Fragment key={"std-achi-keys" + ga.id}>
                   <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-l-0 border-t-0">
-                    <Text className="text-center flex-1">{ga.slug} Grade</Text>
+                    <Text className="text-center flex-1">
+                      {markDistributionResult}
+                    </Text>
                   </FlexBox>
 
                   <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-t-0 border-l-0">
