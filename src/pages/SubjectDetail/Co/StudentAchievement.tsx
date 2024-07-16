@@ -15,7 +15,11 @@ export const StudentAchievement = () => {
 
   const coLists = [...cos].sort((a, b) => +a.instance - +b.instance);
 
-  const { data } = useStdCoGrades(subject?.year, subject?.academicYear);
+  const { data } = useStdCoGrades(
+    subject?.year,
+    subject?.academicYear,
+    subjectId
+  );
 
   return (
     <div className="overflow-auto pb-2">

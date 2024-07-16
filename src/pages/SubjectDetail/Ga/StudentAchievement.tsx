@@ -21,7 +21,11 @@ export const StudentAchievement = () => {
 
   const { gaResults } = useCalculateMarkDistribution(subjectId);
 
-  const { data } = useStdGaGrades(subject?.year, subject?.academicYear);
+  const { data } = useStdGaGrades(
+    subject?.year,
+    subject?.academicYear,
+    subjectId
+  );
 
   return (
     <div className="overflow-auto pb-2">
