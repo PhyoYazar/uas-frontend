@@ -38,16 +38,18 @@ export const CoGaMapping = () => {
         </FlexBox> */}
       </div>
 
-      {cos.map((co) => (
-        <CoRow
-          key={co?.id + "what ev"}
-          id={co?.id ?? ""}
-          name={co?.name ?? ""}
-          instance={co?.instance ?? ""}
-          ga={co?.ga ?? []}
-          // fullMark={co?.mark ?? ""}
-        />
-      ))}
+      {cos
+        .sort((a, b) => +a.instance - +b.instance)
+        .map((co) => (
+          <CoRow
+            key={co?.id + "what ev"}
+            id={co?.id ?? ""}
+            name={co?.name ?? ""}
+            instance={co?.instance ?? ""}
+            ga={co?.ga ?? []}
+            // fullMark={co?.mark ?? ""}
+          />
+        ))}
     </section>
   );
 };

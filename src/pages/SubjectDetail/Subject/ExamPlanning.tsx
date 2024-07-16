@@ -69,19 +69,21 @@ export const ExamPlanning = () => {
         </div>
       </div>
 
-      {attributes?.map((attribute, index, arr) => (
-        <CustomRow
-          className={arr.length - 1 === index ? "border-b-1" : ""}
-          allowDelete
-          key={attribute?.id}
-          attributeId={attribute?.id}
-          name={attribute?.name + " " + attribute?.instance}
-          cos={attribute?.co?.map((c) => c.instance).join(", ")}
-          marks={attribute?.marks}
-          fullMark={attribute?.fullMark}
-          percentMark={get2Decimal((attribute?.fullMark / 100) * examPercent)}
-        />
-      ))}
+      {attributes
+        ?.sort((a, b) => +a.instance - +b.instance)
+        ?.map((attribute, index, arr) => (
+          <CustomRow
+            className={arr.length - 1 === index ? "border-b-1" : ""}
+            allowDelete
+            key={attribute?.id}
+            attributeId={attribute?.id}
+            name={attribute?.name + " " + attribute?.instance}
+            cos={attribute?.co?.map((c) => c.instance).join(", ")}
+            marks={attribute?.marks}
+            fullMark={attribute?.fullMark}
+            percentMark={get2Decimal((attribute?.fullMark / 100) * examPercent)}
+          />
+        ))}
 
       {(attributes?.length ?? 0) > 0 ? (
         <>

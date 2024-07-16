@@ -31,6 +31,13 @@ export const CourseWorkPlanning = () => {
   const assignmentAttributes =
     attributes?.filter(({ name }) => name === "Assignment") ?? [];
 
+  const cwSortedAttributes = [
+    ...tutorialAttributes.sort((a, b) => a.instance - b.instance),
+    ...assignmentAttributes.sort((a, b) => a.instance - b.instance),
+    ...labAttributes.sort((a, b) => a.instance - b.instance),
+    ...practicalAttributes.sort((a, b) => a.instance - b.instance),
+  ];
+
   const { attributes: examAttributes } = useGetExamAttributeWithCoGaMarks({
     subjectId,
   });
@@ -171,7 +178,7 @@ export const CourseWorkPlanning = () => {
         </FlexBox>
       </div>
 
-      {attributes?.map((attribute) => {
+      {cwSortedAttributes?.map((attribute) => {
         let percent = assignmentPercent;
         if (attribute.name === "Tutorial") percent = tutorialPercent;
         if (attribute.name === "Practical") percent = practicalPercent;
@@ -195,19 +202,19 @@ export const CourseWorkPlanning = () => {
         <>
           <div className="col-span-full bg-gray-50 h-6 border-t border-t-gray-400" />
 
-          {calculatedPracticalGaMarks.some((item) => item?.mark > 0) ? (
-            <CustomRow
-              name="Total Practical"
-              marks={calculatedPracticalGaMarks}
-              percentMark={practicalPercent}
-            />
-          ) : null}
-
           {calculatedTutorialGaMarks.some((item) => item?.mark > 0) ? (
             <CustomRow
               name="Total Tutorial"
               marks={calculatedTutorialGaMarks}
               percentMark={tutorialPercent}
+            />
+          ) : null}
+
+          {calculatedAssignmentGaMarks.some((item) => item?.mark > 0) ? (
+            <CustomRow
+              name="Total Assignment"
+              marks={calculatedAssignmentGaMarks}
+              percentMark={assignmentPercent}
             />
           ) : null}
 
@@ -219,11 +226,11 @@ export const CourseWorkPlanning = () => {
             />
           ) : null}
 
-          {calculatedAssignmentGaMarks.some((item) => item?.mark > 0) ? (
+          {calculatedPracticalGaMarks.some((item) => item?.mark > 0) ? (
             <CustomRow
-              name="Total Assignment"
-              marks={calculatedAssignmentGaMarks}
-              percentMark={assignmentPercent}
+              name="Total Practical"
+              marks={calculatedPracticalGaMarks}
+              percentMark={practicalPercent}
             />
           ) : null}
 
