@@ -26,6 +26,24 @@ export const AssessmentContribution = () => {
 
   const { data } = useAttributesWithCoGaFullMarks(subjectId);
 
+  const questionAttributes =
+    data?.filter(({ name }) => name === "Question") ?? [];
+  const tutorialAttributes =
+    data?.filter(({ name }) => name === "Tutorial") ?? [];
+  const labAttributes = data?.filter(({ name }) => name === "Lab") ?? [];
+  const practicalAttributes =
+    data?.filter(({ name }) => name === "Practical") ?? [];
+  const assignmentAttributes =
+    data?.filter(({ name }) => name === "Assignment") ?? [];
+
+  const sortedAttributes = [
+    ...questionAttributes.sort((a, b) => a.instance - b.instance),
+    ...tutorialAttributes.sort((a, b) => a.instance - b.instance),
+    ...assignmentAttributes.sort((a, b) => a.instance - b.instance),
+    ...labAttributes.sort((a, b) => a.instance - b.instance),
+    ...practicalAttributes.sort((a, b) => a.instance - b.instance),
+  ];
+
   const { coResults, gaResults, getPercent } =
     useCalculateMarkDistribution(subjectId);
 
@@ -59,7 +77,7 @@ export const AssessmentContribution = () => {
         <HeadText className="border-t-1 w-32 border-r-1">Total</HeadText>
       </div>
 
-      {data?.map((attribute) => {
+      {sortedAttributes?.map((attribute) => {
         const percent =
           attribute.full_mark *
           (getPercent(attribute?.name as AttributeType) / 100);
