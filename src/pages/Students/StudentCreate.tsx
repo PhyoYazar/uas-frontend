@@ -88,7 +88,12 @@ export const StudentCreate = () => {
     onError(error) {
       console.log("hello error", error);
 
-      toast.error("Fail to create the subject.");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((error as any)?.response?.status === 409) {
+        toast.error(error.message + " Student is not unique,");
+      } else {
+        toast.error("Fail to create the student.");
+      }
     },
   });
 
