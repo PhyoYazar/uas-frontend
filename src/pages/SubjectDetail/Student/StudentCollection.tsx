@@ -255,92 +255,94 @@ const StudentAssessment = (props: StudentAssessmentProps) => {
       </div>
 
       {/* ================================= ROWS ================================= */}
-      {students?.items?.map((std, index, arr) => {
-        const totalMarks = std?.attributes?.reduce((acc, cur) => {
-          if (cur.name === type) {
-            acc += cur.mark;
-          }
-
-          return acc;
-        }, 0);
-
-        const tutorialResults = calculateAttributeFinalResult(
-          "Tutorial",
-          tutorialPercent,
-          std
-        );
-
-        const practicalResults = calculateAttributeFinalResult(
-          "Practical",
-          practicalPercent,
-          std
-        );
-
-        const labResults = calculateAttributeFinalResult(
-          "Lab",
-          labPercent,
-          std
-        );
-
-        const assignmentResults = calculateAttributeFinalResult(
-          "Assignment",
-          assignmentPercent,
-          std
-        );
-
-        const questionResults = calculateAttributeFinalResult(
-          "Question",
-          examPercent,
-          std
-        );
-
-        const totalResult = get2Decimal(
-          tutorialResults +
-            practicalResults +
-            labResults +
-            assignmentResults +
-            questionResults
-        );
-
-        return (
-          <StudentRow
-            className={index === arr.length - 1 ? "border-b-1" : ""}
-            key={std?.id}
-            total={type === "Total" ? totalResult : totalMarks}
-            totalPercents={
-              type === "Total"
-                ? transformGrade(totalResult)
-                : get2Decimal((totalMarks / 100) * percent)
+      {students?.items
+        ?.sort((a, b) => a.rollNumber - b.rollNumber)
+        ?.map((std, index, arr) => {
+          const totalMarks = std?.attributes?.reduce((acc, cur) => {
+            if (cur.name === type) {
+              acc += cur.mark;
             }
-            studentId={std?.id}
-            rollNumber={std?.rollNumber}
-            studentName={std?.studentName}
-            cols={totalAttributes}
-            markArray={
-              updatedAttributes?.map(({ id, fullMark }) => {
-                const findAttribute = std?.attributes?.find(
-                  (att) => att.attributeId === id
-                );
 
-                if (findAttribute) {
+            return acc;
+          }, 0);
+
+          const tutorialResults = calculateAttributeFinalResult(
+            "Tutorial",
+            tutorialPercent,
+            std
+          );
+
+          const practicalResults = calculateAttributeFinalResult(
+            "Practical",
+            practicalPercent,
+            std
+          );
+
+          const labResults = calculateAttributeFinalResult(
+            "Lab",
+            labPercent,
+            std
+          );
+
+          const assignmentResults = calculateAttributeFinalResult(
+            "Assignment",
+            assignmentPercent,
+            std
+          );
+
+          const questionResults = calculateAttributeFinalResult(
+            "Question",
+            examPercent,
+            std
+          );
+
+          const totalResult = get2Decimal(
+            tutorialResults +
+              practicalResults +
+              labResults +
+              assignmentResults +
+              questionResults
+          );
+
+          return (
+            <StudentRow
+              className={index === arr.length - 1 ? "border-b-1" : ""}
+              key={std?.id}
+              total={type === "Total" ? totalResult : totalMarks}
+              totalPercents={
+                type === "Total"
+                  ? transformGrade(totalResult)
+                  : get2Decimal((totalMarks / 100) * percent)
+              }
+              studentId={std?.id}
+              rollNumber={std?.rollNumber}
+              studentName={std?.studentName}
+              cols={totalAttributes}
+              markArray={
+                updatedAttributes?.map(({ id, fullMark }) => {
+                  const findAttribute = std?.attributes?.find(
+                    (att) => att.attributeId === id
+                  );
+
+                  if (findAttribute) {
+                    return {
+                      attributeId: findAttribute.attributeId,
+                      mark: findAttribute.mark,
+                      fullMark: fullMark,
+                      studentMarkId: findAttribute.studentMarkId,
+                    };
+                  }
+
                   return {
-                    attributeId: findAttribute.attributeId,
-                    mark: findAttribute.mark,
+                    attributeId: id,
+                    mark: 0,
                     fullMark: fullMark,
-                    studentMarkId: findAttribute.studentMarkId,
                   };
-                }
-
-                return {
-                  attributeId: id,
-                  mark: 0,
-                  fullMark: fullMark,
-                };
-              }) ?? []
-            }
-          />
-        );
-      })}
+                }) ?? []
+              }
+            />
+          );
+        })}
     </div>
   );
 };

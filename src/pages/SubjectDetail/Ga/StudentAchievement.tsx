@@ -79,69 +79,71 @@ export const StudentAchievement = () => {
         })}
       </div>
 
-      {data?.map((std, stdIndex, stdArr) => {
-        //...
+      {data
+        ?.sort((a, b) => a.rollNumber - b.rollNumber)
+        ?.map((std, stdIndex, stdArr) => {
+          //...
 
-        return (
-          <div className="flex flex-nowrap " key={std.id + "std-keys"}>
-            <FlexBox className="w-16 py-1 flex-shrink-0 justify-center border border-gray-400 border-r-0 border-t-0">
-              {std.rollNumber}
-            </FlexBox>
+          return (
+            <div className="flex flex-nowrap " key={std.id + "std-keys"}>
+              <FlexBox className="w-16 py-1 flex-shrink-0 justify-center border border-gray-400 border-r-0 border-t-0">
+                {std.rollNumber}
+              </FlexBox>
 
-            <FlexBox className="w-52 flex-shrink-0 justify-center border border-gray-400 border-t-0">
-              {std.studentName}
-            </FlexBox>
+              <FlexBox className="w-52 flex-shrink-0 justify-center border border-gray-400 border-t-0">
+                {std.studentName}
+              </FlexBox>
 
-            {gaLists.map((ga, index, arr) => {
-              const gaValue = std?.ga?.find((g) => g.gaId === ga.id);
+              {gaLists.map((ga, index, arr) => {
+                const gaValue = std?.ga?.find((g) => g.gaId === ga.id);
 
-              if (gaValue === undefined) return null;
+                if (gaValue === undefined) return null;
 
-              // addition mark base on co instance / addition full mark base on co instance * 100
-              const calculatedValue = get2Decimal(gaValue.totalMarks);
+                // addition mark base on co instance / addition full mark base on co instance * 100
+                const calculatedValue = get2Decimal(gaValue.totalMarks);
 
-              const gaMarkDistribution = gaResults.find(
-                (g) => g.id === ga.id
-              )?.result;
+                const gaMarkDistribution = gaResults.find(
+                  (g) => g.id === ga.id
+                )?.result;
 
-              const markDistributionResult = get2Decimal(
-                (calculatedValue / 100) * (gaMarkDistribution ?? 1)
-              );
+                const markDistributionResult = get2Decimal(
+                  (calculatedValue / 100) * (gaMarkDistribution ?? 1)
+                );
 
-              return (
-                <Fragment key={"std-achi-keys" + ga.id}>
-                  <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-l-0 border-t-0">
-                    <Text className="text-center flex-1">
-                      {markDistributionResult}
-                    </Text>
-                  </FlexBox>
+                return (
+                  <Fragment key={"std-achi-keys" + ga.id}>
+                    <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-l-0 border-t-0">
+                      <Text className="text-center flex-1">
+                        {markDistributionResult}
+                      </Text>
+                    </FlexBox>
 
-                  <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-t-0 border-l-0">
-                    <Text className="text-center flex-1">
-                      {calculatedValue}
-                    </Text>
-                  </FlexBox>
+                    <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-t-0 border-l-0">
+                      <Text className="text-center flex-1">
+                        {calculatedValue}
+                      </Text>
+                    </FlexBox>
 
-                  <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-t-0 border-l-0">
-                    <Text className="text-center flex-1">
-                      {transformGrade(calculatedValue)}
-                    </Text>
-                  </FlexBox>
+                    <FlexBox className="flex-nowrap flex-shrink-0 w-24 border border-gray-400 border-t-0 border-l-0">
+                      <Text className="text-center flex-1">
+                        {transformGrade(calculatedValue)}
+                      </Text>
+                    </FlexBox>
 
-                  {arr.length - 1 !== index ? (
-                    <div
-                      className={cn(
-                        "w-12 bg-gray-200 flex-shrink-0 border border-gray-400 border-l-0 border-t-0  border-b-0",
-                        stdIndex === stdArr.length - 1 ? "border-b-1" : ""
-                      )}
-                    />
-                  ) : null}
-                </Fragment>
-              );
-            })}
-          </div>
-        );
-      })}
+                    {arr.length - 1 !== index ? (
+                      <div
+                        className={cn(
+                          "w-12 bg-gray-200 flex-shrink-0 border border-gray-400 border-l-0 border-t-0  border-b-0",
+                          stdIndex === stdArr.length - 1 ? "border-b-1" : ""
+                        )}
+                      />
+                    ) : null}
+                  </Fragment>
+                );
+              })}
+            </div>
+          );
+        })}
     </div>
   );
 };
